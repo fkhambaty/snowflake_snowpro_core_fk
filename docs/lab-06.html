@@ -251,12 +251,15 @@ GRANT ROLE AR_LAB_READ TO ROLE FR_DATA_ENGINEER;
 GRANT USAGE ON WAREHOUSE WH_CORE_XS TO ROLE FR_ANALYST;
 GRANT USAGE ON WAREHOUSE WH_CORE_XS TO ROLE FR_DATA_ENGINEER;</code></pre>
       </div>
-      <p class="teach"><strong>Attach to your user</strong> (edit username once):</p>
+      <p class="teach"><strong>Attach to your user</strong> — same pattern as Lab 00 (no username typing):</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · grant FR to you</span><button type="button" class="copy-btn">Copy</button></div>
-<pre><code>-- GRANT ROLE FR_ANALYST TO USER IDENTIFIER('"YOUR_USERNAME"');</code></pre>
+<pre><code>SET uname = (SELECT CURRENT_USER());
+GRANT ROLE FR_ANALYST TO USER IDENTIFIER($uname);
+GRANT ROLE FR_DATA_ENGINEER TO USER IDENTIFIER($uname);</code></pre>
       </div>
-      <div class="badge-ok">✓ Chain complete once FR is on your user</div>
+      <div class="callout tip">Open a <strong>new</strong> worksheet before the FR_ANALYST proof if Snowsight still hides the role.</div>
+      <div class="badge-ok">✓ Chain complete — FR roles on your user</div>
     </article>
 
     <article class="step">

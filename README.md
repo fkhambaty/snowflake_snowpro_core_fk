@@ -60,9 +60,11 @@ See [`docs/TEACHING_STANDARD.md`](docs/TEACHING_STANDARD.md).
 
 ## Privileges / cleanup
 
-- Bootstrap: [`sql/00_bootstrap.sql`](sql/00_bootstrap.sql)
+- Bootstrap: [`sql/00_bootstrap.sql`](sql/00_bootstrap.sql) (grants `ROLE_CORE_LAB_ADMIN` to **your** user via `CURRENT_USER()`)
+- Stuck on “role is not assigned”? → [`sql/00_privilege_repair.sql`](sql/00_privilege_repair.sql) as `ACCOUNTADMIN`
 - Sample data: [`sql/00_sample_data.sql`](sql/00_sample_data.sql)
 - Cleanup: [`sql/cleanup_lab.sql`](sql/cleanup_lab.sql)
+- Gotchas: [`docs/SNOWSIGHT_GOTCHAS.md`](docs/SNOWSIGHT_GOTCHAS.md)
 - Author check: `powershell -File scripts/check_lab_invariants.ps1`
 
 ## Honest pass promise

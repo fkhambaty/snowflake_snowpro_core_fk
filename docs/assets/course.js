@@ -207,7 +207,7 @@
     }
 
     if (atStmt(s, "CREATE\\s+(?:OR\\s+REPLACE\\s+)?(?:DATABASE|SCHEMA|ROLE|WAREHOUSE)\\b")) {
-      return "Create the Meridian lab object(s) this step needs (database, schema, role, or warehouse).";
+      return "Create the Alpine lab object(s) this step needs (database, schema, role, or warehouse).";
     }
 
     if (atStmt(s, "DELETE\\b") && atStmt(s, "INSERT\\b")) {
@@ -380,7 +380,7 @@
       },
       {
         title: "6 · SUSPEND the task",
-        body: "Lab done — sleep the worker so <code>WH_BANK_XS</code> doesn’t keep waking. Credits stay sane until you need CDC again."
+        body: "Lab done — sleep the worker so <code>WH_CORE_XS</code> doesn’t keep waking. Credits stay sane until you need CDC again."
       }
     ];
 

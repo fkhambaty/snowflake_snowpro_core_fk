@@ -1,5 +1,21 @@
 # Snowsight gotchas (read once — saves hours)
 
+## 0. “Requested role … is not assigned to the executing user”
+
+`CREATE ROLE` does **not** give that role to you. You must grant it:
+
+```sql
+USE ROLE ACCOUNTADMIN;
+SET uname = (SELECT CURRENT_USER());
+GRANT ROLE ROLE_CORE_LAB_ADMIN TO USER IDENTIFIER($uname);
+```
+
+Then open a **new** worksheet (or refresh the role dropdown) before `USE ROLE ROLE_CORE_LAB_ADMIN`.
+
+One-shot fix for the whole course bootstrap: `sql/00_privilege_repair.sql`.
+
+Same pattern for Lab 06 proofs: grant `FR_ANALYST` / `FR_DATA_ENGINEER` to `IDENTIFIER($uname)` before `USE ROLE FR_ANALYST`.
+
 ## 1. Secondary roles stay on
 
 Snowsight keeps **secondary roles** (often `ROLE_CORE_LAB_ADMIN` or `ACCOUNTADMIN`) active. The UI can show `FR_ANALYST` while privileged objects still open.

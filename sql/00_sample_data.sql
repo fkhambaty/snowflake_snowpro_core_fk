@@ -1,4 +1,5 @@
 -- Sample rows for Alpine Retail labs (run as ROLE_CORE_LAB_ADMIN)
+-- If USE ROLE fails: run sql/00_privilege_repair.sql as ACCOUNTADMIN first.
 USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
 USE DATABASE ALPINE_RETAIL;

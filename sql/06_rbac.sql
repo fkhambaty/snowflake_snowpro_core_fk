@@ -36,9 +36,10 @@ GRANT ROLE AR_LAB_READ TO ROLE FR_DATA_ENGINEER;
 GRANT USAGE ON WAREHOUSE WH_CORE_XS TO ROLE FR_ANALYST;
 GRANT USAGE ON WAREHOUSE WH_CORE_XS TO ROLE FR_DATA_ENGINEER;
 
--- Attach FR roles to your login (edit username)
--- GRANT ROLE FR_ANALYST TO USER IDENTIFIER('"YOUR_USERNAME"');
--- GRANT ROLE FR_DATA_ENGINEER TO USER IDENTIFIER('"YOUR_USERNAME"');
+-- Attach FR roles to YOUR login (no username typing)
+SET uname = (SELECT CURRENT_USER());
+GRANT ROLE FR_ANALYST TO USER IDENTIFIER($uname);
+GRANT ROLE FR_DATA_ENGINEER TO USER IDENTIFIER($uname);
 
 -- ---------------------------------------------------------------------------
 -- 4) Inspect grants (ownership + privilege trail)

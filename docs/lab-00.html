@@ -46,6 +46,12 @@
       <a href="story.html">Story</a> optional but Morgan makes more sense if you skim it.
     </p>
 
+    <div class="callout warn">
+      <strong>Already saw “ROLE_CORE_LAB_ADMIN is not assigned”?</strong>
+      You created the role but never attached it to your login. As <code>ACCOUNTADMIN</code>, run
+      <code>sql/00_privilege_repair.sql</code> (or the Step 1b block below), then open a <em>new</em> worksheet and continue.
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Alpine has no dedicated Snowflake home. Files and half-built tables live in random places.
@@ -184,10 +190,10 @@
     </section>
 
     <article class="step">
-      <h2><span class="step-num">1</span> Bootstrap as ACCOUNTADMIN</h2>
-      <p class="teach"><strong>What this does:</strong> Creates the cheap warehouse and Priya’s lab-admin role, then grants account powers she’ll need later (tasks, shares, policies).</p>
+      <h2><span class="step-num">1</span> Bootstrap as ACCOUNTADMIN (warehouse + role + powers)</h2>
+      <p class="teach"><strong>What this does:</strong> Creates the cheap warehouse, Priya’s lab-admin role, and the account grants later labs need (tasks, shares, policies).</p>
       <div class="code-block">
-        <div class="code-head"><span>SQL · bootstrap (ACCOUNTADMIN)</span><button type="button" class="copy-btn">Copy</button></div>
+        <div class="code-head"><span>SQL · bootstrap objects (ACCOUNTADMIN)</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ACCOUNTADMIN;
 
 CREATE WAREHOUSE IF NOT EXISTS WH_CORE_XS
@@ -196,15 +202,73 @@ CREATE WAREHOUSE IF NOT EXISTS WH_CORE_XS
   AUTO_RESUME = TRUE
   INITIALLY_SUSPENDED = TRUE;
 
+CREATE WAREHOUSE IF NOT EXISTS WH_CORE_M
+  WAREHOUSE_SIZE = 'MEDIUM'
+  AUTO_SUSPEND = 60
+  AUTO_RESUME = TRUE
+  INITIALLY_SUSPENDED = TRUE;
+
 CREATE ROLE IF NOT EXISTS ROLE_CORE_LAB_ADMIN;
 
 GRANT USAGE, OPERATE ON WAREHOUSE WH_CORE_XS
   TO ROLE ROLE_CORE_LAB_ADMIN WITH GRANT OPTION;
+GRANT USAGE, OPERATE ON WAREHOUSE WH_CORE_M
+  TO ROLE ROLE_CORE_LAB_ADMIN WITH GRANT OPTION;
 GRANT CREATE DATABASE ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;
-GRANT CREATE ROLE ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;</code></pre>
+GRANT CREATE ROLE ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;
+GRANT MANAGE GRANTS ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;
+GRANT EXECUTE TASK ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;
+GRANT CREATE SHARE ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;
+GRANT APPLY MASKING POLICY ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;
+GRANT APPLY ROW ACCESS POLICY ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;
+GRANT APPLY TAG ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;</code></pre>
       </div>
-      <p class="teach"><strong>Also run</strong> the rest of <code>sql/00_bootstrap.sql</code> (CREATE USER grant, MANAGE GRANTS, EXECUTE TASK, APPLY POLICY, CREATE SHARE). Then grant the role to <em>your</em> user.</p>
-      <div class="badge-ok">✓ You should see warehouse + role created with no errors</div>
+      <div class="badge-ok">✓ Warehouse + role created — role is <em>not</em> on your user yet (next step)</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 1b coach">
+      <p class="comic-kicker">Before Step 1b — do not skip</p>
+      <h2 class="comic-title">Creating a role ≠ wearing the role</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">I ran CREATE ROLE. Why does <code>USE ROLE ROLE_CORE_LAB_ADMIN</code> explode?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Because Snowflake never auto-pins new roles to your login. You must <code>GRANT ROLE … TO USER</code>. We use <code>CURRENT_USER()</code> so you don’t mistype the name.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1b</span> Attach the lab-admin role to <em>your</em> user</h2>
+      <p class="teach">
+        <strong>What this does:</strong> Pins <code>ROLE_CORE_LAB_ADMIN</code> to the login you’re using right now.
+        Skip this and every later lab’s <code>USE ROLE ROLE_CORE_LAB_ADMIN</code> fails.
+      </p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · grant role to you (ACCOUNTADMIN)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ACCOUNTADMIN;
+
+SET uname = (SELECT CURRENT_USER());
+GRANT ROLE ROLE_CORE_LAB_ADMIN TO USER IDENTIFIER($uname);
+
+-- Proof: you should see ROLE_CORE_LAB_ADMIN in the list
+SHOW GRANTS TO USER IDENTIFIER($uname);</code></pre>
+      </div>
+      <div class="callout tip">
+        <strong>Snowsight tip</strong>
+        After the grant, open a <strong>new</strong> worksheet (or refresh the role dropdown) before Step 2.
+        Still broken? Run <code>sql/00_privilege_repair.sql</code> as ACCOUNTADMIN.
+      </div>
+      <div class="badge-ok">✓ SHOW GRANTS lists ROLE_CORE_LAB_ADMIN for your user</div>
     </article>
 
     <section class="comic-strip comic-step" aria-label="Step 2 coach">
@@ -230,7 +294,7 @@ GRANT CREATE ROLE ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;</code></pre>
 
     <article class="step">
       <h2><span class="step-num">2</span> Open the building as lab admin</h2>
-      <p class="teach"><strong>What this does:</strong> Creates <code>ALPINE_RETAIL</code> and the four schemas you’ll reuse all course.</p>
+      <p class="teach"><strong>What this does:</strong> Creates <code>ALPINE_RETAIL</code> and the four schemas you’ll reuse all course. Only works after Step 1b.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · database + schemas</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
@@ -244,7 +308,7 @@ CREATE SCHEMA IF NOT EXISTS SECURE;
 CREATE SCHEMA IF NOT EXISTS PIPELINE;
 CREATE SCHEMA IF NOT EXISTS SHARE_DEMO;
 
-SELECT CURRENT_ROLE(), CURRENT_WAREHOUSE(), CURRENT_DATABASE();</code></pre>
+SELECT CURRENT_USER(), CURRENT_ROLE(), CURRENT_WAREHOUSE(), CURRENT_DATABASE();</code></pre>
       </div>
       <div class="badge-ok">✓ Role = ROLE_CORE_LAB_ADMIN · WH = WH_CORE_XS · DB = ALPINE_RETAIL</div>
     </article>
@@ -320,7 +384,7 @@ INSERT INTO CUSTOMERS VALUES
       <a class="btn primary" href="lab-01.html">Lab 01 — three layers →</a>
     </div>
   </div>
-  <footer class="footer">Source SQL: sql/00_bootstrap.sql · sql/00_sample_data.sql</footer>
+  <footer class="footer">Source SQL: sql/00_bootstrap.sql · sql/00_privilege_repair.sql · sql/00_sample_data.sql</footer>
   <script src="assets/course.js"></script>
 </body>
 </html>
