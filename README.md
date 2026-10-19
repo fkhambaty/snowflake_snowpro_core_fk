@@ -6,8 +6,11 @@ You are **Priya Chen**, junior data engineer at **Alpine Retail**. Each lab is a
 
 ## Open the course (HTML)
 
+**Repo:** [fkhambaty/snowflake_snowpro_core_fk](https://github.com/fkhambaty/snowflake_snowpro_core_fk)  
 Local: open [`docs/index.html`](docs/index.html)  
 **Start here:** [`docs/story.html`](docs/story.html) → Lab 00.
+
+To enable GitHub Pages: Settings → Pages → Deploy from branch `main` / folder `/docs`.
 
 ## Naming (Alpine story)
 
