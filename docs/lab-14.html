@@ -6,7 +6,7 @@
   <title>Lab 14 — Warehouses: scale up vs out</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       plus auto-suspend/resume and statement timeout. Always leave class on cheap <code>WH_CORE_XS</code>.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Monday morning: twenty Kai-dashboards queue behind one heavy ETL. Morgan says “make it bigger.”
@@ -58,28 +64,23 @@
       <code>AUTO_SUSPEND</code> / <code>AUTO_RESUME</code>, set a statement timeout, then <strong>shrink and suspend</strong> so you don’t burn credits.
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>One confused knob</strong>
-        <ul>
-          <li>“Bigger” for every pain</li>
-          <li>Idle WH left running</li>
-          <li>No timeout on runaway SQL</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Right lever for the pain</strong>
-        <ul>
-          <li>Up = complexity / memory</li>
-          <li>Out = concurrency queues</li>
-          <li>Suspend + timeout = FinOps</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="14-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Up vs out.</strong> <strong>Scale up</strong> = bigger size (harder queries). <strong>Scale out</strong> = more clusters (concurrency).</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-14-open" aria-label="Morgan vs Riley knobs">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab14-before.svg" alt="BEFORE: One size forever / queues." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> One size forever / queues.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab14-after.svg" alt="AFTER: Scale up vs scale out." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Scale up vs scale out.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-14-open" aria-label="Morgan vs Riley knobs">
       <p class="comic-kicker">Episode 14 · Start here</p>
       <h2 class="comic-title">Two different problems. Two different knobs.</h2>
       <div class="comic-row two">
@@ -247,6 +248,12 @@ SELECT CURRENT_WAREHOUSE();</code></pre>
       </div>
       <div class="badge-ok">✓ You can explain MCW without leaving clusters running</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="14-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>MCW.</strong> Multi-cluster warehouses are an Enterprise+ concurrency tool — not the default for single heavy SQL.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

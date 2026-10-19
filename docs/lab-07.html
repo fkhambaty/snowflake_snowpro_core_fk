@@ -6,7 +6,7 @@
   <title>Lab 07 — Auth &amp; network policies</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       and <em>which networks are allowed</em>. Trial accounts may not configure every option — see-cards still count for the exam.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Sam found a shared password in a Slack thread. Morgan wants MFA for humans,
@@ -59,28 +65,23 @@
       Trust Center as posture awareness — not a substitute for RBAC.
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>Password-only chaos</strong>
-        <ul>
-          <li>Humans share passwords</li>
-          <li>CI stores plaintext passwords</li>
-          <li>Any IP can attempt login</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Layered front door</strong>
-        <ul>
-          <li>Humans: SSO + MFA</li>
-          <li>Services: key-pair / OAuth</li>
-          <li>Network policy = IP fence</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="07-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Auth map.</strong> MFA ≠ SSO. Key-pair = services. Network policy = IP gate (not table privileges).</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-07-open" aria-label="Sam finds a password">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab07-before.svg" alt="BEFORE: Shared passwords / open IPs." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Shared passwords / open IPs.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab07-after.svg" alt="AFTER: MFA · SSO · key-pair · network policy." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> MFA · SSO · key-pair · network policy.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-07-open" aria-label="Sam finds a password">
       <p class="comic-kicker">Episode 07 · Start here</p>
       <h2 class="comic-title">Sam finds a password. Dev draws the front door.</h2>
       <div class="comic-row two">
@@ -279,6 +280,12 @@ SHOW NETWORK POLICIES LIKE 'NP_ALPINE%';</code></pre>
       </div>
       <div class="badge-ok">✓ Your user + account locator + region print</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="07-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Trust Center.</strong> C03: Trust Center = security posture visibility — know it exists.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

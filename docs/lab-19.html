@@ -6,7 +6,7 @@
   <title>Lab 19 — SnowPro Core mock exam</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -33,6 +33,7 @@
         <a href="lab-17.html">17</a>
         <a href="lab-18.html">18</a>
         <a class="active" href="lab-19.html">19</a>
+        <a href="lab-19b.html">19b</a>
       </nav>
     </div>
   </header>
@@ -46,6 +47,12 @@
       <a href="EXAM_DAY_PLAYBOOK.md">EXAM_DAY_PLAYBOOK.md</a>.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Morgan booked Pearson VUE next month. Priya feels “mostly ready” but has never sat a
@@ -58,28 +65,23 @@
       Need <strong>≥32 (80%)</strong> before you book. Weak-spot map sends you back to the right labs.
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>Hope-based booking</strong>
-        <ul>
-          <li>“I watched the videos”</li>
-          <li>No timed practice</li>
-          <li>Guess on edition traps</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Evidence-based booking</strong>
-        <ul>
-          <li>≥32/40 under time</li>
-          <li>Weak domains re-drilled</li>
-          <li>Playbook night before</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="19-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Booking gate.</strong> Don’t pay Pearson until ≥<strong>32/40</strong> here twice, then do Lab 19b (100Q) if available.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-19-open" aria-label="Mock exam start">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab19-before.svg" alt="BEFORE: Labs done ≠ exam ready." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Labs done ≠ exam ready.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab19-after.svg" alt="AFTER: Timed mock · weak-spot map · then book." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Timed mock · weak-spot map · then book.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-19-open" aria-label="Mock exam start">
       <p class="comic-kicker">Episode 19 · Capstone</p>
       <h2 class="comic-title">Morgan: “Book after proof, not vibes.”</h2>
       <div class="comic-row two">
@@ -693,6 +695,12 @@
       </div>
     </section>
 
+    
+    <aside class="exam-tip" data-exam-tip="19-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Timing.</strong> Real exam ~1 minute/question. Flag and move — don’t bleed 5 minutes on one stem.</div>
+    </aside>
+
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam day strategy">
       <h2>Exam-day strategy drills — say these out loud</h2>
       <details class="drill">
@@ -733,9 +741,21 @@
       <a href="EXAM_BLUEPRINT.md">Blueprint checklist</a>
     </div>
 
+    
+    <div class="callout tip">
+      <strong>Max your pass odds</strong>
+      After ≥32/40 here twice → <a href="lab-19b.html">Lab 19b full 100-question mock</a> ·
+      <a href="flashcards.html">Trap flashcards</a> ·
+      <a href="DISTRACTOR_BANK.md">Wrong-answer autopsy</a>.
+    </div>
+
     <div class="pager">
       <a class="btn ghost" href="lab-18.html">← Lab 18</a>
-      <a class="btn primary" href="index.html">Home →</a>
+      <a class="btn primary" href="lab-19b.html">Lab 19b (100Q) →</a>
+    </div>
+    <div class="pager" style="margin-top:0.5rem">
+      <a class="btn ghost" href="flashcards.html">Trap flashcards</a>
+      <a class="btn ghost" href="index.html">Home</a>
     </div>
   </div>
   <footer class="footer">Mock exam · COF-C03 domains · no SQL file required</footer>

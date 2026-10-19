@@ -6,7 +6,7 @@
   <title>Lab 02 — Object catalog</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       and learn which ones sit at account level vs inside a schema.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Riley says “put it on a stage,” Kai says “isn’t that a table?”, Morgan asks “is a share a database?”
@@ -58,28 +64,23 @@
       in <code>ALPINE_RETAIL.LAB</code> — then SHOW them so the catalog feels real.
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>Everything is “a table”</strong>
-        <ul>
-          <li>View ≈ materialized view blur</li>
-          <li>User stage vs named stage blur</li>
-          <li>No idea what’s account-level</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Labeled toolbox</strong>
-        <ul>
-          <li>Table / view / sequence / format / stage</li>
-          <li>Named stage = shared folder recipe</li>
-          <li>WH, roles, users → account level</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="02-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Object zoo.</strong> On the exam: stage = file folder, table = rows, view = saved SELECT, pipe ≠ stream ≠ task.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-02-open" aria-label="Riley names objects">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab02-before.svg" alt="BEFORE: Name soup — stage ≈ table?" width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Name soup — stage ≈ table?</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab02-after.svg" alt="AFTER: Named toolbox — stage = files, table = rows." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Named toolbox — stage = files, table = rows.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-02-open" aria-label="Riley names objects">
       <p class="comic-kicker">Episode 02 · Start here</p>
       <h2 class="comic-title">Riley names five objects. Kai hears “files.”</h2>
       <div class="comic-row two">
@@ -329,6 +330,12 @@ SHOW FILE FORMATS IN SCHEMA LAB;</code></pre>
       </div>
       <div class="badge-ok">✓ STG_INBOUND and FF_CSV_STD listed under LAB</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="02-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>MV vs view.</strong> Normal views don’t store results. Materialized views do (cost/refresh tradeoff).</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

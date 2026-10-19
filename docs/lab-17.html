@@ -6,7 +6,7 @@
   <title>Lab 17 — Clone &amp; replication</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       without needing a second production account today.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Morgan wants a Dev copy of Alpine “by lunch.” Kai suggests <code>COPY INTO</code> everything —
@@ -58,28 +64,23 @@
       a divergence UPDATE that starts new storage, and commented replication DDL for exam literacy.
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>Copy-everything mindset</strong>
-        <ul>
-          <li>Physical dump = wait + 2× bytes</li>
-          <li>“Clone = backup” confusion</li>
-          <li>DR = mystery</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Pointers, then divergence</strong>
-        <ul>
-          <li>Zero-copy until writes differ</li>
-          <li>Independent objects after clone</li>
-          <li>Replica = secondary account story</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="17-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Zero-copy.</strong> Clone shares micro-partitions until someone changes data (then storage grows).</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-17-open" aria-label="Morgan wants Dev by lunch">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab17-before.svg" alt="BEFORE: CSV export for QA." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> CSV export for QA.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab17-after.svg" alt="AFTER: Zero-copy clone · replicate for DR." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Zero-copy clone · replicate for DR.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-17-open" aria-label="Morgan wants Dev by lunch">
       <p class="comic-kicker">Episode 17 · Clone day</p>
       <h2 class="comic-title">Morgan wants Dev by lunch. Dev says “don’t copy bytes.”</h2>
       <div class="comic-row two">
@@ -266,6 +267,12 @@ SELECT CUSTOMER_ID, FULL_NAME
       </div>
       <div class="badge-ok">✓ You can explain primary (writable) vs secondary (read-only until failover)</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="17-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Clone ≠ share ≠ replicate.</strong> Clone = in-account twin. Share = live access to others. Replicate = DR across region/account.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

@@ -6,7 +6,7 @@
   <title>Lab 00 — Alpine Retail workshop</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       <a href="story.html">Story</a> optional but Morgan makes more sense if you skim it.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout warn">
       <strong>Already saw “ROLE_CORE_LAB_ADMIN is not assigned”?</strong>
       You created the role but never attached it to your login. As <code>ACCOUNTADMIN</code>, run
@@ -65,28 +71,23 @@
       and sample customers + orders for later labs.
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>No Alpine home</strong>
-        <ul>
-          <li>Random tables, no owner</li>
-          <li>No cheap auto-suspend warehouse</li>
-          <li>Nothing named for the exam story</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>One building + engine</strong>
-        <ul>
-          <li><code>ALPINE_RETAIL</code> with labeled schemas</li>
-          <li><code>WH_CORE_XS</code> auto-suspend 60s</li>
-          <li>Daily work as <code>ROLE_CORE_LAB_ADMIN</code></li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="00-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Exam trap.</strong> Creating a role does <strong>not</strong> assign it to you. Always <code>GRANT ROLE … TO USER</code> (Lab 00 Step 1b) before <code>USE ROLE</code>.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-00-open" aria-label="Morgan wants a building">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab00-before.jpg" alt="BEFORE: No Alpine home — files and tables everywhere." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> No Alpine home — files and tables everywhere.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab00-after.jpg" alt="AFTER: One building ALPINE_RETAIL + WH_CORE_XS + lab-admin badge." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> One building ALPINE_RETAIL + WH_CORE_XS + lab-admin badge.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-00-open" aria-label="Morgan wants a building">
       <p class="comic-kicker">Episode 00 · Start here</p>
       <h2 class="comic-title">Morgan wants a building. Dev draws one.</h2>
       <div class="comic-row two">
@@ -340,6 +341,12 @@ INSERT INTO CUSTOMERS VALUES
       </div>
       <div class="badge-ok">✓ Rows with emails and SSN_LAST4 visible while you’re still lab admin</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="00-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Say this.</strong> Database = building · Schema = room · Warehouse = engine (compute only).</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

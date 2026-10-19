@@ -6,7 +6,7 @@
   <title>Lab 01 — Three layers + editions</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       and which edition unlocks which feature. <a href="EXAM_TIPS_DOMAIN1.md">Domain 1 tips</a> after you finish.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Morgan asks: “If we resize the warehouse, do we get more storage?”
@@ -58,28 +64,23 @@
       and run tiny SQL that proves compute ≠ storage (plus permanent vs transient).
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>One blurry “Snowflake”</strong>
-        <ul>
-          <li>“Warehouse stores our tables”</li>
-          <li>No idea which edition we need</li>
-          <li>Cloud Services = mystery fee</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Three layers + edition map</strong>
-        <ul>
-          <li>Storage · Compute · Cloud Services</li>
-          <li>90-day TT → Enterprise+</li>
-          <li>WH = engine; tables stay in storage</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="01-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Highest weight.</strong> Architecture is ~<strong>31%</strong> of COF-C03. If you only deep-study one domain, make it Labs 01–05.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-01-open" aria-label="Kai mixes up warehouse and storage">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab01-before.jpg" alt="BEFORE: Myth: warehouse stores tables." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Myth: warehouse stores tables.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab01-after.jpg" alt="AFTER: Truth: Storage · Compute · Cloud Services." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Truth: Storage · Compute · Cloud Services.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-01-open" aria-label="Kai mixes up warehouse and storage">
       <p class="comic-kicker">Episode 01 · Start here</p>
       <h2 class="comic-title">Kai mixes up the engine and the shelves.</h2>
       <div class="comic-row two">
@@ -100,6 +101,12 @@
       </div>
       <p class="comic-caption">Exam trap #1 lives here: never say “the warehouse stores data.”</p>
     </section>
+
+    
+    <figure class="viz-panel">
+      <img src="assets/lab01-layers.jpg" alt="Three Snowflake layers: Storage, Compute, Cloud Services" width="1600" height="900" loading="lazy" />
+      <figcaption><strong>Picture · The sandwich</strong> Storage pantry · Compute kitchen · Cloud Services front desk.</figcaption>
+    </figure>
 
     <section class="teach">
       <h2>See it — three layers with Alpine names</h2>
@@ -200,6 +207,12 @@
         </figure>
       </div>
     </section>
+
+    
+    <aside class="exam-tip" data-exam-tip="01-mid" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Instant fail.</strong> “Warehouse stores table data” is always <strong>false</strong>. Storage holds micro-partitions; WH burns credits.</div>
+    </aside>
 
     <article class="step">
       <h2><span class="step-num">1</span> Prove who / where you are</h2>
@@ -306,6 +319,12 @@ SHOW TABLES LIKE 'DEMO_%' IN SCHEMA LAB;</code></pre>
       </div>
       <div class="badge-ok">✓ Returns WH_CORE_XS — say aloud: “engine, not pantry”</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="01-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Edition trap.</strong> 90-day Time Travel → <strong>Enterprise+</strong>. Don’t pick Business Critical only for longer Time Travel.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

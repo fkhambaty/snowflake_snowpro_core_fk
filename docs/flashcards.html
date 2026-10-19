@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trap flashcards — SnowPro Core Prep</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body data-visual-upgrade="1">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-19.html">19</a>
+        <a href="lab-19b.html">19b</a>
+        <a class="active" href="flashcards.html">Cards</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Pass boost · Night-before · You are Priya</p>
+    <h1>60 trap flashcards</h1>
+    <p class="lede">
+      Front = question. Tap/click to reveal the answer. Say it <em>out loud</em>.
+      Built from the exam-day playbook + Alpine lab traps — not a textbook dump.
+      After cards: <a href="lab-19b.html">Lab 19b</a> · <a href="DISTRACTOR_BANK.md">Distractor bank</a>.
+    </p>
+
+    <div class="picture-first" aria-label="How to use flashcards">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> One card at a time. Cover the answer with your hand if you’re on a big screen.
+      Shuffle by scrolling randomly. Misses → open the linked lab’s exam drill.</p>
+    </div>
+
+    <section class="comic-strip" id="comic-flash-open" aria-label="Kai wants flashcards">
+      <p class="comic-kicker">Pass boost · Flashcards</p>
+      <h2 class="comic-title">Kai wants flashcards — not textbooks.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">I’m not rereading Lab 01’s whole essay the night before. Give me traps I can flip.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">Deal. Sixty cards — layers, editions, TT vs Fail-safe, masking vs RAP, COPY vs pipe, scale up/out. Say them out loud.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Silent reading ≠ exam recall. Flip · say · move on.</p>
+    </section>
+
+    <aside class="exam-tip" data-exam-tip="flash-night" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Night before = review only.</strong> No new topics. Flip cards + skim playbook. Sleep beats cramming Lab 15 MERGE edge cases.</div>
+    </aside>
+
+    <section class="teach">
+      <h2>Architecture &amp; objects</h2>
+      <div class="flash-grid">
+        <details class="flash-card"><summary>Name the three Snowflake layers.</summary><p><strong>Storage</strong> (micro-partitions) · <strong>Compute</strong> (virtual warehouses) · <strong>Cloud Services</strong> (auth, metadata, optimizer).</p></details>
+        <details class="flash-card"><summary>Does a warehouse store table data?</summary><p><strong>No.</strong> WH = compute kitchen. Tables live in the storage pantry.</p></details>
+        <details class="flash-card"><summary>Standard vs Enterprise — Time Travel length?</summary><p>Standard typically <strong>1 day</strong>. Up to <strong>90 days</strong> needs <strong>Enterprise+</strong>.</p></details>
+        <details class="flash-card"><summary>Business Critical is mainly about…?</summary><p><strong>Security / advanced HA &amp; compliance</strong> themes — don’t pick BC just for Time Travel.</p></details>
+        <details class="flash-card"><summary>What are micro-partitions?</summary><p>Auto-managed <strong>compressed</strong> storage units Snowflake creates — you don’t hand-size 50 MB blocks.</p></details>
+        <details class="flash-card"><summary>Clustering keys help with what?</summary><p><strong>Pruning</strong> / scan efficiency when filters match cluster dimensions.</p></details>
+        <details class="flash-card"><summary>Permanent vs transient vs temporary — Fail-safe?</summary><p><strong>Permanent</strong>: TT + Fail-safe. <strong>Transient/temp</strong>: <em>no</em> Fail-safe (limited TT).</p></details>
+        <details class="flash-card"><summary>Snowsight vs SnowSQL?</summary><p><strong>Snowsight</strong> = web UI. <strong>SnowSQL</strong> = CLI client.</p></details>
+        <details class="flash-card"><summary>Cortex one-liner?</summary><p><strong>Snowflake AI functions/services</strong> you call from SQL / the platform (awareness on C03) — does not replace warehouses.</p></details>
+        <details class="flash-card"><summary>Secure view vs normal view?</summary><p>Secure view protects <strong>definition / underlying exposure</strong>; normal views can leak more to the optimizer/users.</p></details>
+        <details class="flash-card"><summary>Object hierarchy order?</summary><p><strong>Account → Database → Schema → objects</strong> (tables, views, stages…).</p></details>
+        <details class="flash-card"><summary>Dynamic Tables one-liner?</summary><p>Declare a target table that <strong>refreshes from a query</strong> (pipeline-style), not a Fail-safe feature.</p></details>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Account, security &amp; cost</h2>
+      <div class="flash-grid">
+        <details class="flash-card"><summary>RBAC in one line?</summary><p>Privileges → <strong>roles</strong> → users. Activate a role; don’t hang privileges only on users.</p></details>
+        <details class="flash-card"><summary>Masking vs RAP?</summary><p><strong>Masking</strong> = column values at query time. <strong>RAP</strong> = which <strong>rows</strong> you see.</p></details>
+        <details class="flash-card"><summary>Why <code>USE SECONDARY ROLES NONE</code>?</summary><p>Snowsight keeps <strong>secondary roles</strong> active. Privilege proofs need NONE or vault “fails open.”</p></details>
+        <details class="flash-card"><summary>Resource Monitors do what?</summary><p>Track/limit <strong>credits</strong>; notify or suspend when quotas hit.</p></details>
+        <details class="flash-card"><summary>ACCOUNT_USAGE vs INFORMATION_SCHEMA?</summary><p>ACCOUNT_USAGE = <strong>account history</strong> (latency OK). INFORMATION_SCHEMA ≈ more current DB metadata.</p></details>
+        <details class="flash-card"><summary>Network policies restrict…?</summary><p><strong>IP / CIDR</strong> ranges that can authenticate.</p></details>
+        <details class="flash-card"><summary>MFA / SSO / key-pair are…?</summary><p><strong>Authentication</strong> controls (Domain 2 security).</p></details>
+        <details class="flash-card"><summary>Object tags help with…?</summary><p><strong>Governance / classification</strong> tracking of sensitive data.</p></details>
+        <details class="flash-card"><summary>Least privilege means…?</summary><p>Functional roles with <strong>only needed grants</strong> — not everyone ACCOUNTADMIN.</p></details>
+        <details class="flash-card"><summary>Ownership of an object means…?</summary><p>Owning role <strong>controls</strong> the object and can grant privileges on it.</p></details>
+        <details class="flash-card"><summary>Trust Center (awareness)?</summary><p>Account <strong>security posture / monitoring</strong> themes — not a clustering feature.</p></details>
+        <details class="flash-card"><summary>Can masking + RAP work together?</summary><p><strong>Yes</strong> — columns and rows are different policy axes.</p></details>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Loading &amp; pipelines</h2>
+      <div class="flash-grid">
+        <details class="flash-card"><summary>COPY vs Snowpipe vs Streaming?</summary><p><strong>COPY</strong> = batch you run. <strong>Snowpipe</strong> = continuous files. <strong>Streaming</strong> = rows/SDK continuous ingest.</p></details>
+        <details class="flash-card"><summary>What does a stage hold?</summary><p>A <strong>file location</strong> — internal Snowflake stage or external cloud storage.</p></details>
+        <details class="flash-card"><summary>FILE FORMAT objects define…?</summary><p>Parse options for <strong>CSV / JSON / Parquet</strong> (etc.) on load/unload.</p></details>
+        <details class="flash-card"><summary>ON_ERROR = ABORT_STATEMENT means…?</summary><p>Load <strong>stops</strong> when error threshold/behavior triggers — not “ignore quality forever.”</p></details>
+        <details class="flash-card"><summary>Streams track…?</summary><p><strong>Change data</strong> (CDC-style) on a table for downstream processing.</p></details>
+        <details class="flash-card"><summary>Tasks are for…?</summary><p><strong>Scheduling</strong> SQL / pipeline steps (often with streams).</p></details>
+        <details class="flash-card"><summary>Storage integration purpose?</summary><p>Trusted access to <strong>cloud storage</strong> without stuffing keys into every stage.</p></details>
+        <details class="flash-card"><summary>Unload pattern?</summary><p><code>COPY INTO @stage</code> writes query results <strong>out to files</strong>.</p></details>
+        <details class="flash-card"><summary>VALIDATION_MODE on COPY?</summary><p>Test/parse files to <strong>catch errors</strong> before (or without) full load commit.</p></details>
+        <details class="flash-card"><summary>Nightly Alpine CSV batch — which tool?</summary><p>Usually <strong>COPY INTO</strong> (scheduled). Pipe if files arrive continuously.</p></details>
+        <details class="flash-card"><summary>FORCE =&gt; TRUE on COPY risk?</summary><p>Can <strong>reload already-loaded files</strong> → duplicate rows if you’re not careful.</p></details>
+        <details class="flash-card"><summary>Kafka Connector theme?</summary><p>Land <strong>streaming/event</strong> data into Snowflake (connector awareness).</p></details>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Performance &amp; SQL</h2>
+      <div class="flash-grid">
+        <details class="flash-card"><summary>Scale up vs scale out?</summary><p><strong>Up</strong> = larger size (harder queries). <strong>Out</strong> = more clusters (concurrency).</p></details>
+        <details class="flash-card"><summary>First step when a query is “slow”?</summary><p><strong>Query Profile</strong>: pruning, bytes scanned, spill, queues — then decide size vs MCW.</p></details>
+        <details class="flash-card"><summary>Result cache returns when…?</summary><p>Eligible <strong>same query context</strong> and underlying data unchanged — not fuzzy English match.</p></details>
+        <details class="flash-card"><summary>Pruning does what?</summary><p>Skips irrelevant <strong>micro-partitions</strong> using metadata + filters.</p></details>
+        <details class="flash-card"><summary>Auto-suspend exists to…?</summary><p>Stop <strong>idle compute credits</strong> when the WH isn’t working.</p></details>
+        <details class="flash-card"><summary>VARIANT is…?</summary><p>A <strong>semi-structured</strong> type (JSON-like) with path access — not plain VARCHAR.</p></details>
+        <details class="flash-card"><summary>QUALIFY filters…?</summary><p>Results of <strong>window functions</strong> (WHERE can’t see them the same way).</p></details>
+        <details class="flash-card"><summary>FLATTEN helps with…?</summary><p><strong>Unnesting</strong> nested VARIANT / arrays into rows.</p></details>
+        <details class="flash-card"><summary>Spill in Profile suggests…?</summary><p><strong>Memory pressure</strong> — consider larger WH and/or rewrite; don’t ignore.</p></details>
+        <details class="flash-card"><summary>Multi-cluster warehouse fixes…?</summary><p>Mostly <strong>concurrency / queuing</strong> — not a substitute for pruning fixes.</p></details>
+        <details class="flash-card"><summary>MERGE is for…?</summary><p><strong>Upsert-style</strong> insert/update/delete from a source.</p></details>
+        <details class="flash-card"><summary>QAS one-liner?</summary><p><strong>Query Acceleration Service</strong> — optional serverless boost for eligible queries.</p></details>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Collaboration, TT &amp; DR</h2>
+      <div class="flash-grid">
+        <details class="flash-card"><summary>Time Travel vs Fail-safe?</summary><p><strong>TT</strong> = you recover with SQL. <strong>Fail-safe</strong> = Support only, after TT (~7d permanent).</p></details>
+        <details class="flash-card"><summary>Share vs clone vs replicate?</summary><p><strong>Share</strong> = live access. <strong>Clone</strong> = zero-copy twin in-account. <strong>Replicate</strong> = DR across region/account.</p></details>
+        <details class="flash-card"><summary>Zero-copy clone storage?</summary><p>Shares micro-partitions until divergence — <strong>not</strong> an instant full byte copy.</p></details>
+        <details class="flash-card"><summary>UNDROP works within…?</summary><p><strong>Time Travel</strong> retention for dropped tables/schemas/DBs.</p></details>
+        <details class="flash-card"><summary>AT | BEFORE clauses?</summary><p>Point-in-time <strong>Time Travel</strong> reads as of timestamp/statement.</p></details>
+        <details class="flash-card"><summary>Reader accounts when…?</summary><p>Consumer needs shared data but <strong>no Snowflake account</strong> of their own.</p></details>
+        <details class="flash-card"><summary>Secure share ≠ CSV email?</summary><p>Share = <strong>live query access</strong>; consumer typically pays their compute.</p></details>
+        <details class="flash-card"><summary>Marketplace one-liner?</summary><p>Discover/share <strong>datasets &amp; services</strong> in Snowflake’s marketplace ecosystem.</p></details>
+        <details class="flash-card"><summary>Native Apps awareness?</summary><p>Distribute apps that run in <strong>consumer accounts</strong> with controlled access themes.</p></details>
+        <details class="flash-card"><summary>Clean Rooms awareness?</summary><p>Collaborate on sensitive data with <strong>controlled overlap/analysis</strong> — not a public PII dump.</p></details>
+        <details class="flash-card"><summary>Transient has Fail-safe?</summary><p><strong>No.</strong> Classic trap — transient/temp skip Fail-safe.</p></details>
+        <details class="flash-card"><summary>Booking gate (Alpine)?</summary><p>Lab 19 ≥32/40 twice + Lab 19b ≥75/100 cold → then Pearson. Not vibes.</p></details>
+      </div>
+    </section>
+
+    <aside class="exam-tip" data-exam-tip="flash-say" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Say the triad.</strong> TT ≠ Fail-safe · Masking ≠ RAP · Scale up ≠ scale out. Those three kill most last-minute blanks.</div>
+    </aside>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up</strong><br />
+      “I flipped the trap cards out loud. Weak ones → labs → one more cold pass on
+      <a href="lab-19b.html">Lab 19b</a> or the 40Q on <a href="lab-19.html">Lab 19</a>.
+      Night before: cards + <a href="EXAM_DAY_PLAYBOOK.md">playbook</a> only.
+      <em>Outcome:</em> recall under pressure, not reread under panic.”
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-19b.html">← Lab 19b</a>
+      <a class="btn primary" href="index.html">All labs →</a>
+    </div>
+  </div>
+  <footer class="footer">60 trap flashcards · Alpine Retail · SnowPro Core COF-C03</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

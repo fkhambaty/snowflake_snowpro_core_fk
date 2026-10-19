@@ -6,7 +6,7 @@
   <title>Lab 11 — Snowpipe vs COPY</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -47,6 +47,12 @@
       Also: <strong>Snowpipe Streaming</strong> (COF-C03) vs classic file-based pipe.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Riley drops CSVs into cloud storage all day. Kai keeps asking “did anyone run COPY?”
@@ -60,28 +66,23 @@
       Plus see-cards that separate classic Snowpipe (files) from Snowpipe Streaming (rows).
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>Human-driven batch</strong>
-        <ul>
-          <li>Someone remembers to run COPY</li>
-          <li>Warehouse burns while you wait</li>
-          <li>Missed files = silent lag</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Pipe owns the COPY</strong>
-        <ul>
-          <li><code>PIPE_ORDERS_AUTO</code> wraps COPY</li>
-          <li>Serverless load credits (not your WH)</li>
-          <li>AUTO_INGEST + cloud events (prod story)</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="11-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Billing trap.</strong> Snowpipe = serverless credits. Don’t say “resize the warehouse to speed Snowpipe.”</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-11-open" aria-label="Riley wants continuous load">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab11-before.svg" alt="BEFORE: Manual COPY loop." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Manual COPY loop.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab11-after.svg" alt="AFTER: Snowpipe (+ Streaming ≠ AUTO_INGEST)." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Snowpipe (+ Streaming ≠ AUTO_INGEST).</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-11-open" aria-label="Riley wants continuous load">
       <p class="comic-kicker">Episode 11 · Start here</p>
       <h2 class="comic-title">Riley: “I’m tired of hitting Run on COPY.”</h2>
       <div class="comic-row two">
@@ -295,6 +296,12 @@ SELECT SYSTEM$PIPE_STATUS('PIPELINE.PIPE_ORDERS_AUTO');
       </div>
       <div class="badge-ok">✓ You can explain the integration without wiring AWS in class</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="11-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Streaming ≠ AUTO_INGEST.</strong> Snowpipe Streaming = row/SDK path. Classic pipe = files + COPY + optional AUTO_INGEST.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

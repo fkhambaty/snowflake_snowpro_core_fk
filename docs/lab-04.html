@@ -6,7 +6,7 @@
   <title>Lab 04 — Table types</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       are different object flavors — COF-C03 expects you to pick the right one.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Morgan wants cheaper scratch tables. Sam refuses to lose Fail-safe on customer gold.
@@ -58,28 +64,23 @@
       and stage a Dynamic Table pattern with a simple source table.
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>All tables feel equal</strong>
-        <ul>
-          <li>Transient still has Fail-safe?</li>
-          <li>Temp lasts forever?</li>
-          <li>Iceberg = “another vendor only”</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Pick by job + cost</strong>
-        <ul>
-          <li>Permanent = TT + Fail-safe</li>
-          <li>Transient / temp = no Fail-safe</li>
-          <li>External / Iceberg / DT = special jobs</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="04-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Fail-safe rule.</strong> Permanent = Fail-safe. Transient/temp = <strong>no</strong> Fail-safe. Memorize cold.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-04-open" aria-label="Table types comic">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab04-before.svg" alt="BEFORE: Everything permanent." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Everything permanent.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab04-after.svg" alt="AFTER: Right table type — transient has no Fail-safe." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Right table type — transient has no Fail-safe.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-04-open" aria-label="Table types comic">
       <p class="comic-kicker">Episode 04 · Start here</p>
       <h2 class="comic-title">Morgan wants cheap. Sam wants Fail-safe.</h2>
       <div class="comic-row two">
@@ -319,6 +320,12 @@ SELECT * FROM LAB.DT_SOURCE;</code></pre>
       </div>
       <div class="badge-ok">✓ Source rows visible; know TARGET_LAG + WH even if DT create is skipped</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="04-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>C03 words.</strong> Iceberg = open table format. Dynamic Table = declarative pipeline with target lag.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

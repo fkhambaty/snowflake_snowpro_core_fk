@@ -6,7 +6,7 @@
   <title>Lab 16 — Time Travel & Fail-safe</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       <em>not</em> something you run yourself.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Kai ran an UPDATE that wiped good notes on a scratch table. Morgan asks:
@@ -60,28 +66,23 @@
       Time Travel = you; Fail-safe = Snowflake Support only (7 days on permanent tables).
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>Panic mode</strong>
-        <ul>
-          <li>Bad UPDATE already committed</li>
-          <li>“Restore from backup” talk</li>
-          <li>No idea what Fail-safe is</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>User-recoverable history</strong>
-        <ul>
-          <li><code>SELECT … AT / BEFORE</code></li>
-          <li><code>UNDROP TABLE</code> inside retention</li>
-          <li>Fail-safe ticket only after TT ends</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="16-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>TT ≠ Fail-safe.</strong> Time Travel = you recover (AT/BEFORE/UNDROP). Fail-safe = Snowflake Support only, after TT.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-16-open" aria-label="Kai broke the table">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab16-before.jpg" alt="BEFORE: Bad DELETE panic." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Bad DELETE panic.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab16-after.jpg" alt="AFTER: Time Travel / UNDROP (Fail-safe is Support-only)." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Time Travel / UNDROP (Fail-safe is Support-only).</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-16-open" aria-label="Kai broke the table">
       <p class="comic-kicker">Episode 16 · Domain 5</p>
       <h2 class="comic-title">Kai broke it. Dev refuses the backup story.</h2>
       <div class="comic-row two">
@@ -288,6 +289,12 @@ SELECT * FROM SCRATCH_TT;</code></pre>
       </div>
       <div class="badge-ok">✓ Table is back; row still whatever it was at drop time</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="16-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Windows.</strong> Standard ~1-day TT. Enterprise up to 90. Fail-safe = 7 days on permanent.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

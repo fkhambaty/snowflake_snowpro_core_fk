@@ -6,7 +6,7 @@
   <title>Lab 08 — Governance (masking, RAP, tags)</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       Needs Lab 00 customers + Lab 06 <code>FR_ANALYST</code> / <code>AR_LAB_READ</code>.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Kai needs customer lists for a US campaign. Sam forbids clear emails and non-US rows in Kai’s results.
@@ -59,28 +65,23 @@
       Proof: lab admin sees all · <code>FR_ANALYST</code> + <code>SECONDARY ROLES NONE</code> sees masked US rows.
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>One SELECT = everything</strong>
-        <ul>
-          <li>Clear emails for every role</li>
-          <li>CA / UK rows leak to US campaign</li>
-          <li>No labels for auditors</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Same table, different view</strong>
-        <ul>
-          <li>EMAIL masked unless lab admin</li>
-          <li>RAP keeps FR_ANALYST on US</li>
-          <li>Tags: PII + cost center</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="08-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Don’t mix.</strong> <strong>Masking</strong> = disguise a column. <strong>RAP</strong> = hide whole rows. Same table, two stickers.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-08-open" aria-label="Sam wants policies">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab08-before.jpg" alt="BEFORE: Same SELECT leaks email + all countries." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Same SELECT leaks email + all countries.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab08-after.jpg" alt="AFTER: Masking + RAP — different views per role." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Masking + RAP — different views per role.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-08-open" aria-label="Sam wants policies">
       <p class="comic-kicker">Episode 08 · Start here</p>
       <h2 class="comic-title">Sam draws a curtain and a velvet rope.</h2>
       <div class="comic-row two">
@@ -334,6 +335,12 @@ SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
       </div>
       <div class="badge-ok">✓ EMAIL like ****@… · only US countries · no CA/UK</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="08-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>CURRENT_ROLE().</strong> Policies key off primary role. Secondary roles can still open the table — clear them for proofs.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

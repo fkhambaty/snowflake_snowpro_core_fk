@@ -4,17 +4,20 @@ Students can copy-paste and finish without learning. **That is a fail.** Prefer 
 
 This course exists so Priya **passes SnowPro Core (COF-C03)** — not so she finishes worksheets. Basics without exam follow-ups is a fail.
 
-## Required shape
+## Required shape (comic-book first)
 
-1. Business problem / Solution (short)
-2. **BEFORE / AFTER** (`.ba-grid` + photo *or* `.ba-diagram` panels) — first thing after Solution
-3. Optional extra concept art (`.viz-panel` / `.flow-pipeline`) after see-cards
-4. **See it** cards (`.see-grid` / `.see-card`) — concrete examples, not Word/Layman/Metaphor dictionaries
-5. **Comic strips** (`.comic-strip`) — opener after BEFORE/AFTER **and** a coach strip (`.comic-step`) before each numbered step. Voices: Kai asks like a beginner; Dev always answers *why*; Morgan presses cost/deadline; Sam presses compliance; Riley presses pipelines. Habit: **read the coach comic → then SQL**.
-6. Contrast visuals / `.flow-pipeline` when ideas get mixed up
-7. **Small code chunks** (≤12 lines) — *what / why / what you should see*
-8. **Exam presses further** (`.drill-wrap` / `#interview-drill`) — **required**, before wrap-up — 4–5 hard exam-style Q&As with spoken answers
-9. Priya wrap-up (`.soundbite`)
+1. **Picture-first banner** (`.picture-first`) — tell the student: art → comic → SQL
+2. Business problem / Solution (short)
+3. **EXAM TIP** stickers (`.exam-tip`) — after solution, mid-lab, and before drills
+4. **BEFORE / AFTER** (`.ba-grid` + `.ba-panel` JPG/SVG) — first visual after Solution
+5. Optional extra concept art (`.viz-panel` / `.flow-pipeline`)
+6. **See it** cards (`.see-grid` / `.see-card`) — concrete examples, not dictionaries
+7. **Comic strips** (`.comic-strip`) — opener + coach strip (`.comic-step`) before steps. Kai asks; Dev answers *why*.
+8. **Small code chunks** (≤12 lines) — *what / why / what you should see*
+9. **Exam presses further** (`#interview-drill`) — ≥4 hard Q&As
+10. Priya wrap-up (`.soundbite`)
+
+Pass-boost extras: `lab-19b.html` (100Q), `flashcards.html`, `DISTRACTOR_BANK.md`.
 
 ## Exam presses further (required)
 

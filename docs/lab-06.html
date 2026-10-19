@@ -6,7 +6,7 @@
   <title>Lab 06 — RBAC (roles &amp; grants)</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       Lab 00 sample data must already exist.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Kai (analyst) needs to read customers for a board chart. Morgan refuses to give Kai
@@ -59,28 +65,23 @@
       Proof as <code>FR_ANALYST</code> with <code>USE SECONDARY ROLES NONE</code>.
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>Everyone is a mayor</strong>
-        <ul>
-          <li>Analysts borrow ACCOUNTADMIN</li>
-          <li>No trail of who can SELECT</li>
-          <li>Exam trap: “just grant the table to the user”</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Job badge + key-ring</strong>
-        <ul>
-          <li><code>FR_*</code> = job · <code>AR_*</code> = privileges</li>
-          <li>SELECT on CUSTOMERS via AR_LAB_READ</li>
-          <li>Proof with secondary roles off</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="06-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Grant chain.</strong> Privileges → Access roles (AR_) → Functional roles (FR_) → Users. Don’t grant tables straight to people.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-06-open" aria-label="Morgan wants least privilege">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab06-before.jpg" alt="BEFORE: Vault open — analysts see SSN/email." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Vault open — analysts see SSN/email.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab06-after.jpg" alt="AFTER: Badges + key-rings — vault locked, safe window." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Badges + key-rings — vault locked, safe window.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-06-open" aria-label="Morgan wants least privilege">
       <p class="comic-kicker">Episode 06 · Start here</p>
       <h2 class="comic-title">Morgan wants a chart. Sam wants a fence.</h2>
       <div class="comic-row two">
@@ -183,6 +184,12 @@
         </figure>
       </div>
     </section>
+
+    
+    <aside class="exam-tip" data-exam-tip="06-mid" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Snowsight lie.</strong> Proofs need <code>USE SECONDARY ROLES NONE</code> or FR_ANALYST still has lab-admin powers.</div>
+    </aside>
 
     <article class="step">
       <h2><span class="step-num">1</span> Create FR and AR roles</h2>
@@ -332,6 +339,12 @@ SHOW FUTURE GRANTS IN SCHEMA ALPINE_RETAIL.LAB;</code></pre>
       </div>
       <div class="badge-ok">✓ Future SELECT listed for AR_LAB_READ</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="06-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Ownership.</strong> Owner can grant. Creating an object ≠ everyone can use it.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

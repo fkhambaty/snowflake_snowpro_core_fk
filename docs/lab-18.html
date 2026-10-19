@@ -6,7 +6,7 @@
   <title>Lab 18 — Secure Data Sharing</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       Reader accounts, Marketplace, Native Apps, and Clean Rooms are exam see-cards.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       A partner wants Alpine’s product catalog nightly. Kai’s plan: export CSV to S3 every night.
@@ -59,28 +65,23 @@
       Note: a real consumer needs a <em>different</em> Snowflake account (or a reader account you create).
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>File dump partnership</strong>
-        <ul>
-          <li>Nightly CSV / COPY OUT</li>
-          <li>Stale + duplicate storage</li>
-          <li>Hard to revoke cleanly</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Live secure share</strong>
-        <ul>
-          <li>One share object + grants</li>
-          <li>Consumer queries live data</li>
-          <li>Revoke = remove from share</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="18-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Live not CSV.</strong> Secure share = live query access. Provider shares data; consumer typically pays their compute.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-18-open" aria-label="Partner wants the catalog">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab18-before.svg" alt="BEFORE: Email the dump." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Email the dump.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab18-after.svg" alt="AFTER: Secure share · Marketplace · clean rooms." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Secure share · Marketplace · clean rooms.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-18-open" aria-label="Partner wants the catalog">
       <p class="comic-kicker">Episode 18 · Share day</p>
       <h2 class="comic-title">Partner wants the catalog. Sam won’t approve CSV.</h2>
       <div class="comic-row two">
@@ -249,6 +250,12 @@ SHOW GRANTS TO SHARE ALPINE_PRODUCT_SHARE;
       </div>
       <div class="badge-ok">✓ Share visible; USAGE + SELECT listed on the share</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="18-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>C03 collab.</strong> Reader accounts · Marketplace listings · Native Apps · Clean Rooms — one-line each.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

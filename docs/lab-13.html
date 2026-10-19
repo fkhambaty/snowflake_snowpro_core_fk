@@ -6,7 +6,7 @@
   <title>Lab 13 — Query Profile &amp; caches</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       Today: three caches, pruning, Profile nodes, and Query Acceleration Service awareness.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       A board query feels slow. Morgan’s reflex: “Upsize to Medium.” Nobody checked whether the bottleneck is
@@ -58,28 +64,23 @@
       and know when QAS helps (and when a bigger WH won’t).
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>Resize first, think later</strong>
-        <ul>
-          <li>“Bigger WH = always faster”</li>
-          <li>No idea which cache hit</li>
-          <li>Pruning never mentioned</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Profile-led triage</strong>
-        <ul>
-          <li>Name result / local / metadata cache</li>
-          <li>Check partitions scanned</li>
-          <li>Spill &amp; QAS in your vocabulary</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="13-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Profile first.</strong> Open Query Profile before resizing. Bigger WH won’t fix a full scan that pruning could skip.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-13-open" aria-label="Dev opens Profile">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab13-before.jpg" alt="BEFORE: Full scan burns credits." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Full scan burns credits.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab13-after.jpg" alt="AFTER: Profile → prune → cache before resize." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Profile → prune → cache before resize.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-13-open" aria-label="Dev opens Profile">
       <p class="comic-kicker">Episode 13 · Start here</p>
       <h2 class="comic-title">Dev: “Show me the Profile before you burn credits.”</h2>
       <div class="comic-row two">
@@ -178,6 +179,12 @@
       </div>
     </section>
 
+    
+    <aside class="exam-tip" data-exam-tip="13-mid" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Three caches.</strong> Result cache · local WH disk cache · metadata cache. Result cache hit → no WH credits.</div>
+    </aside>
+
     <article class="step">
       <h2><span class="step-num">1</span> Selective query (pruning-friendly shape)</h2>
       <p class="teach"><strong>What this does:</strong> Narrow filter. On a big table this is where pruning shines; our sample is tiny — still practice the Profile habit.</p>
@@ -255,6 +262,12 @@ SELECT * FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));</code></pre>
       </div>
       <div class="badge-ok">✓ You can say when clustering depth / QAS matter</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="13-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>QAS.</strong> Query Acceleration Service = optional boost for eligible scans — awareness for C03.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

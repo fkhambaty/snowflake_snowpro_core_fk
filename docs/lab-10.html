@@ -6,7 +6,7 @@
   <title>Lab 10 — Stages &amp; COPY INTO</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       <code>COPY INTO</code> moves data in or out. We avoid local PUT so Windows Snowsight still works.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Riley’s vendor drops CSVs. Morgan wants a repeatable dock: named stage, format object,
@@ -59,28 +65,23 @@
       Directory tables for file metadata awareness.
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>Mystery folders</strong>
-        <ul>
-          <li>Files on laptops only</li>
-          <li>No shared format definition</li>
-          <li>“It worked on my machine”</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Named dock + COPY</strong>
-        <ul>
-          <li>Internal stage in PIPELINE</li>
-          <li>FF_CSV_CUSTOMERS / FF_JSON</li>
-          <li>Load · unload · validate</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="10-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Load recipe.</strong> Stage + file format + <code>COPY INTO</code>. Classic COPY uses a <strong>warehouse</strong>.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-10-open" aria-label="Riley wants a dock">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab10-before.jpg" alt="BEFORE: Humans babysit overnight COPY." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Humans babysit overnight COPY.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab10-after.jpg" alt="AFTER: Stage + file format + COPY INTO." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Stage + file format + COPY INTO.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-10-open" aria-label="Riley wants a dock">
       <p class="comic-kicker">Episode 10 · Start here</p>
       <h2 class="comic-title">Riley draws a loading dock. Dev names every object.</h2>
       <div class="comic-row two">
@@ -341,6 +342,12 @@ SELECT * FROM EVENTS_STAGE_LOAD;</code></pre>
       </div>
       <div class="badge-ok">✓ Two VARIANT payloads</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="10-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>ON_ERROR.</strong> Know ABORT_STATEMENT / CONTINUE / SKIP_FILE and VALIDATION_MODE (test without loading).</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>

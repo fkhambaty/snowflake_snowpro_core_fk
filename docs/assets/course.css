@@ -1780,3 +1780,115 @@ img, svg, video {
 .step-head + .comic-strip.comic-step {
   margin-top: 0.75rem;
 }
+
+/* —— Visual comic-book upgrade (SnowPro Core) —— */
+.picture-first {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  margin: 1rem 0 1.25rem;
+  padding: 0.9rem 1.1rem;
+  border: 3px solid #1a2433;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff8e8, #ffffff);
+  box-shadow: 4px 4px 0 #1a2433;
+}
+.picture-first .pf-icon {
+  flex: 0 0 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #176f9e;
+  color: #fff;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  font-family: "Bangers", var(--sans);
+  font-size: 1.1rem;
+}
+.picture-first p { margin: 0; color: var(--text); line-height: 1.5; }
+
+.exam-tip {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border: 3px solid #8f6a18;
+  border-radius: 12px;
+  background: #fffbeb;
+  box-shadow: 3px 3px 0 #8f6a18;
+}
+.exam-tip-badge {
+  font-family: "Bangers", var(--sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: #8f6a18;
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.exam-tip-body { margin: 0; color: var(--text); line-height: 1.5; font-size: 0.95rem; }
+
+.ba-panel img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px 10px 0 0;
+  border-bottom: 3px solid #1a2433;
+}
+.ba-panel {
+  margin: 0;
+  border: 3px solid #1a2433;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 4px 4px 0 #1a2433;
+}
+.ba-panel.before { border-color: #c23d4a; box-shadow: 4px 4px 0 #c23d4a; }
+.ba-panel.after { border-color: #1b7d56; box-shadow: 4px 4px 0 #1b7d56; }
+.ba-panel figcaption {
+  padding: 0.65rem 0.85rem 0.85rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.ba-panel figcaption strong {
+  display: block;
+  color: var(--text);
+  font-family: "Bangers", var(--sans);
+  letter-spacing: 0.04em;
+  font-size: 1.05rem;
+  margin-bottom: 0.2rem;
+}
+
+.comic-strip {
+  animation: comicPop 0.45s ease both;
+}
+@keyframes comicPop {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.flash-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .flash-grid { grid-template-columns: 1fr 1fr; }
+}
+.flash-card {
+  border: 3px solid #1a2433;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  background: #fff;
+  box-shadow: 3px 3px 0 #1a2433;
+}
+.flash-card summary {
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+}
+.flash-card summary::-webkit-details-marker { display: none; }
+.flash-card[open] { background: #f0f7fb; }

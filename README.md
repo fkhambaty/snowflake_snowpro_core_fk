@@ -1,8 +1,8 @@
 # Alpine Retail — SnowPro Core Certification Prep (COF-C03)
 
-You are **Priya Chen**, junior data engineer at **Alpine Retail**. Each lab is a plain-English problem → hands-on Snowflake → **exam drill** so you can pass **SnowPro Core (COF-C03)** — not just finish worksheets.
+You are **Priya Chen**, junior data engineer at **Alpine Retail**. The course is a **visual comic book**: BEFORE/AFTER art → cast comics → tiny SQL → yellow **EXAM TIP** stickers → spoken drills.
 
-> Goal: cover **100% of the official exam blueprint** (Architecture 31%, Account & Governance 20%, Loading/Connectivity 18%, Performance/Query/Transform 21%, Collaboration 10%) plus the high-frequency traps that fail candidates.
+> Goal: maximize COF-C03 pass odds — full blueprint + exam tips in every lab + Lab 19b (100Q) + trap flashcards + distractor bank.
 
 ## Open the course (HTML)
 
@@ -48,9 +48,19 @@ Full map: [`docs/ALPINE_NAMING.md`](docs/ALPINE_NAMING.md)
 | 16 | Collab 10% | Time Travel, Fail-safe, UNDROP |
 | 17 | Collab | Zero-copy clone + replication / DR |
 | 18 | Collab | Secure share, Marketplace, Native Apps, Clean Rooms |
-| 19 | Capstone | Full mock exam + domain weak-spot drills |
+| 19 | Capstone | 40Q gate mock |
+| 19b | Capstone | **100Q / 115 min** full mock |
+| — | Pass boost | [`flashcards.html`](docs/flashcards.html) · [`DISTRACTOR_BANK.md`](docs/DISTRACTOR_BANK.md) |
 
-~**20–24 hours** · schedule: [`docs/COURSE_SCHEDULE.md`](docs/COURSE_SCHEDULE.md) · blueprint: [`docs/EXAM_BLUEPRINT.md`](docs/EXAM_BLUEPRINT.md)
+~**24–30 hours** with mocks · schedule: [`docs/COURSE_SCHEDULE.md`](docs/COURSE_SCHEDULE.md) · blueprint: [`docs/EXAM_BLUEPRINT.md`](docs/EXAM_BLUEPRINT.md)
+
+### How to study (if reading is hard)
+
+1. Look at **BEFORE/AFTER** pictures  
+2. Read the **comic** (Kai asks, Dev explains why)  
+3. Run the **tiny SQL** chunk  
+4. Pause on every yellow **EXAM TIP**  
+5. Say the drills out loud → then Lab 19 → Lab 19b → flashcards
 
 ## How this course teaches (same bar as Architect prep)
 

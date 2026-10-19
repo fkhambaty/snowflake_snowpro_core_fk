@@ -6,7 +6,7 @@
   <title>Lab 09 — FinOps (monitors &amp; credits)</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
-<body>
+<body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
@@ -46,6 +46,12 @@
       <code>ACCOUNT_USAGE</code> tells the story — with a lag the exam loves to ask about.
     </p>
 
+    <div class="picture-first" aria-label="How to study this lab">
+      <span class="pf-icon" aria-hidden="true">1</span>
+      <p><strong>Picture first.</strong> Look at BEFORE/AFTER → read the comic → then run tiny SQL.
+      If a paragraph feels heavy, skip to the next comic strip — Dev explains it out loud for you.</p>
+    </div>
+
     <div class="callout bad">
       <strong>Business problem</strong>
       Morgan saw last month’s bill spike after someone left a Medium warehouse running overnight.
@@ -59,28 +65,23 @@
       Credit math XS vs M · sample <code>WAREHOUSE_METERING_HISTORY</code> + <code>QUERY_HISTORY</code>.
     </div>
 
-    <div class="ba-grid">
-      <div class="ba-diagram before">
-        <div class="ba-kicker">Before</div>
-        <strong>Hope-based FinOps</strong>
-        <ul>
-          <li>WH left running = silent burn</li>
-          <li>No quota on the account toys</li>
-          <li>“We’ll check the bill later”</li>
-        </ul>
-      </div>
-      <div class="ba-diagram after">
-        <div class="ba-kicker">After</div>
-        <strong>Quota + alarm + history</strong>
-        <ul>
-          <li>Monitor notifies then suspends</li>
-          <li>XS ≈ 1 credit/hr · M ≈ 4</li>
-          <li>ACCOUNT_USAGE (expect lag)</li>
-        </ul>
-      </div>
-    </div>
+    <aside class="exam-tip" data-exam-tip="09-after-solution" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>Two guards.</strong> Auto-suspend stops idle burn. Resource monitors stop runaway quotas. You need both stories.</div>
+    </aside>
 
-    <section class="comic-strip" id="comic-09-open" aria-label="Morgan and the bill">
+    
+    <div class="ba-grid">
+      <figure class="ba-panel before">
+        <img src="assets/lab09-before.svg" alt="BEFORE: Surprise credit bill." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Surprise credit bill.</figcaption>
+      </figure>
+      <figure class="ba-panel after">
+        <img src="assets/lab09-after.svg" alt="AFTER: Auto-suspend + resource monitor." width="1600" height="900" loading="eager" />
+        <figcaption><strong>After</strong> Auto-suspend + resource monitor.</figcaption>
+      </figure>
+    </div>
+<section class="comic-strip" id="comic-09-open" aria-label="Morgan and the bill">
       <p class="comic-kicker">Episode 09 · Start here</p>
       <h2 class="comic-title">Morgan holds the invoice. Dev draws a fuse.</h2>
       <div class="comic-row two">
@@ -300,6 +301,12 @@ SELECT START_TIME, WAREHOUSE_NAME,
       <p class="teach">Near-real-time alternative for your session: <code>INFORMATION_SCHEMA.QUERY_HISTORY_BY_SESSION()</code> (see SQL file).</p>
       <div class="badge-ok">✓ You know where to look after a cost spike</div>
     </article>
+
+    
+    <aside class="exam-tip" data-exam-tip="09-before-drill" aria-label="Exam tip">
+      <div class="exam-tip-badge">EXAM TIP</div>
+      <div class="exam-tip-body"><strong>ACCOUNT_USAGE lag.</strong> Metering views can lag tens of minutes–hours. Don’t panic if today’s query isn’t there yet.</div>
+    </aside>
 
     <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
       <h2>Exam presses further — say these out loud</h2>
