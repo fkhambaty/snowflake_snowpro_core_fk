@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 06 — RBAC (roles &amp; grants)</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a class="active" href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 06 · Domain 2 · You are Priya</p>
+    <h1>Hand out badges — not master keys</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      Domain 2 starts here: who can see <code>LAB.CUSTOMERS</code>, and how Snowflake chains roles.
+      Lab 00 sample data must already exist.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Kai (analyst) needs to read customers for a board chart. Morgan refuses to give Kai
+      <code>ACCOUNTADMIN</code> or even Priya’s lab-admin badge. “One table, read-only. Prove it.”
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      Functional roles <code>FR_ANALYST</code> / <code>FR_DATA_ENGINEER</code>, access role
+      <code>AR_LAB_READ</code>, grants: USAGE on DB/schema → SELECT on table → AR → FR.
+      Proof as <code>FR_ANALYST</code> with <code>USE SECONDARY ROLES NONE</code>.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Everyone is a mayor</strong>
+        <ul>
+          <li>Analysts borrow ACCOUNTADMIN</li>
+          <li>No trail of who can SELECT</li>
+          <li>Exam trap: “just grant the table to the user”</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Job badge + key-ring</strong>
+        <ul>
+          <li><code>FR_*</code> = job · <code>AR_*</code> = privileges</li>
+          <li>SELECT on CUSTOMERS via AR_LAB_READ</li>
+          <li>Proof with secondary roles off</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-06-open" aria-label="Morgan wants least privilege">
+      <p class="comic-kicker">Episode 06 · Start here</p>
+      <h2 class="comic-title">Morgan wants a chart. Sam wants a fence.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
+          </div>
+          <blockquote class="comic-bubble">Kai needs customer counts by country by Friday. Don’t make them a database admin.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
+          </div>
+          <blockquote class="comic-bubble">Good. Functional role = the job badge. Access role = the key-ring of privileges. Grant keys to the badge — never hand Kai the mayor’s keys.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Picture: FR = badge on lapel · AR = ring of keys · table grants hang on the keys.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — don’t memorize definitions</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Job badge</div>
+          <strong>Functional role (FR)</strong>
+          <p>Named after the human job. Users get FRs. FRs usually hold almost no direct table grants.</p>
+          <div class="see-example"><code>FR_ANALYST</code><br>Kai wears this</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Key-ring</div>
+          <strong>Access role (AR)</strong>
+          <p>Bundle of privileges (USAGE, SELECT…). Grant the AR to one or many FRs.</p>
+          <div class="see-example"><code>AR_LAB_READ</code><br>SELECT on LAB tables</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Chain</div>
+          <strong>Table → AR → FR → User</strong>
+          <p>Snowflake checks the role hierarchy. Break any link → SELECT fails.</p>
+          <div class="see-example">CUSTOMERS SELECT<br>→ AR_LAB_READ → FR_ANALYST</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Owner</div>
+          <strong>OWNERSHIP ≠ SELECT</strong>
+          <p>The role that created the table owns it (DDL, grants). Analysts need SELECT; they don’t need ownership.</p>
+          <div class="see-example">Owner: ROLE_CORE_LAB_ADMIN<br>Reader: FR_ANALYST</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Grant path — name every object</h2>
+      <div class="flow-pipeline" aria-label="RBAC grant flow">
+        <div class="flow-node source">
+          <span class="flow-tag">1 · Container</span>
+          <strong>USAGE on DB + schema</strong>
+          <span class="flow-sub">ALPINE_RETAIL · LAB</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">2 · Object</span>
+          <strong>SELECT on CUSTOMERS</strong>
+          <span class="flow-sub">to AR_LAB_READ</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">3 · Badge</span>
+          <strong>GRANT AR → FR</strong>
+          <span class="flow-sub">FR_ANALYST</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">4 · Human</span>
+          <strong>GRANT FR → USER</strong>
+          <span class="flow-sub">your login</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Kai: “Can’t you just GRANT SELECT TO my user?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">Why invent FR and AR? Just give me SELECT on the table.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Exam + real life: privileges live on <strong>roles</strong>, not on people. When Kai leaves, revoke the FR — the key-ring stays reusable for the next analyst.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Create FR and AR roles</h2>
+      <p class="teach"><strong>What this does:</strong> Stamps three empty badges — two jobs, one key-ring. No privileges yet.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · create roles</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+
+CREATE ROLE IF NOT EXISTS FR_ANALYST
+  COMMENT = 'Alpine analyst — Kai job badge';
+CREATE ROLE IF NOT EXISTS FR_DATA_ENGINEER
+  COMMENT = 'Alpine data engineer — Riley job badge';
+CREATE ROLE IF NOT EXISTS AR_LAB_READ
+  COMMENT = 'Access role: SELECT on LAB practice tables';</code></pre>
+      </div>
+      <div class="badge-ok">✓ Three roles exist — SHOW ROLES LIKE 'FR_%' / 'AR_%'</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 2 coach">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Why USAGE before SELECT?</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Peer engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">I granted SELECT and Kai still can’t see the table. Snowflake says “does not exist or not authorized.”</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Missing USAGE on database or schema. Snowflake won’t even walk into the room without USAGE — SELECT on the table alone isn’t enough.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> USAGE on database and schema</h2>
+      <p class="teach"><strong>What this does:</strong> Lets the key-ring enter the building (<code>ALPINE_RETAIL</code>) and the practice room (<code>LAB</code>).</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · USAGE grants</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>GRANT USAGE ON DATABASE ALPINE_RETAIL
+  TO ROLE AR_LAB_READ;
+GRANT USAGE ON SCHEMA ALPINE_RETAIL.LAB
+  TO ROLE AR_LAB_READ;</code></pre>
+      </div>
+      <div class="badge-ok">✓ AR_LAB_READ can “see” the schema path</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> SELECT on CUSTOMERS → AR → FR</h2>
+      <p class="teach"><strong>What this does:</strong> Hangs the SELECT key on <code>AR_LAB_READ</code>, then hands that key-ring to both job badges. Also grants warehouse USAGE so they can run queries.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · object + role grants</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>GRANT SELECT ON TABLE ALPINE_RETAIL.LAB.CUSTOMERS
+  TO ROLE AR_LAB_READ;
+
+GRANT ROLE AR_LAB_READ TO ROLE FR_ANALYST;
+GRANT ROLE AR_LAB_READ TO ROLE FR_DATA_ENGINEER;
+
+GRANT USAGE ON WAREHOUSE WH_CORE_XS TO ROLE FR_ANALYST;
+GRANT USAGE ON WAREHOUSE WH_CORE_XS TO ROLE FR_DATA_ENGINEER;</code></pre>
+      </div>
+      <p class="teach"><strong>Attach to your user</strong> (edit username once):</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · grant FR to you</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>-- GRANT ROLE FR_ANALYST TO USER IDENTIFIER('"YOUR_USERNAME"');</code></pre>
+      </div>
+      <div class="badge-ok">✓ Chain complete once FR is on your user</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> SHOW GRANTS — read the trail</h2>
+      <p class="teach"><strong>What this does:</strong> Lists privileges on the table, on the AR, and which roles received the AR. Look for <code>OWNERSHIP</code> on the lab-admin role.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · inspect grants</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SHOW GRANTS ON TABLE ALPINE_RETAIL.LAB.CUSTOMERS;
+SHOW GRANTS TO ROLE AR_LAB_READ;
+SHOW GRANTS TO ROLE FR_ANALYST;
+SHOW GRANTS OF ROLE AR_LAB_READ;</code></pre>
+      </div>
+      <div class="badge-ok">✓ See OWNERSHIP (lab admin) + SELECT (AR_LAB_READ)</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Proof coach">
+      <p class="comic-kicker">Before the proof</p>
+      <h2 class="comic-title">Snowsight secondary roles will lie to you</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">I switched to FR_ANALYST in the UI and I can still do everything lab admin can. Is RBAC broken?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Secondary roles are still on. Run <code>USE SECONDARY ROLES NONE</code> after every FR switch or your “proof” is fake. See SNOWSIGHT_GOTCHAS.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">5</span> Proof as FR_ANALYST (secondary roles NONE)</h2>
+      <p class="teach"><strong>What this does:</strong> Proves the analyst badge alone can SELECT. Run in a <em>separate</em> worksheet — do not Run All past the role switch.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · analyst proof</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE FR_ANALYST;
+USE SECONDARY ROLES NONE;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+
+SELECT CURRENT_ROLE(), CURRENT_SECONDARY_ROLES();
+SELECT CUSTOMER_ID, FULL_NAME, COUNTRY
+  FROM LAB.CUSTOMERS
+ ORDER BY CUSTOMER_ID
+ LIMIT 5;</code></pre>
+      </div>
+      <div class="badge-ok">✓ CURRENT_ROLE = FR_ANALYST · secondary = NONE · rows returned</div>
+      <div class="callout tip">
+        <strong>Cannot proof (optional)</strong>
+        As lab admin: <code>REVOKE ROLE AR_LAB_READ FROM ROLE FR_ANALYST;</code>
+        Then re-run the proof — expect insufficient privileges. Re-grant when done.
+      </div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">6</span> Future grants (awareness)</h2>
+      <p class="teach"><strong>What this does:</strong> New tables created later in <code>LAB</code> automatically get SELECT for <code>AR_LAB_READ</code> — so you don’t re-grant every time.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · future grants</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+GRANT SELECT ON FUTURE TABLES IN SCHEMA ALPINE_RETAIL.LAB
+  TO ROLE AR_LAB_READ;
+SHOW FUTURE GRANTS IN SCHEMA ALPINE_RETAIL.LAB;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Future SELECT listed for AR_LAB_READ</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <p>Basics got you the badges. Cover each answer <em>before</em> you open it.</p>
+      <details class="drill">
+        <summary><strong>Q1.</strong> Functional role vs access role — which holds SELECT on the table?</summary>
+        <p class="drill-say"><strong>Say:</strong> Access role (<code>AR_*</code>) holds object privileges. Functional role (<code>FR_*</code>) is the job badge granted to users; it inherits ARs. Exam likes “privileges on AR, people on FR.”</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> What does OWNERSHIP transfer change — and what stays?</summary>
+        <p class="drill-say"><strong>Say:</strong> New owner controls DDL and who else gets grants. Use <code>GRANT OWNERSHIP … COPY CURRENT GRANTS</code> so existing privileges don’t vanish. Ownership ≠ automatic SELECT for every role.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> Why use FUTURE GRANTS?</summary>
+        <p class="drill-say"><strong>Say:</strong> So new tables/views in a schema inherit privileges without manual re-grants. Without them, yesterday’s AR works on old tables and silently fails on new ones.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> Why do secondary roles break privilege proofs?</summary>
+        <p class="drill-say"><strong>Say:</strong> Snowsight often keeps ROLE_CORE_LAB_ADMIN (or ACCOUNTADMIN) as a secondary. Privileges union across primary + secondary. <code>USE SECONDARY ROLES NONE</code> isolates the FR you’re testing.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> You granted SELECT on the table but forgot USAGE on the schema. What happens?</summary>
+        <p class="drill-say"><strong>Say:</strong> Query fails with not authorized / object not found. Container USAGE (database + schema) is required before object privileges apply. Same for warehouse USAGE to run compute.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “Kai needed read access without becoming admin. I created FR_ANALYST and AR_LAB_READ, granted USAGE on ALPINE_RETAIL and LAB,
+      SELECT on LAB.CUSTOMERS to the access role, then the AR to the FR. I proved it with USE SECONDARY ROLES NONE so lab-admin powers couldn’t cheat.
+      <em>Outcome:</em> least-privilege analyst access, grant trail visible in SHOW GRANTS, ready for auth Lab 07.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 07 — how humans and services authenticate (MFA, SSO, keys, network policies).
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-05.html">← Lab 05</a>
+      <a class="btn primary" href="lab-07.html">Lab 07 — auth &amp; network →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/06_rbac.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

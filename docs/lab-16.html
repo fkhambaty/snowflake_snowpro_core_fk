@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 16 — Time Travel & Fail-safe</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a class="active" href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 16 · Domain 5 · You are Priya</p>
+    <h1>Undo the bad edit — Time Travel</h1>
+    <p class="lede">
+      Domain 5 starts here. You will query the past with <code>AT</code> / <code>BEFORE</code>,
+      <code>UNDROP</code> a table you just dropped, set retention, and learn why Fail-safe is
+      <em>not</em> something you run yourself.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Kai ran an UPDATE that wiped good notes on a scratch table. Morgan asks:
+      “Can we get yesterday’s version back without restoring from a nightly dump?”
+      Sam adds: “And if the retention window already closed?”
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      Scratch table in <code>ALPINE_RETAIL.LAB</code>, Time Travel query with <code>AT(OFFSET =&gt; …)</code>,
+      clone-at-timestamp, <code>DROP</code> then <code>UNDROP</code>, and a clear mental model:
+      Time Travel = you; Fail-safe = Snowflake Support only (7 days on permanent tables).
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Panic mode</strong>
+        <ul>
+          <li>Bad UPDATE already committed</li>
+          <li>“Restore from backup” talk</li>
+          <li>No idea what Fail-safe is</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>User-recoverable history</strong>
+        <ul>
+          <li><code>SELECT … AT / BEFORE</code></li>
+          <li><code>UNDROP TABLE</code> inside retention</li>
+          <li>Fail-safe ticket only after TT ends</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-16-open" aria-label="Kai broke the table">
+      <p class="comic-kicker">Episode 16 · Domain 5</p>
+      <h2 class="comic-title">Kai broke it. Dev refuses the backup story.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst — oops</span></div>
+          </div>
+          <blockquote class="comic-bubble">I UPDATEd every note to “oops.” Do we restore last night’s dump? That takes forever.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Not yet. Snowflake kept older micro-partitions for a retention window. Query them with Time Travel — or <code>UNDROP</code> if you deleted the whole table.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Picture: storage keeps old versions for a while. You point the query at “then.”</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — Time Travel vs Fail-safe</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">You recover</div>
+          <strong>Time Travel</strong>
+          <p>Query or undrop objects as they were, while inside <code>DATA_RETENTION_TIME_IN_DAYS</code>.</p>
+          <div class="see-example"><code>SELECT * FROM T AT(OFFSET =&gt; -3600)</code><br><code>UNDROP TABLE T;</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Support only</div>
+          <strong>Fail-safe</strong>
+          <p>After Time Travel expires: ~7 more days on <em>permanent</em> tables. You cannot SELECT into Fail-safe.</p>
+          <div class="see-example">Open a Support case<br>Not a SQL command</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Edition trap</div>
+          <strong>How long can TT be?</strong>
+          <p>Standard: default <strong>1 day</strong>. Enterprise (and above): up to <strong>90 days</strong>.</p>
+          <div class="see-example">Exam: “90-day TT on Standard?” → No</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Table type trap</div>
+          <strong>Transient / temporary</strong>
+          <p>Shorter or zero Fail-safe story: <strong>no Fail-safe</strong> on transient/temp. Don’t plan Support recovery for them.</p>
+          <div class="see-example">permanent → TT + Fail-safe<br>transient → TT only (short)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>AT vs BEFORE — same idea, different pointer</h2>
+      <div class="flow-pipeline" aria-label="Time Travel pointers">
+        <div class="flow-node source">
+          <span class="flow-tag">1 · Past</span>
+          <strong>AT(…)</strong>
+          <span class="flow-sub">inclusive of that moment</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">2 · Exclusive</span>
+          <strong>BEFORE(…)</strong>
+          <span class="flow-sub">state just before stmt/time</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">3 · Clone</span>
+          <strong>CLONE … AT</strong>
+          <span class="flow-sub">new table from old history</span>
+        </div>
+      </div>
+      <p>
+        You can point with <code>TIMESTAMP</code>, <code>OFFSET</code> (seconds), or <code>STATEMENT</code> (query id).
+        Exam loves: <em>BEFORE is exclusive of that statement</em>.
+      </p>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Before step 1">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Morgan: “Will this cost storage forever?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager — cost</span></div>
+          </div>
+          <blockquote class="comic-bubble">If we keep 90 days of history on every table, who pays?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Pipeline — pragmatist</span></div>
+          </div>
+          <blockquote class="comic-bubble">You do — Time Travel history is billable storage. Raise retention only where recovery matters. Default 1 day is fine for scratch tables.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Scratch table + a bad edit</h2>
+      <p class="teach"><strong>What this does:</strong> Creates <code>LAB.SCRATCH_TT</code>, inserts a good row, then overwrites it so we have history to query.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · scratch + bad UPDATE</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA LAB;
+
+CREATE OR REPLACE TABLE SCRATCH_TT (
+  ID NUMBER, NOTE STRING
+);
+INSERT INTO SCRATCH_TT VALUES (1, 'v1-original');
+UPDATE SCRATCH_TT SET NOTE = 'v2-oops-bad-edit' WHERE ID = 1;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Current row shows <code>v2-oops-bad-edit</code></div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Before step 2">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Kai: “Is AT a backup restore?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">When I SELECT AT OFFSET, am I rolling the live table back for everyone?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">No — that SELECT is a read of past micro-partitions. The live table stays on v2 until you deliberately rewrite it or clone/undrop.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Query the past with AT</h2>
+      <p class="teach"><strong>What this does:</strong> Reads the table as of ~60 seconds ago (bump the offset if your session was slow).</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · Time Travel SELECT</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SELECT * FROM SCRATCH_TT AT(OFFSET => -60);
+
+-- Exam syntax awareness (use a real query_id when you have one):
+-- SELECT * FROM SCRATCH_TT BEFORE(STATEMENT => '&lt;query_id&gt;');</code></pre>
+      </div>
+      <div class="badge-ok">✓ You should see <code>v1-original</code> (or empty if offset &gt; age of insert — raise offset)</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Retention + clone at timestamp</h2>
+      <p class="teach"><strong>What this does:</strong> Shows the retention parameter, sets 1 day on the scratch table, and clones history into a new table.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · retention + clone AT</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SHOW PARAMETERS LIKE 'DATA_RETENTION_TIME_IN_DAYS'
+  IN TABLE SCRATCH_TT;
+
+ALTER TABLE SCRATCH_TT SET DATA_RETENTION_TIME_IN_DAYS = 1;
+
+CREATE OR REPLACE TABLE SCRATCH_TT_CLONE_AT
+  CLONE SCRATCH_TT AT(OFFSET => -60);
+
+SELECT * FROM SCRATCH_TT_CLONE_AT;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Clone table exists; live <code>SCRATCH_TT</code> still on the bad edit</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Before step 4">
+      <p class="comic-kicker">Before Step 4</p>
+      <h2 class="comic-title">Sam: “What if they DROP the whole table?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
+          </div>
+          <blockquote class="comic-bubble">DROP feels permanent. Is UNDROP only for tables?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">UNDROP works for TABLE, SCHEMA, and DATABASE — while still inside Time Travel retention. After that window: Fail-safe / Support, not UNDROP.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> DROP then UNDROP</h2>
+      <p class="teach"><strong>What this does:</strong> Deletes the table object, then brings it back from Time Travel history.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · DROP / UNDROP</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>DROP TABLE SCRATCH_TT;
+
+UNDROP TABLE SCRATCH_TT;
+
+SELECT * FROM SCRATCH_TT;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Table is back; row still whatever it was at drop time</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <p>Cover each answer <em>before</em> you open it. Domain 5 loves these traps.</p>
+      <details class="drill">
+        <summary><strong>Q1.</strong> Time Travel vs Fail-safe — who can recover, and with what?</summary>
+        <p class="drill-say"><strong>Say:</strong> Time Travel is user-driven SQL (<code>AT</code>/<code>BEFORE</code>, <code>UNDROP</code>, clone-at-time) inside retention. Fail-safe is after TT expires: ~7 days on permanent tables, recoverable only via Snowflake Support — not a SELECT.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> Standard vs Enterprise Time Travel length?</summary>
+        <p class="drill-say"><strong>Say:</strong> Standard defaults to 1 day. Enterprise (and higher) can configure up to 90 days via <code>DATA_RETENTION_TIME_IN_DAYS</code>. Distractor: “Standard supports 90-day TT.”</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> Do transient tables have Fail-safe?</summary>
+        <p class="drill-say"><strong>Say:</strong> No. Transient and temporary tables do not have Fail-safe. They may have short Time Travel; do not plan Support recovery the same way as permanent tables.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> What can you UNDROP?</summary>
+        <p class="drill-say"><strong>Say:</strong> DATABASE, SCHEMA, and TABLE (and some related objects in the same spirit) within the Time Travel window. After retention ends, UNDROP fails — Fail-safe path is Support, not UNDROP.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Does raising retention to 90 days cost anything?</summary>
+        <p class="drill-say"><strong>Say:</strong> Yes — retained historical micro-partitions are billable storage. Use long retention where recovery justifies cost; keep scratch/lab tables at 0–1 day.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “Kai’s bad UPDATE didn’t need a nightly restore. I queried <code>SCRATCH_TT</code> with Time Travel AT OFFSET,
+      cloned history into <code>SCRATCH_TT_CLONE_AT</code>, then proved DROP + UNDROP.
+      Retention is <code>DATA_RETENTION_TIME_IN_DAYS</code> — Standard 1 day, Enterprise up to 90.
+      Fail-safe is seven extra days on permanent tables and Support-only — never something I SELECT.
+      <em>Outcome:</em> Domain 5 recovery story locked for the exam.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 17 — zero-copy clones and the replication story (when storage charges start).
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-15.html">← Lab 15</a>
+      <a class="btn primary" href="lab-17.html">Lab 17 — clone &amp; replicate →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/16_timetravel.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

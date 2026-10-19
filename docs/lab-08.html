@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 08 — Governance (masking, RAP, tags)</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a class="active" href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 08 · Domain 2 · You are Priya</p>
+    <h1>Hide columns, filter rows, label data</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      RBAC decides <em>if</em> you can query a table. Governance decides <em>which cells and rows</em> you see.
+      Needs Lab 00 customers + Lab 06 <code>FR_ANALYST</code> / <code>AR_LAB_READ</code>.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Kai needs customer lists for a US campaign. Sam forbids clear emails and non-US rows in Kai’s results.
+      “Same table for Priya (clear) and Kai (masked + US only). No second copy forever.”
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      <code>SECURE.CUSTOMERS_PII</code> from <code>LAB.CUSTOMERS</code>, masking policy on <code>EMAIL</code>,
+      row access policy on <code>COUNTRY</code>, object tags for cost/class.
+      Proof: lab admin sees all · <code>FR_ANALYST</code> + <code>SECONDARY ROLES NONE</code> sees masked US rows.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>One SELECT = everything</strong>
+        <ul>
+          <li>Clear emails for every role</li>
+          <li>CA / UK rows leak to US campaign</li>
+          <li>No labels for auditors</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Same table, different view</strong>
+        <ul>
+          <li>EMAIL masked unless lab admin</li>
+          <li>RAP keeps FR_ANALYST on US</li>
+          <li>Tags: PII + cost center</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-08-open" aria-label="Sam wants policies">
+      <p class="comic-kicker">Episode 08 · Start here</p>
+      <h2 class="comic-title">Sam draws a curtain and a velvet rope.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
+          </div>
+          <blockquote class="comic-bubble">Masking = curtain over a <em>column</em>. Row access = velvet rope at the door — some rows never enter Kai’s result set.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">Same <code>SELECT *</code>, different movie depending on my role. Policies use <code>CURRENT_ROLE()</code> — primary role only.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Column problem → masking · Row problem → RAP · Don’t swap them on the exam.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — two different problems</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Column</div>
+          <strong>Masking policy</strong>
+          <p>You get the row, but sensitive cells rewrite (e.g. <code>****@example.com</code>).</p>
+          <div class="see-example">Admin: ava.patel@…<br>Analyst: ****@example.com</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Row</div>
+          <strong>Row access policy</strong>
+          <p>Entire rows disappear from the result. Analyst never sees CA/UK customers.</p>
+          <div class="see-example">Admin: 5 rows<br>Analyst: US only</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Label</div>
+          <strong>Object tags</strong>
+          <p>Metadata stickers for cost chargeback and classification — not a substitute for masking.</p>
+          <div class="see-example"><code>TAG_DATA_CLASS=PII</code><br><code>TAG_COST_CENTER=…</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Awareness</div>
+          <strong>Classification &amp; lineage</strong>
+          <p>Classification suggests PII tags. Lineage shows upstream/downstream impact. Exam awareness.</p>
+          <div class="see-example">Who feeds CUSTOMERS_PII?<br>What breaks if we drop it?</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Objects in this lab</h2>
+      <div class="flow-pipeline" aria-label="Governance object flow">
+        <div class="flow-node source">
+          <span class="flow-tag">1 · Source</span>
+          <strong>LAB.CUSTOMERS</strong>
+          <span class="flow-sub">Lab 00 sample</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">2 · Secure copy</span>
+          <strong>SECURE.CUSTOMERS_PII</strong>
+          <span class="flow-sub">policies attach here</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">3 · Policies</span>
+          <strong>MP_EMAIL + RAP_US</strong>
+          <span class="flow-sub">CURRENT_ROLE()</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">4 · Proof</span>
+          <strong>FR_ANALYST</strong>
+          <span class="flow-sub">SECONDARY ROLES NONE</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Why a SECURE copy?</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">Can’t we just mask LAB.CUSTOMERS? Why invent SECURE?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Practice rooms stay messy. Locked room = where policies live. Exam story: put sensitive governed objects in a dedicated schema.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Create SECURE.CUSTOMERS_PII</h2>
+      <p class="teach"><strong>What this does:</strong> Copies Lab 00 customers into the locked schema so we can attach policies without surprising other labs.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · secure table</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA SECURE;
+
+CREATE OR REPLACE TABLE CUSTOMERS_PII AS
+SELECT * FROM ALPINE_RETAIL.LAB.CUSTOMERS;
+
+SELECT COUNT(*) AS N FROM CUSTOMERS_PII;</code></pre>
+      </div>
+      <div class="badge-ok">✓ N = 5 (if Lab 00 sample finished)</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Masking policy on EMAIL</h2>
+      <p class="teach"><strong>What this does:</strong> Lab admin / ACCOUNTADMIN see clear email. Everyone else sees <code>****@…</code>. Body uses <code>CURRENT_ROLE()</code> (primary only).</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · create + attach mask</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE MASKING POLICY MP_EMAIL_MASK AS (VAL STRING)
+  RETURNS STRING ->
+  CASE
+    WHEN CURRENT_ROLE() IN ('ROLE_CORE_LAB_ADMIN', 'ACCOUNTADMIN')
+      THEN VAL
+    ELSE REGEXP_REPLACE(VAL, '.+@', '****@')
+  END;
+
+ALTER TABLE CUSTOMERS_PII MODIFY COLUMN EMAIL
+  SET MASKING POLICY MP_EMAIL_MASK;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Policy attached to EMAIL column</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="RAP coach">
+      <p class="comic-kicker">Before Step 3</p>
+      <h2 class="comic-title">Riley mixes up masking and RAP</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Peer engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">I’ll mask COUNTRY to hide Canada. Done, right?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
+          </div>
+          <blockquote class="comic-bubble">Wrong tool. Masking rewrites a cell; the row still exists (and other columns leak). RAP removes the row. Canada needs RAP.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Row access policy on COUNTRY</h2>
+      <p class="teach"><strong>What this does:</strong> Lab admin sees all countries. <code>FR_ANALYST</code> only gets rows where <code>COUNTRY = 'US'</code>.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · RAP create + attach</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE ROW ACCESS POLICY RAP_COUNTRY_US
+  AS (COUNTRY STRING) RETURNS BOOLEAN ->
+  CASE
+    WHEN CURRENT_ROLE() IN ('ROLE_CORE_LAB_ADMIN', 'ACCOUNTADMIN')
+      THEN TRUE
+    WHEN CURRENT_ROLE() = 'FR_ANALYST' AND COUNTRY = 'US'
+      THEN TRUE
+    ELSE FALSE
+  END;
+
+ALTER TABLE CUSTOMERS_PII
+  ADD ROW ACCESS POLICY RAP_COUNTRY_US ON (COUNTRY);</code></pre>
+      </div>
+      <div class="badge-ok">✓ RAP bound to COUNTRY column</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> Tags for cost and classification</h2>
+      <p class="teach"><strong>What this does:</strong> Stickers auditors and FinOps can query — “this table is PII” and “charge RETAIL_OPS.”</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · tags</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE TAG IF NOT EXISTS TAG_COST_CENTER
+  ALLOWED_VALUES 'RETAIL_OPS', 'DATA_PLATFORM', 'MARKETING';
+CREATE TAG IF NOT EXISTS TAG_DATA_CLASS
+  ALLOWED_VALUES 'PUBLIC', 'INTERNAL', 'PII', 'SENSITIVE';
+
+ALTER TABLE CUSTOMERS_PII SET TAG
+  TAG_COST_CENTER = 'RETAIL_OPS',
+  TAG_DATA_CLASS = 'PII';</code></pre>
+      </div>
+      <div class="badge-ok">✓ Tags set on table (optional: tag EMAIL column too — see SQL file)</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">5</span> Grant SELECT path + proof as lab admin</h2>
+      <p class="teach"><strong>What this does:</strong> Lets <code>AR_LAB_READ</code> see the secure table, then shows clear emails and all countries as lab admin.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · grants + admin proof</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>GRANT USAGE ON SCHEMA ALPINE_RETAIL.SECURE TO ROLE AR_LAB_READ;
+GRANT SELECT ON TABLE ALPINE_RETAIL.SECURE.CUSTOMERS_PII
+  TO ROLE AR_LAB_READ;
+
+SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
+  FROM CUSTOMERS_PII
+ ORDER BY CUSTOMER_ID;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Clear emails · US + CA + UK visible</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Proof coach">
+      <p class="comic-kicker">Before Step 6</p>
+      <h2 class="comic-title">Secondary roles break masking proofs too</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">I switched to FR_ANALYST and still see clear email. Is the masking policy broken?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Policy body checks <code>CURRENT_ROLE()</code> = primary. Table access still unions secondaries — but if lab admin is secondary you may still pass other checks. Always <code>USE SECONDARY ROLES NONE</code> for FR proofs.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">6</span> Proof as FR_ANALYST (SECONDARY ROLES NONE)</h2>
+      <p class="teach"><strong>What this does:</strong> Proves masked email + US-only rows. Run alone — not in a Run All with lab-admin setup.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · analyst proof</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE FR_ANALYST;
+USE SECONDARY ROLES NONE;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+
+SELECT CURRENT_ROLE(), CURRENT_SECONDARY_ROLES();
+SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
+  FROM SECURE.CUSTOMERS_PII
+ ORDER BY CUSTOMER_ID;</code></pre>
+      </div>
+      <div class="badge-ok">✓ EMAIL like ****@… · only US countries · no CA/UK</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <p>Basics attached the policies. Cover each answer <em>before</em> you open it.</p>
+      <details class="drill">
+        <summary><strong>Q1.</strong> Masking vs row access — column vs row?</summary>
+        <p class="drill-say"><strong>Say:</strong> Masking rewrites column values; rows still return. RAP returns a boolean per row — false rows never appear. Pick masking for PII cells, RAP for tenancy/region filters.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> Why does CURRENT_ROLE() in a policy ignore secondary roles?</summary>
+        <p class="drill-say"><strong>Say:</strong> Policy expressions evaluate <code>CURRENT_ROLE()</code> as the primary role only. That’s why FR proofs need the intended primary and why secondary-role unions confuse access tests.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> What are object tags for if they don’t hide data?</summary>
+        <p class="drill-say"><strong>Say:</strong> Metadata for cost chargeback, classification, and automation. Auditors query tags; FinOps groups spend. Tags don’t replace masking/RAP.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> Classification and lineage — exam one-liners?</summary>
+        <p class="drill-say"><strong>Say:</strong> Classification helps discover/label sensitive columns. Lineage shows upstream/downstream dependencies for impact analysis. Both are governance awareness topics on Core.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Can Kai bypass masking with <code>SELECT EMAIL || ''</code> or a view?</summary>
+        <p class="drill-say"><strong>Say:</strong> Masking applies to the column through queries; you don’t get clear text by wrapping expressions as a non-privileged role. (Owners/exempt roles still see clear — least privilege on those roles matters.)</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “We copied customers into SECURE.CUSTOMERS_PII, masked EMAIL for non-admins, and added a row access policy so FR_ANALYST only sees US rows.
+      Tags labeled the table PII with a cost center. I proved as FR_ANALYST with SECONDARY ROLES NONE — masked emails, US only.
+      <em>Outcome:</em> one table, role-aware privacy, ready for FinOps Lab 09.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 09 — resource monitors, credit math, ACCOUNT_USAGE lag.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-07.html">← Lab 07</a>
+      <a class="btn primary" href="lab-09.html">Lab 09 — FinOps →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/08_governance.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

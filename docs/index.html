@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alpine Retail — SnowPro Core Prep</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a class="active" href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="EXAM_BLUEPRINT.md">Blueprint</a>
+        <a href="lab-00.html">00</a>
+        <a href="#labs">Labs</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <section class="hero">
+      <p class="eyebrow">Alpine Retail · You are Priya Chen · COF-C03 · Labs 00–19</p>
+      <h1>Pass SnowPro Core.<br />One plain-English lab at a time.</h1>
+      <p class="lede">
+        Not random flashcards. A full workshop that covers every COF-C03 domain —
+        architecture, security, loading, performance, collaboration — with comics, tiny SQL, and exam drills.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="story.html">1. Read the Alpine story</a>
+        <a class="btn ghost" href="lab-00.html">2. Start Lab 00</a>
+      </div>
+    </section>
+
+    <section>
+      <h2>Required context (read before Lab 00)</h2>
+      <div class="story">
+        <div class="story-label">The situation</div>
+        <p>
+          <strong>Alpine Retail</strong> hired <strong>Priya Chen</strong> (that’s you).
+          Manager <strong>Morgan Hale</strong> wants Snowflake live <em>and</em> your <strong>SnowPro Core</strong> badge within weeks.
+          Coach <strong>Dev Okonkwo</strong> teaches you like you’re smart but new — no jargon wall.
+        </p>
+        <ul class="cast">
+          <li><strong>Kai Rivera</strong> — Analyst (asks the questions you’re too shy to ask)</li>
+          <li><strong>Riley Okada</strong> — Data Engineer peer (loading &amp; pipelines)</li>
+          <li><strong>Sam Park</strong> — Compliance (governance &amp; security)</li>
+        </ul>
+        <p>Database you will build: <code>ALPINE_RETAIL</code>. Full cast: <a href="story.html">Story</a>.</p>
+      </div>
+
+      <div class="story">
+        <div class="story-label">Exam at a glance (COF-C03)</div>
+        <table class="gloss">
+          <tr><th>Domain</th><th>Weight</th><th>Labs</th></tr>
+          <tr><td>Architecture</td><td>31%</td><td>01–05</td></tr>
+          <tr><td>Account &amp; governance</td><td>20%</td><td>06–09</td></tr>
+          <tr><td>Loading &amp; connectivity</td><td>18%</td><td>10–12</td></tr>
+          <tr><td>Performance &amp; SQL</td><td>21%</td><td>13–15</td></tr>
+          <tr><td>Collaboration</td><td>10%</td><td>16–18</td></tr>
+          <tr><td>Mock exam</td><td>—</td><td>19</td></tr>
+        </table>
+        <p>Checklist: <a href="EXAM_BLUEPRINT.md">EXAM_BLUEPRINT.md</a> · Schedule: <a href="COURSE_SCHEDULE.md">COURSE_SCHEDULE.md</a></p>
+      </div>
+
+      <div class="callout tip">
+        <strong>How this course teaches</strong>
+        Every lab: problem → BEFORE/AFTER → <strong>comics</strong> (Kai asks, Dev explains why) → tiny SQL →
+        <strong>Exam presses further</strong> → Priya wrap-up.
+        If a step feels hard: read the comic above it before the SQL.
+        <a href="TEACHING_STANDARD.md">Teaching standard</a> · <a href="SNOWSIGHT_GOTCHAS.md">Snowsight gotchas</a>.
+      </div>
+    </section>
+
+    <section id="labs">
+      <h2>Labs</h2>
+      <div class="grid">
+        <a class="card" href="lab-00.html"><span class="num">00</span><h3>Build the workshop</h3><p>Problem: no Snowflake home. → ALPINE_RETAIL.</p></a>
+        <a class="card" href="lab-01.html"><span class="num">01</span><h3>Three layers + editions</h3><p>Architecture heart of the exam.</p></a>
+        <a class="card" href="lab-02.html"><span class="num">02</span><h3>Object catalog</h3><p>Tables, views, stages, pipes, shares…</p></a>
+        <a class="card" href="lab-03.html"><span class="num">03</span><h3>Micro-partitions</h3><p>Clustering &amp; storage monitoring.</p></a>
+        <a class="card" href="lab-04.html"><span class="num">04</span><h3>Table types</h3><p>Perm / transient / Iceberg / Dynamic.</p></a>
+        <a class="card" href="lab-05.html"><span class="num">05</span><h3>Interfaces + AI</h3><p>Snowsight, Snowpark, Cortex, Streamlit.</p></a>
+        <a class="card" href="lab-06.html"><span class="num">06</span><h3>RBAC badges</h3><p>Roles, grants, ownership.</p></a>
+        <a class="card" href="lab-07.html"><span class="num">07</span><h3>Auth &amp; network</h3><p>MFA, SSO, key-pair, Trust Center.</p></a>
+        <a class="card" href="lab-08.html"><span class="num">08</span><h3>Governance policies</h3><p>Masking, RAP, tags, lineage.</p></a>
+        <a class="card" href="lab-09.html"><span class="num">09</span><h3>Credits &amp; monitors</h3><p>FinOps + ACCOUNT_USAGE.</p></a>
+        <a class="card" href="lab-10.html"><span class="num">10</span><h3>Stages &amp; COPY</h3><p>Load, unload, file formats.</p></a>
+        <a class="card" href="lab-11.html"><span class="num">11</span><h3>Snowpipe</h3><p>Auto-ingest + Streaming story.</p></a>
+        <a class="card" href="lab-12.html"><span class="num">12</span><h3>Streams &amp; tasks</h3><p>Plus Dynamic Tables.</p></a>
+        <a class="card" href="lab-13.html"><span class="num">13</span><h3>Query Profile</h3><p>Caches, pruning, QAS.</p></a>
+        <a class="card" href="lab-14.html"><span class="num">14</span><h3>Warehouse scaling</h3><p>Size vs scale-out vs MCW.</p></a>
+        <a class="card" href="lab-15.html"><span class="num">15</span><h3>SQL + VARIANT</h3><p>QUALIFY, MERGE, FLATTEN.</p></a>
+        <a class="card" href="lab-16.html"><span class="num">16</span><h3>Time Travel</h3><p>UNDROP, Fail-safe windows.</p></a>
+        <a class="card" href="lab-17.html"><span class="num">17</span><h3>Clone &amp; replicate</h3><p>Zero-copy + DR vocabulary.</p></a>
+        <a class="card" href="lab-18.html"><span class="num">18</span><h3>Share &amp; Marketplace</h3><p>Reader accounts, Clean Rooms.</p></a>
+        <a class="card" href="lab-19.html"><span class="num">19</span><h3>Mock exam</h3><p>Timed domain drills — book only after this.</p></a>
+      </div>
+    </section>
+  </div>
+  <footer class="footer">
+    Alpine Retail · SnowPro Core (COF-C03) · Cleanup: <code>sql/cleanup_lab.sql</code>
+  </footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

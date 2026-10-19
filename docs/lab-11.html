@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 11 — Snowpipe vs COPY</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a class="active" href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 11 · Domain 3 · You are Priya</p>
+    <h1>Snowpipe — stop babysitting COPY</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      Lab 10 was you running <code>COPY INTO</code> by hand. Today Alpine gets a <em>pipe</em> —
+      a named object that owns a COPY statement and can wake up when new files land.
+      Also: <strong>Snowpipe Streaming</strong> (COF-C03) vs classic file-based pipe.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Riley drops CSVs into cloud storage all day. Kai keeps asking “did anyone run COPY?”
+      Morgan hates idle warehouse credits for a human who forgets to load files.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      A <code>PIPELINE</code> landing table, a <code>CREATE PIPE … AS COPY INTO …</code> object, and a clear story for
+      <code>AUTO_INGEST</code> notifications vs manual <code>ALTER PIPE … REFRESH</code>.
+      Plus see-cards that separate classic Snowpipe (files) from Snowpipe Streaming (rows).
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Human-driven batch</strong>
+        <ul>
+          <li>Someone remembers to run COPY</li>
+          <li>Warehouse burns while you wait</li>
+          <li>Missed files = silent lag</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Pipe owns the COPY</strong>
+        <ul>
+          <li><code>PIPE_ORDERS_AUTO</code> wraps COPY</li>
+          <li>Serverless load credits (not your WH)</li>
+          <li>AUTO_INGEST + cloud events (prod story)</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-11-open" aria-label="Riley wants continuous load">
+      <p class="comic-kicker">Episode 11 · Start here</p>
+      <h2 class="comic-title">Riley: “I’m tired of hitting Run on COPY.”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer — pipelines</span></div>
+          </div>
+          <blockquote class="comic-bubble">Files land every few minutes. If I’m in a meeting, Alpine’s dashboard is stale. Can’t Snowflake just… notice?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach — explains why</span></div>
+          </div>
+          <blockquote class="comic-bubble">That’s Snowpipe. You create a <strong>pipe</strong> that <em>is</em> a COPY statement. Cloud storage pings Snowflake; the pipe loads without you babysitting a warehouse schedule.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Exam picture: stage + files → pipe (COPY) → table. Streaming is a different door.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — COPY vs pipe vs streaming</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">You run it</div>
+          <strong>Manual COPY (Lab 10)</strong>
+          <p>You (or a Task) execute <code>COPY INTO</code>. Uses a virtual warehouse.</p>
+          <div class="see-example">File on stage → you click Run → rows in table</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Object owns COPY</div>
+          <strong>Classic Snowpipe</strong>
+          <p>Named pipe wraps COPY. Serverless compute. Best for files landing on blob storage.</p>
+          <div class="see-example"><code>CREATE PIPE … AS COPY INTO …</code></div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">AUTO_INGEST</div>
+          <strong>Cloud notifies Snowflake</strong>
+          <p>S3/GCS/Azure events → queue → pipe wakes. No cron COPY for each file.</p>
+          <div class="see-example">New <code>orders_*.csv</code> → event → load</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">COF-C03</div>
+          <strong>Snowpipe Streaming</strong>
+          <p>Rows via SDK/API — not file→stage→COPY. Sub-second ingest for clickstream/IoT.</p>
+          <div class="see-example">App writes rows → table (no pipe object)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Flow — where the pipe sits</h2>
+      <div class="flow-pipeline" aria-label="Snowpipe flow">
+        <div class="flow-node source">
+          <span class="flow-tag">1 · Files</span>
+          <strong>Cloud / stage</strong>
+          <span class="flow-sub">@LAB.STG_INBOUND</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">2 · Pipe</span>
+          <strong>PIPE_ORDERS_AUTO</strong>
+          <span class="flow-sub">owns COPY statement</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">3 · Table</span>
+          <strong>STG_ORDERS_LANDING</strong>
+          <span class="flow-sub">PIPELINE schema</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Kai: “Is the pipe a warehouse?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst — still learning</span></div>
+          </div>
+          <blockquote class="comic-bubble">So I create a bigger warehouse and that’s how Snowpipe goes faster?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Nope. Classic Snowpipe uses <strong>serverless</strong> compute — billed as Snowpipe credits, not your <code>WH_CORE_XS</code> size. Don’t resize the warehouse to “speed up the pipe.”</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Landing table in PIPELINE</h2>
+      <p class="teach"><strong>What this does:</strong> Creates the table the pipe will load into — Alpine’s “inbox” for order files.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · landing table</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA PIPELINE;
+
+CREATE OR REPLACE TABLE PIPELINE.STG_ORDERS_LANDING (
+  ORDER_ID     NUMBER,
+  CUSTOMER_ID  NUMBER,
+  ORDER_TS     TIMESTAMP_NTZ,
+  AMOUNT_USD   NUMBER(10,2),
+  STATUS       STRING,
+  LOADED_AT    TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+);</code></pre>
+      </div>
+      <div class="badge-ok">✓ Table exists under PIPELINE — empty until files load</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 2 coach">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Morgan: “Will AUTO_INGEST work on my trial?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager — cost &amp; deadline</span></div>
+          </div>
+          <blockquote class="comic-bubble">I need the exam answer, not a three-week AWS ticket. What do we actually run today?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">We <code>CREATE PIPE … AS COPY</code> so I can <code>SHOW</code>/<code>DESC</code> it. <code>AUTO_INGEST = TRUE</code> needs a real notification channel — I’ll say that story out loud even if we leave it FALSE in the lab.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> CREATE PIPE that wraps COPY</h2>
+      <p class="teach"><strong>What this does:</strong> Defines the pipe object. <code>AUTO_INGEST = FALSE</code> still creates a real pipe you can describe; prod would flip TRUE after wiring S3/SNS (or Azure/GCP equivalents).</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · create pipe</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE PIPE PIPELINE.PIPE_ORDERS_AUTO
+  AUTO_INGEST = FALSE
+  COMMENT = 'Demo pipe — wire notifications for AUTO_INGEST'
+  AS
+  COPY INTO PIPELINE.STG_ORDERS_LANDING
+    (ORDER_ID, CUSTOMER_ID, ORDER_TS, AMOUNT_USD, STATUS)
+  FROM (
+    SELECT $1::NUMBER, $2::NUMBER, $3::TIMESTAMP_NTZ,
+           $4::NUMBER(10,2), $5::STRING
+    FROM @LAB.STG_INBOUND
+  )
+  FILE_FORMAT = (FORMAT_NAME = 'LAB.FF_CSV_STD');</code></pre>
+      </div>
+      <p class="teach">If <code>@LAB.STG_INBOUND</code> or the file format is missing, run the stage bits at the top of <code>sql/11_snowpipe.sql</code> first (Lab 02 created them).</p>
+      <div class="badge-ok">✓ Pipe created — definition stores the COPY</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Prove the object + status</h2>
+      <p class="teach"><strong>What this does:</strong> Exam-friendly SHOW/DESC + pipe status. Manual catch-up uses <code>ALTER PIPE … REFRESH</code> when AUTO_INGEST is off or events were missed.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · show / status</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SHOW PIPES LIKE 'PIPE_ORDERS%' IN SCHEMA PIPELINE;
+DESC PIPE PIPELINE.PIPE_ORDERS_AUTO;
+SELECT SYSTEM$PIPE_STATUS('PIPELINE.PIPE_ORDERS_AUTO');
+
+-- Catch-up when not using cloud events:
+-- ALTER PIPE PIPELINE.PIPE_ORDERS_AUTO REFRESH;</code></pre>
+      </div>
+      <div class="badge-ok">✓ You can name the pipe, its COPY target, and how status is checked</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 4 coach">
+      <p class="comic-kicker">Before Step 4</p>
+      <h2 class="comic-title">Streaming is not “a faster pipe”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">Exam distractor: “Snowpipe Streaming means AUTO_INGEST on a pipe.” That’s wrong, right?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Right. Streaming = row API/SDK path. Classic pipe = files on a stage + COPY. Same product family, different ingest shape. Say both on COF-C03.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> Notification story (commented — study aloud)</h2>
+      <p class="teach"><strong>What this does:</strong> You don’t need a working SQS ARN today. You <em>do</em> need the mental model: notification integration → AUTO_INGEST pipe → no human COPY.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · awareness (commented)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>-- CREATE NOTIFICATION INTEGRATION IF NOT EXISTS NI_S3_ORDERS
+--   TYPE = QUEUE ENABLED = TRUE
+--   NOTIFICATION_PROVIDER = AWS_SQS
+--   AWS_SQS_ARN = 'arn:aws:sqs:...';
+--
+-- Then CREATE PIPE ... AUTO_INGEST = TRUE AS COPY INTO ...
+-- From external stage pointing at the bucket that emits events.</code></pre>
+      </div>
+      <div class="badge-ok">✓ You can explain the integration without wiring AWS in class</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <p>Basics got you a pipe object. Cover each answer <em>before</em> you open it.</p>
+      <details class="drill">
+        <summary><strong>Q1.</strong> How is classic Snowpipe billed vs a warehouse COPY?</summary>
+        <p class="drill-say"><strong>Say:</strong> Snowpipe uses serverless compute billed as Snowpipe credits. Manual COPY uses the virtual warehouse you chose. Don’t say “resize WH to speed Snowpipe.”</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> Snowpipe Streaming vs classic pipe — when each?</summary>
+        <p class="drill-say"><strong>Say:</strong> Classic pipe for files landing on cloud storage (stage + COPY). Streaming for high-throughput row ingest via SDK/API when you need near real-time without file batches.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> When should you NOT use Snowpipe?</summary>
+        <p class="drill-say"><strong>Say:</strong> One-off historical backfills, heavy transforms mid-load (load raw then transform), or when a simple scheduled COPY/Task is enough and notification plumbing isn’t worth it.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> What does AUTO_INGEST actually depend on?</summary>
+        <p class="drill-say"><strong>Say:</strong> A cloud storage event / notification channel (e.g. SQS for S3) so Snowflake learns new files arrived. Without it, use REFRESH or stick to manual COPY/Tasks.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Does creating a pipe load existing files immediately?</summary>
+        <p class="drill-say"><strong>Say:</strong> Not magically for all history. AUTO_INGEST reacts to new events; use ALTER PIPE … REFRESH (or COPY) to catch files already sitting on the stage.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “Alpine was waiting on humans to run COPY. I created PIPELINE.STG_ORDERS_LANDING and PIPE_ORDERS_AUTO as a COPY wrapped in a pipe object.
+      Classic Snowpipe is serverless file ingest; AUTO_INGEST needs cloud notifications. Snowpipe Streaming is the row/SDK path — not the same as AUTO_INGEST.
+      <em>Outcome:</em> I can pick COPY vs pipe vs streaming on the exam without mixing the billing stories.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 12 turns change data into Streams + Tasks, and contrasts Dynamic Tables with Snowpipe.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-10.html">← Lab 10</a>
+      <a class="btn primary" href="lab-12.html">Lab 12 — streams &amp; tasks →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/11_snowpipe.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

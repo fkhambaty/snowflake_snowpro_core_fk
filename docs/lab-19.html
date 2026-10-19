@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 19 — SnowPro Core mock exam</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a class="active" href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 19 · Capstone · You are Priya</p>
+    <h1>Timed mock — 40 questions</h1>
+    <p class="lede">
+      COF-C03 style coverage across all five domains. No giant SQL — this is exam muscle.
+      Full key also in <a href="MOCK_ANSWERS.md">MOCK_ANSWERS.md</a>. Night-before tips:
+      <a href="EXAM_DAY_PLAYBOOK.md">EXAM_DAY_PLAYBOOK.md</a>.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Morgan booked Pearson VUE next month. Priya feels “mostly ready” but has never sat a
+      full timed set. Guessing on Domain 5 and warehouse scale-out will waste a seat fee.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      One honest timed mock: 45 minutes, 40 questions, score yourself /40.
+      Need <strong>≥32 (80%)</strong> before you book. Weak-spot map sends you back to the right labs.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Hope-based booking</strong>
+        <ul>
+          <li>“I watched the videos”</li>
+          <li>No timed practice</li>
+          <li>Guess on edition traps</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Evidence-based booking</strong>
+        <ul>
+          <li>≥32/40 under time</li>
+          <li>Weak domains re-drilled</li>
+          <li>Playbook night before</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-19-open" aria-label="Mock exam start">
+      <p class="comic-kicker">Episode 19 · Capstone</p>
+      <h2 class="comic-title">Morgan: “Book after proof, not vibes.”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
+          </div>
+          <blockquote class="comic-bubble">Forty questions. Timer on. No peeking at answers until you’re done. Eighty percent or we don’t book.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">Deal. I’ll mark wrong domains, re-say the drills aloud, then retake once cold.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Treat this like Pearson: one pass, then score. Peeking early trains false confidence.</p>
+    </section>
+
+    <section class="teach">
+      <h2>Instructions</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Time</div>
+          <strong>45 minutes</strong>
+          <p>Phone timer. Close other tabs. ~1 minute per question average.</p>
+          <div class="see-example">Official exam is longer;<br>this is a focused mock</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Scoring</div>
+          <strong>≥32 / 40 (80%)</strong>
+          <p>Write A/B/C/D on paper. Open each <code>&lt;details&gt;</code> only after the full set.</p>
+          <div class="see-example">Also: MOCK_ANSWERS.md<br>for a clean key</div>
+        </div>
+      </div>
+      <p class="teach" style="margin-top:1rem">
+        Questions are grouped by domain. Each item lists four choices; expand <strong>Answer</strong>
+        for the correct letter and why distractors fail.
+      </p>
+    </section>
+
+    <!-- ===================== DOMAIN 1 ===================== -->
+    <section class="teach" id="domain-1">
+      <h2>Domain 1 — Architecture (Q1–Q12)</h2>
+      <p>~31% of the real exam. Labs 01–05.</p>
+      <ol class="exam-q">
+        <li>
+          <p>Which statement about virtual warehouses is true?</p>
+          <ul>
+            <li>A. Warehouses store micro-partitions for tables</li>
+            <li>B. Warehouses provide compute; table data lives in the storage layer</li>
+            <li>C. Larger warehouses always reduce storage cost</li>
+            <li>D. Cloud Services runs inside your warehouse size</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> WH = compute. Storage holds compressed micro-partitions. A confuses layers; C/D are wrong.</p>
+          </details>
+        </li>
+        <li>
+          <p>Name the three Snowflake architecture layers.</p>
+          <ul>
+            <li>A. Database, Schema, Table</li>
+            <li>B. Storage, Query Processing (warehouses), Cloud Services</li>
+            <li>C. Snowsight, SnowSQL, JDBC</li>
+            <li>D. Standard, Enterprise, Business Critical</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Classic three-layer answer. A is object hierarchy; C interfaces; D editions.</p>
+          </details>
+        </li>
+        <li>
+          <p>Which edition can configure Time Travel up to 90 days?</p>
+          <ul>
+            <li>A. Standard only</li>
+            <li>B. Enterprise and above</li>
+            <li>C. Reader accounts only</li>
+            <li>D. Any edition with Fail-safe enabled</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Standard defaults to 1 day; Enterprise+ for up to 90. Fail-safe ≠ TT length control.</p>
+          </details>
+        </li>
+        <li>
+          <p>Micro-partitions are best described as:</p>
+          <ul>
+            <li>A. Fixed 50 MB row groups you manually size</li>
+            <li>B. Contiguous compressed storage units Snowflake manages automatically</li>
+            <li>C. Warehouse cache blocks only</li>
+            <li>D. One partition per table always</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Auto-managed compressed units (~16 MB uncompressed target historically). Not warehouse cache; not one-per-table.</p>
+          </details>
+        </li>
+        <li>
+          <p>Which interface is the web UI for Snowflake?</p>
+          <ul>
+            <li>A. SnowSQL</li>
+            <li>B. Snowsight</li>
+            <li>C. Kafka Connector only</li>
+            <li>D. Fail-safe console</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Snowsight = web. SnowSQL = CLI.</p>
+          </details>
+        </li>
+        <li>
+          <p>Which is NOT a table type category the exam expects you to distinguish?</p>
+          <ul>
+            <li>A. Permanent</li>
+            <li>B. Transient</li>
+            <li>C. Temporary</li>
+            <li>D. Fail-safe table</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>D.</strong> Fail-safe is a retention period after TT — not a CREATE TABLE type.</p>
+          </details>
+        </li>
+        <li>
+          <p>Cloud Services layer includes:</p>
+          <ul>
+            <li>A. Only virtual warehouse CPU</li>
+            <li>B. Authentication, metadata, query optimization/management</li>
+            <li>C. Only S3/Blob customer buckets you create</li>
+            <li>D. Only Snowpipe billing</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Cloud Services = control plane (auth, metadata, optimizer, etc.).</p>
+          </details>
+        </li>
+        <li>
+          <p>Business Critical is most associated with which need?</p>
+          <ul>
+            <li>A. Free reader accounts only</li>
+            <li>B. Higher security / some advanced failover &amp; compliance features</li>
+            <li>C. Disabling Cloud Services</li>
+            <li>D. Removing Time Travel</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> BC for stricter security and many HA/failover capabilities.</p>
+          </details>
+        </li>
+        <li>
+          <p>A secure view is used primarily to:</p>
+          <ul>
+            <li>A. Force warehouse size to X-Small</li>
+            <li>B. Hide underlying details / prevent some optimization peeking at base objects</li>
+            <li>C. Replace Fail-safe</li>
+            <li>D. Enable Marketplace billing only</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Secure views protect definition/underlying object exposure compared to normal views.</p>
+          </details>
+        </li>
+        <li>
+          <p>Which cloud partners host Snowflake? (exam spirit)</p>
+          <ul>
+            <li>A. Only on-prem VMware</li>
+            <li>B. Major public clouds (AWS, Azure, GCP)</li>
+            <li>C. Only AWS Gov alone forever</li>
+            <li>D. Customer laptop Docker only</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Multi-cloud SaaS on AWS/Azure/GCP (regions/editions vary).</p>
+          </details>
+        </li>
+        <li>
+          <p>Cortex / Snowpark / Streamlit in Snowflake sit closest to which blueprint theme?</p>
+          <ul>
+            <li>A. Fail-safe administration</li>
+            <li>B. AI / apps / developer platforms (architecture awareness)</li>
+            <li>C. COPY INTO file formats only</li>
+            <li>D. Reader account billing only</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Domain 1 AI/apps awareness on C03.</p>
+          </details>
+        </li>
+        <li>
+          <p>Clustering keys help primarily with:</p>
+          <ul>
+            <li>A. Making warehouses auto-suspend faster</li>
+            <li>B. Improving pruning / scan efficiency when filters match cluster dimensions</li>
+            <li>C. Granting ACCOUNTADMIN rights</li>
+            <li>D. Creating reader accounts</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Clustering influences micro-partition organization for pruning — not RBAC or suspend.</p>
+          </details>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ===================== DOMAIN 2 ===================== -->
+    <section class="teach" id="domain-2">
+      <h2>Domain 2 — Account management &amp; governance (Q13–Q20)</h2>
+      <p>~20% of the real exam. Labs 06–09.</p>
+      <ol class="exam-q" start="13">
+        <li>
+          <p>RBAC in Snowflake is primarily about:</p>
+          <ul>
+            <li>A. Assigning privileges to roles, then roles to users</li>
+            <li>B. Storing passwords in tables</li>
+            <li>C. Cloning warehouses</li>
+            <li>D. Fail-safe tickets</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> Classic role-based access: privileges → roles → users.</p>
+          </details>
+        </li>
+        <li>
+          <p>Dynamic data masking typically:</p>
+          <ul>
+            <li>A. Deletes columns permanently</li>
+            <li>B. Transforms column values at query time based on role/policy</li>
+            <li>C. Doubles warehouse size</li>
+            <li>D. Enables replication</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Masking policies alter what roles see without rewriting stored data.</p>
+          </details>
+        </li>
+        <li>
+          <p>Row access policies control:</p>
+          <ul>
+            <li>A. Which rows a role can see</li>
+            <li>B. Warehouse auto-resume only</li>
+            <li>C. Fail-safe duration</li>
+            <li>D. Stage file format</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> RAP = row-level filter; masking = column transform.</p>
+          </details>
+        </li>
+        <li>
+          <p>Resource Monitors are used to:</p>
+          <ul>
+            <li>A. Mask emails</li>
+            <li>B. Track/limit credit usage and notify or suspend</li>
+            <li>C. Create shares</li>
+            <li>D. Replace Time Travel</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Cost governance via credit quotas/actions.</p>
+          </details>
+        </li>
+        <li>
+          <p>ACCOUNT_USAGE views are useful for:</p>
+          <ul>
+            <li>A. Live millisecond operational locks only</li>
+            <li>B. Historical monitoring of queries, logins, usage (with latency)</li>
+            <li>C. Replacing INFORMATION_SCHEMA entirely for all DDL</li>
+            <li>D. Fail-safe restores</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Account-level history; expect latency vs INFORMATION_SCHEMA.</p>
+          </details>
+        </li>
+        <li>
+          <p>Network policies primarily restrict:</p>
+          <ul>
+            <li>A. Which IP/CIDR ranges can authenticate</li>
+            <li>B. Micro-partition size</li>
+            <li>C. Marketplace prices</li>
+            <li>D. Clone privileges only</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> Network policies allow/block client IPs.</p>
+          </details>
+        </li>
+        <li>
+          <p>Object tagging helps mainly with:</p>
+          <ul>
+            <li>A. Governance classification / tracking sensitive data</li>
+            <li>B. Speeding COPY INTO always</li>
+            <li>C. Disabling Cloud Services</li>
+            <li>D. Creating Fail-safe</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> Tags for governance/classification workflows.</p>
+          </details>
+        </li>
+        <li>
+          <p>MFA / SSO / key-pair auth are examples of:</p>
+          <ul>
+            <li>A. Storage layer features</li>
+            <li>B. Authentication / access security controls</li>
+            <li>C. Clustering keys</li>
+            <li>D. Transient table options</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Domain 2 security authentication themes.</p>
+          </details>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ===================== DOMAIN 3 ===================== -->
+    <section class="teach" id="domain-3">
+      <h2>Domain 3 — Loading, unloading &amp; connectivity (Q21–Q27)</h2>
+      <p>~18% of the real exam. Labs 10–12.</p>
+      <ol class="exam-q" start="21">
+        <li>
+          <p>COPY INTO a table from a stage is best described as:</p>
+          <ul>
+            <li>A. Continuous auto-ingest only</li>
+            <li>B. Batch load you run (or schedule) from files</li>
+            <li>C. Fail-safe restore</li>
+            <li>D. Zero-copy clone</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> COPY = batch. Snowpipe = continuous/auto pattern.</p>
+          </details>
+        </li>
+        <li>
+          <p>Snowpipe is designed for:</p>
+          <ul>
+            <li>A. Continuous/near-continuous loading as files arrive</li>
+            <li>B. Replacing all warehouses</li>
+            <li>C. Manual UNDROP only</li>
+            <li>D. Marketplace billing only</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> Pipe automation vs batch COPY.</p>
+          </details>
+        </li>
+        <li>
+          <p>A named stage can reference:</p>
+          <ul>
+            <li>A. Only local laptop RAM</li>
+            <li>B. Internal Snowflake stages or external cloud storage locations</li>
+            <li>C. Fail-safe only</li>
+            <li>D. Reader accounts only</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Internal/external stages hold file references for load/unload.</p>
+          </details>
+        </li>
+        <li>
+          <p>Streams track:</p>
+          <ul>
+            <li>A. Warehouse suspend events only</li>
+            <li>B. Change data (CDC-style) on a table for downstream processing</li>
+            <li>C. Marketplace listings</li>
+            <li>D. Fail-safe tickets</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Table streams = change tracking for incremental pipelines.</p>
+          </details>
+        </li>
+        <li>
+          <p>Tasks are used to:</p>
+          <ul>
+            <li>A. Schedule SQL / pipeline steps in Snowflake</li>
+            <li>B. Mask columns</li>
+            <li>C. Create editions</li>
+            <li>D. Replace micro-partitions manually</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> Tasks schedule work (often with streams).</p>
+          </details>
+        </li>
+        <li>
+          <p>File format objects define:</p>
+          <ul>
+            <li>A. CSV/JSON/Parquet parsing options for load/unload</li>
+            <li>B. Role hierarchies</li>
+            <li>C. Resource monitor quotas only</li>
+            <li>D. Clustering keys only</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> FILE FORMAT = how files are interpreted.</p>
+          </details>
+        </li>
+        <li>
+          <p>Storage integrations help primarily with:</p>
+          <ul>
+            <li>A. Securely connecting Snowflake to cloud storage without embedding keys in every stage</li>
+            <li>B. Creating transient users</li>
+            <li>C. Disabling Time Travel</li>
+            <li>D. Cloning ACCOUNTADMIN</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> Integration object for external stage auth to cloud storage.</p>
+          </details>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ===================== DOMAIN 4 ===================== -->
+    <section class="teach" id="domain-4">
+      <h2>Domain 4 — Performance, querying &amp; transformation (Q28–Q35)</h2>
+      <p>~21% of the real exam. Labs 13–15.</p>
+      <ol class="exam-q" start="28">
+        <li>
+          <p>Result cache returns prior results when:</p>
+          <ul>
+            <li>A. Always, even if underlying data changed</li>
+            <li>B. Query text/results are eligible and base data hasn’t changed (within rules)</li>
+            <li>C. Only on X-Small warehouses</li>
+            <li>D. Only in Fail-safe</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Result cache is conditional — data change invalidates.</p>
+          </details>
+        </li>
+        <li>
+          <p>Metadata cache / partition pruning mainly reduces:</p>
+          <ul>
+            <li>A. Bytes scanned by skipping irrelevant micro-partitions</li>
+            <li>B. Role grants</li>
+            <li>C. Fail-safe days</li>
+            <li>D. Number of shares</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> Pruning = skip partitions that can’t match filters.</p>
+          </details>
+        </li>
+        <li>
+          <p>Scale-up vs scale-out:</p>
+          <ul>
+            <li>A. Scale-up = larger WH size; scale-out = more clusters for concurrency</li>
+            <li>B. Both mean adding reader accounts</li>
+            <li>C. Scale-out only exists on Standard</li>
+            <li>D. Scale-up deletes micro-partitions</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> Size vs multi-cluster concurrency — classic trap pair.</p>
+          </details>
+        </li>
+        <li>
+          <p>Auto-suspend saves money by:</p>
+          <ul>
+            <li>A. Deleting tables after idle</li>
+            <li>B. Stopping warehouse credit burn when idle past the threshold</li>
+            <li>C. Disabling Cloud Services</li>
+            <li>D. Clearing Fail-safe</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Idle WH suspends → no compute credits while suspended.</p>
+          </details>
+        </li>
+        <li>
+          <p>Query Profile is used to:</p>
+          <ul>
+            <li>A. Diagnose operators, spills, pruning, bottlenecks</li>
+            <li>B. Create shares</li>
+            <li>C. Set MFA</li>
+            <li>D. UNDROP databases</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> Performance triage tool.</p>
+          </details>
+        </li>
+        <li>
+          <p>VARIANT columns are for:</p>
+          <ul>
+            <li>A. Semi-structured data (JSON-like) storage/query</li>
+            <li>B. Only integers</li>
+            <li>C. Warehouse sizes</li>
+            <li>D. Network policies</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> Semi-structured; often with FLATTEN / path syntax.</p>
+          </details>
+        </li>
+        <li>
+          <p>QUALIFY is most associated with:</p>
+          <ul>
+            <li>A. Filtering window-function results</li>
+            <li>B. Granting USAGE on shares</li>
+            <li>C. Enabling replication</li>
+            <li>D. Setting retention days</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> QUALIFY filters after window functions (like HAVING for aggregates).</p>
+          </details>
+        </li>
+        <li>
+          <p>Bigger warehouse always faster?</p>
+          <ul>
+            <li>A. Yes, always</li>
+            <li>B. No — if bottleneck is pruning/IO/spill/concurrency, Profile first; size may not help</li>
+            <li>C. Only if Fail-safe is on</li>
+            <li>D. Only for shares</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> High-frequency trap from the blueprint.</p>
+          </details>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ===================== DOMAIN 5 ===================== -->
+    <section class="teach" id="domain-5">
+      <h2>Domain 5 — Data collaboration (Q36–Q40)</h2>
+      <p>~10% of the real exam. Labs 16–18.</p>
+      <ol class="exam-q" start="36">
+        <li>
+          <p>Time Travel vs Fail-safe:</p>
+          <ul>
+            <li>A. Same thing; both are SELECT AT</li>
+            <li>B. TT is user-recoverable in retention; Fail-safe is Support-only after TT</li>
+            <li>C. Fail-safe is longer on transient tables</li>
+            <li>D. UNDROP only works in Fail-safe</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Core Domain 5 trap. Transient has no Fail-safe; UNDROP is TT-window.</p>
+          </details>
+        </li>
+        <li>
+          <p>Zero-copy clone storage charges begin when:</p>
+          <ul>
+            <li>A. Immediately equal to a full second copy of all bytes</li>
+            <li>B. Objects diverge via writes creating new micro-partitions</li>
+            <li>C. You run SHOW SHARES</li>
+            <li>D. Fail-safe starts</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Shared pointers until divergence.</p>
+          </details>
+        </li>
+        <li>
+          <p>Secure Data Sharing is best described as:</p>
+          <ul>
+            <li>A. Nightly CSV dump to the partner</li>
+            <li>B. Live access to provider data via share grants (not a physical copy)</li>
+            <li>C. Cloning into Fail-safe</li>
+            <li>D. Disabling RBAC</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Live share, not export.</p>
+          </details>
+        </li>
+        <li>
+          <p>Who typically pays compute when a consumer queries a share?</p>
+          <ul>
+            <li>A. Always Snowflake Support</li>
+            <li>B. The consumer’s warehouse credits</li>
+            <li>C. Fail-safe pool only</li>
+            <li>D. Only ACCOUNTADMIN on provider</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>B.</strong> Consumer compute; provider storage of shared data.</p>
+          </details>
+        </li>
+        <li>
+          <p>A reader account is:</p>
+          <ul>
+            <li>A. A provider-managed account for consuming shared data without a full customer account</li>
+            <li>B. A type of micro-partition</li>
+            <li>C. Synonym for Fail-safe</li>
+            <li>D. Only available on temporary tables</li>
+          </ul>
+          <details class="drill"><summary>Answer</summary>
+            <p class="drill-say"><strong>A.</strong> Reader = limited consumer account created by provider.</p>
+          </details>
+        </li>
+      </ol>
+    </section>
+
+    <section class="teach" id="scorecard">
+      <h2>Score yourself</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Pass bar</div>
+          <strong>≥32 / 40</strong>
+          <p>Below 32: do not book. Re-drill weak domains, then retake cold (different day).</p>
+          <div class="see-example">Official pass is scaled 750;<br>use 80% here as a gate</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Key</div>
+          <strong>Quick letter list</strong>
+          <p>Also open <a href="MOCK_ANSWERS.md">MOCK_ANSWERS.md</a> for the full key + distractor notes.</p>
+          <div class="see-example">1–12 Domain1 · 13–20 D2<br>21–27 D3 · 28–35 D4 · 36–40 D5</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach" id="weak-spot-map">
+      <h2>Weak-spot map — wrong domain → go here</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">D1 misses</div>
+          <strong>Architecture</strong>
+          <p>Revisit Labs 01–05. Re-say three layers, editions, micro-partitions aloud.</p>
+          <div class="see-example">Q1–Q12 wrong → Lab 01 first</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">D2 misses</div>
+          <strong>Security &amp; cost</strong>
+          <p>Labs 06–09: RBAC, masking vs RAP, monitors, ACCOUNT_USAGE.</p>
+          <div class="see-example">Q13–Q20 → Lab 06 + 07</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">D3 misses</div>
+          <strong>Load / pipelines</strong>
+          <p>Labs 10–12: COPY vs Snowpipe, stages, streams/tasks, integrations.</p>
+          <div class="see-example">Q21–Q27 → Lab 10 + 11</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">D4 / D5</div>
+          <strong>Perf + collaboration</strong>
+          <p>Labs 13–15 performance; Labs 16–18 TT/clone/share. Blueprint trap table.</p>
+          <div class="see-example">Q28–Q35 · Q36–Q40</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam day strategy">
+      <h2>Exam-day strategy drills — say these out loud</h2>
+      <details class="drill">
+        <summary><strong>Q1.</strong> First 5 minutes in the Pearson seat — what do you do?</summary>
+        <p class="drill-say"><strong>Say:</strong> Breathe, confirm NDA/rules, note rough time budget (~1+ min/question on the real exam), flag hard items mentally, don’t spiral on Q1. Process over panic.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> Two answers look right — how do you choose?</summary>
+        <p class="drill-say"><strong>Say:</strong> Eliminate using architecture layers, edition limits, and “who pays / who recovers.” Prefer the option that matches Snowflake’s separation of storage/compute/services. Mark and move if still stuck.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> You blank on Fail-safe — recovery line?</summary>
+        <p class="drill-say"><strong>Say:</strong> Time Travel = me + SQL inside retention. Fail-safe = after TT, Support only, ~7 days permanent. Transient ≠ Fail-safe. That triad unlocks most Domain 5 recoveries.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> Performance question mentions “slow” — first mental checklist?</summary>
+        <p class="drill-say"><strong>Say:</strong> Pruning/filter selectivity → bytes scanned → spill → warehouse size vs multi-cluster concurrency → caches. Don’t jump to “always scale up.”</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> When do you book the real exam?</summary>
+        <p class="drill-say"><strong>Say:</strong> After ≥32/40 on this mock (or equivalent), weak domains re-drilled aloud, and playbook skimmed night before — not after a single lucky peek at answers.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up — booking checklist</strong><br />
+      “I timed 40 questions without peeking. Score ___ / 40.
+      If ≥32: skim <a href="EXAM_DAY_PLAYBOOK.md">EXAM_DAY_PLAYBOOK.md</a>, re-say Domain 5 traps, book Pearson VUE.
+      If &lt;32: weak-spot map → labs → cold retake.
+      Checklist: ID ready · quiet room / test center plan · MFA know-how for Snowflake jobs not for the exam login · sleep · no new topics morning-of.
+      <em>Outcome:</em> book from evidence, not vibes.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Also open</strong>
+      <a href="MOCK_ANSWERS.md">Answer key</a> ·
+      <a href="EXAM_DAY_PLAYBOOK.md">Exam day playbook</a> ·
+      <a href="EXAM_BLUEPRINT.md">Blueprint checklist</a>
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-18.html">← Lab 18</a>
+      <a class="btn primary" href="index.html">Home →</a>
+    </div>
+  </div>
+  <footer class="footer">Mock exam · COF-C03 domains · no SQL file required</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 14 — Warehouses: scale up vs out</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a class="active" href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 14 · Domain 4 · You are Priya</p>
+    <h1>Warehouses — up vs out</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      Lab 13 asked <em>whether</em> to resize. Today you learn <em>how</em>: scale <strong>up</strong> (bigger size) vs scale <strong>out</strong> (more clusters),
+      plus auto-suspend/resume and statement timeout. Always leave class on cheap <code>WH_CORE_XS</code>.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Monday morning: twenty Kai-dashboards queue behind one heavy ETL. Morgan says “make it bigger.”
+      Riley says “we need more warehouses.” They’re describing two different knobs — size vs clusters.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will practice</strong>
+      Prove <code>WH_CORE_M</code> resize (scale up), name multi-cluster (scale out, Enterprise+), tune
+      <code>AUTO_SUSPEND</code> / <code>AUTO_RESUME</code>, set a statement timeout, then <strong>shrink and suspend</strong> so you don’t burn credits.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>One confused knob</strong>
+        <ul>
+          <li>“Bigger” for every pain</li>
+          <li>Idle WH left running</li>
+          <li>No timeout on runaway SQL</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Right lever for the pain</strong>
+        <ul>
+          <li>Up = complexity / memory</li>
+          <li>Out = concurrency queues</li>
+          <li>Suspend + timeout = FinOps</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-14-open" aria-label="Morgan vs Riley knobs">
+      <p class="comic-kicker">Episode 14 · Start here</p>
+      <h2 class="comic-title">Two different problems. Two different knobs.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
+          </div>
+          <blockquote class="comic-bubble">One query takes forever. Make the warehouse Medium.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">My problem is fifty short queries waiting in line. That’s scale <em>out</em> — more clusters of the same size — not always a bigger single engine.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Dev’s rule: complexity/spill → up. Queues/concurrency → out (MCW).</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — scale UP vs scale OUT</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Scale UP</div>
+          <strong>Bigger warehouse size</strong>
+          <p>XS → S → M → … More CPU/memory per cluster for heavy queries.</p>
+          <div class="see-example"><code>ALTER WAREHOUSE … SET WAREHOUSE_SIZE = 'MEDIUM'</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Scale OUT</div>
+          <strong>Multi-cluster WH</strong>
+          <p>Add clusters (Enterprise+) so concurrent queries don’t queue as hard.</p>
+          <div class="see-example"><code>MIN_CLUSTER_COUNT</code> / <code>MAX_CLUSTER_COUNT</code></div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Idle</div>
+          <strong>AUTO_SUSPEND / RESUME</strong>
+          <p>Suspend after idle seconds; resume on next query. Idle burn = forgot suspend.</p>
+          <div class="see-example"><code>AUTO_SUSPEND = 60</code> on lab WHs</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Guardrail</div>
+          <strong>Statement timeout</strong>
+          <p>Kill runaway statements after N seconds so one query can’t burn the day.</p>
+          <div class="see-example"><code>STATEMENT_TIMEOUT_IN_SECONDS</code></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Flow — Alpine’s two engines</h2>
+      <div class="flow-pipeline" aria-label="Warehouse roles">
+        <div class="flow-node source">
+          <span class="flow-tag">Daily</span>
+          <strong>WH_CORE_XS</strong>
+          <span class="flow-sub">stay here after labs</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">Demo only</span>
+          <strong>WH_CORE_M</strong>
+          <span class="flow-sub">resize proof → shrink</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">FinOps</span>
+          <strong>SUSPEND M</strong>
+          <span class="flow-sub">USE WH_CORE_XS</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Sam: “Don’t leave Medium on overnight.”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance — also watches bills</span></div>
+          </div>
+          <blockquote class="comic-bubble">Trial credits aren’t infinite. If you CREATE OR REPLACE a huge warehouse and walk away, that’s on you.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">Got it — demo on <code>WH_CORE_M</code>, then set size back down, SUSPEND, and <code>USE WAREHOUSE WH_CORE_XS</code>.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> SHOW the lab warehouses</h2>
+      <p class="teach"><strong>What this does:</strong> Confirms bootstrap created both engines. You need OPERATE to resize.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · show</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+SHOW WAREHOUSES LIKE 'WH_CORE%';</code></pre>
+      </div>
+      <div class="badge-ok">✓ WH_CORE_XS and WH_CORE_M listed</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 2 coach">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Resizing is online</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">If I resize mid-day, do I kick everyone off?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Resize is online. Running queries finish on the old servers; new queries pick up the new size. Exam loves that phrase.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Scale UP on WH_CORE_M (then shrink)</h2>
+      <p class="teach"><strong>What this does:</strong> Brief Medium demo + timeout setting. Immediately return size toward cheap and suspend.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · resize demo</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE WAREHOUSE WH_CORE_M;
+ALTER WAREHOUSE WH_CORE_M SET WAREHOUSE_SIZE = 'MEDIUM';
+ALTER WAREHOUSE WH_CORE_M SET AUTO_SUSPEND = 60;
+ALTER WAREHOUSE WH_CORE_M SET AUTO_RESUME = TRUE;
+ALTER WAREHOUSE WH_CORE_M SET STATEMENT_TIMEOUT_IN_SECONDS = 3600;
+
+SELECT CURRENT_WAREHOUSE();</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · always leave cheap</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>ALTER WAREHOUSE WH_CORE_M SET WAREHOUSE_SIZE = 'XSMALL';
+ALTER WAREHOUSE WH_CORE_M SUSPEND;
+USE WAREHOUSE WH_CORE_XS;
+SELECT CURRENT_WAREHOUSE();</code></pre>
+      </div>
+      <div class="badge-ok">✓ Active warehouse is WH_CORE_XS; M suspended</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Multi-cluster awareness (Enterprise)</h2>
+      <p class="teach"><strong>What this does:</strong> You may not be able to enable MCW on Standard trial — still memorize MIN/MAX clusters and scaling policy for the exam.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · MCW (commented if blocked)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>-- Enterprise+ multi-cluster (scale OUT):
+-- ALTER WAREHOUSE WH_CORE_M SET
+--   MIN_CLUSTER_COUNT = 1
+--   MAX_CLUSTER_COUNT = 3
+--   SCALING_POLICY = 'STANDARD';
+--
+-- STANDARD vs ECONOMY scaling policy = how eagerly new clusters spin up.</code></pre>
+      </div>
+      <div class="badge-ok">✓ You can explain MCW without leaving clusters running</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <details class="drill">
+        <summary><strong>Q1.</strong> Concurrency problem vs complexity problem?</summary>
+        <p class="drill-say"><strong>Say:</strong> Many queued short queries → scale OUT (multi-cluster). One heavy query spilling/CPU-bound → scale UP (larger size). Don’t swap them.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> What do MIN/MAX cluster counts control?</summary>
+        <p class="drill-say"><strong>Say:</strong> The floor and ceiling of how many same-size clusters a multi-cluster warehouse may run under load. Credits scale with active clusters.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> Idle credit burn — what’s the fix?</summary>
+        <p class="drill-say"><strong>Say:</strong> AUTO_SUSPEND after a short idle period, AUTO_RESUME for the next query. Leaving a large WH running with no suspend is the classic FinOps fail.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> Is warehouse resizing online?</summary>
+        <p class="drill-say"><strong>Say:</strong> Yes. In-flight queries complete on current servers; new queries use the new size. You don’t need an outage window for a resize.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Why keep WH_CORE_XS for daily labs?</summary>
+        <p class="drill-say"><strong>Say:</strong> X-Small + 60s suspend is enough for teaching queries and minimizes accidental credit burn. Use Medium only for deliberate demos, then shrink/suspend.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “Scale UP changes warehouse size for heavy queries; scale OUT adds clusters for concurrency (Enterprise multi-cluster).
+      I demoed WH_CORE_M, set suspend/resume and a statement timeout, then returned to WH_CORE_XS and suspended M.
+      <em>Outcome:</em> I pick the right warehouse knob — and I don’t leave Alpine on an expensive engine.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 15 — QUALIFY, MERGE, UDFs/procs, and VARIANT/FLATTEN on event JSON.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-13.html">← Lab 13</a>
+      <a class="btn primary" href="lab-15.html">Lab 15 — SQL &amp; VARIANT →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/14_warehouses.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

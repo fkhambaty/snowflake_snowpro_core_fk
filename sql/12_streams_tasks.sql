@@ -1,0 +1,123 @@
+-- Alpine Retail / SnowPro Core — Lab 12
+-- Streams + Tasks (+ Dynamic Tables awareness)
+-- Requires EXECUTE TASK on account (sql/00_bootstrap.sql).
+-- Run as ROLE_CORE_LAB_ADMIN after Lab 00 sample data (LAB.ORDERS).
+
+USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+
+-- Ensure source exists (Lab 00 sample)
+CREATE TABLE IF NOT EXISTS LAB.ORDERS (
+  ORDER_ID     NUMBER,
+  CUSTOMER_ID  NUMBER,
+  ORDER_TS     TIMESTAMP_NTZ,
+  AMOUNT_USD   NUMBER(10,2),
+  STATUS       STRING
+);
+
+USE SCHEMA PIPELINE;
+
+-- Target for CDC merge
+CREATE OR REPLACE TABLE PIPELINE.ORDERS_CURATED (
+  ORDER_ID     NUMBER,
+  CUSTOMER_ID  NUMBER,
+  ORDER_TS     TIMESTAMP_NTZ,
+  AMOUNT_USD   NUMBER(10,2),
+  STATUS       STRING,
+  UPDATED_AT   TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (ORDER_ID)
+);
+
+-- Stream = change feed on LAB.ORDERS (insert/update/delete since last consume)
+CREATE OR REPLACE STREAM PIPELINE.STR_ORDERS_CDC
+  ON TABLE LAB.ORDERS
+  APPEND_ONLY = FALSE
+  COMMENT = 'CDC for orders → curated merge';
+
+SHOW STREAMS LIKE 'STR_ORDERS%' IN SCHEMA PIPELINE;
+SELECT SYSTEM$STREAM_HAS_DATA('PIPELINE.STR_ORDERS_CDC') AS HAS_DATA;
+
+-- Seed curated once from current orders (baseline before watching the stream)
+MERGE INTO PIPELINE.ORDERS_CURATED t
+USING LAB.ORDERS s
+ON t.ORDER_ID = s.ORDER_ID
+WHEN MATCHED THEN UPDATE SET
+  t.CUSTOMER_ID = s.CUSTOMER_ID,
+  t.ORDER_TS = s.ORDER_TS,
+  t.AMOUNT_USD = s.AMOUNT_USD,
+  t.STATUS = s.STATUS,
+  t.UPDATED_AT = CURRENT_TIMESTAMP()
+WHEN NOT MATCHED THEN INSERT (ORDER_ID, CUSTOMER_ID, ORDER_TS, AMOUNT_USD, STATUS)
+  VALUES (s.ORDER_ID, s.CUSTOMER_ID, s.ORDER_TS, s.AMOUNT_USD, s.STATUS);
+
+-- Produce a change so the stream has rows (idempotent-ish for re-runs)
+DELETE FROM LAB.ORDERS WHERE ORDER_ID = 106;
+INSERT INTO LAB.ORDERS VALUES
+  (106, 5, '2026-02-10 09:00:00', 88.00, 'PENDING');
+
+UPDATE LAB.ORDERS SET STATUS = 'SHIPPED' WHERE ORDER_ID = 105;
+
+SELECT * FROM PIPELINE.STR_ORDERS_CDC;
+
+-- Task merges stream changes into curated (needs EXECUTE TASK privilege)
+CREATE OR REPLACE TASK PIPELINE.TASK_MERGE_ORDERS
+  WAREHOUSE = WH_CORE_XS
+  SCHEDULE = '60 MINUTE'
+  COMMENT = 'Merge STR_ORDERS_CDC into ORDERS_CURATED'
+AS
+  MERGE INTO PIPELINE.ORDERS_CURATED t
+  USING (
+    SELECT ORDER_ID, CUSTOMER_ID, ORDER_TS, AMOUNT_USD, STATUS, METADATA$ACTION, METADATA$ISUPDATE
+    FROM PIPELINE.STR_ORDERS_CDC
+  ) s
+  ON t.ORDER_ID = s.ORDER_ID
+  WHEN MATCHED AND s.METADATA$ACTION = 'DELETE' THEN DELETE
+  WHEN MATCHED AND s.METADATA$ACTION = 'INSERT' AND s.METADATA$ISUPDATE = TRUE THEN UPDATE SET
+    t.CUSTOMER_ID = s.CUSTOMER_ID,
+    t.ORDER_TS = s.ORDER_TS,
+    t.AMOUNT_USD = s.AMOUNT_USD,
+    t.STATUS = s.STATUS,
+    t.UPDATED_AT = CURRENT_TIMESTAMP()
+  WHEN NOT MATCHED AND s.METADATA$ACTION = 'INSERT' THEN INSERT
+    (ORDER_ID, CUSTOMER_ID, ORDER_TS, AMOUNT_USD, STATUS)
+    VALUES (s.ORDER_ID, s.CUSTOMER_ID, s.ORDER_TS, s.AMOUNT_USD, s.STATUS);
+
+-- Tasks start suspended — resume or EXECUTE once for the lab
+ALTER TASK PIPELINE.TASK_MERGE_ORDERS RESUME;
+EXECUTE TASK PIPELINE.TASK_MERGE_ORDERS;
+
+-- Give the task a moment, then verify
+SHOW TASKS LIKE 'TASK_MERGE%' IN SCHEMA PIPELINE;
+SELECT * FROM PIPELINE.ORDERS_CURATED ORDER BY ORDER_ID;
+
+-- Leave task suspended so it does not burn credits on a schedule after class
+ALTER TASK PIPELINE.TASK_MERGE_ORDERS SUSPEND;
+
+-- ---------------------------------------------------------------------------
+-- Dynamic Tables (Enterprise / feature availability may block CREATE)
+-- Declarative refresh — Snowflake manages the pipeline; TARGET_LAG sets freshness.
+-- Prefer when you want SQL-defined continuous transforms without hand-built tasks.
+-- Prefer dbt/external orchestration when you need complex DAGs, tests, multi-cloud CI.
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE DYNAMIC TABLE PIPELINE.DT_ORDERS_DAILY
+  TARGET_LAG = '1 minute'
+  WAREHOUSE = WH_CORE_XS
+AS
+SELECT
+  DATE_TRUNC('day', ORDER_TS) AS ORDER_DAY,
+  STATUS,
+  COUNT(*) AS ORDER_CNT,
+  SUM(AMOUNT_USD) AS AMOUNT_SUM
+FROM LAB.ORDERS
+GROUP BY 1, 2;
+
+-- If CREATE DYNAMIC TABLE fails (edition / privileges), leave it commented and still study:
+-- CREATE OR REPLACE DYNAMIC TABLE PIPELINE.DT_ORDERS_DAILY
+--   TARGET_LAG = '1 minute'
+--   WAREHOUSE = WH_CORE_XS
+-- AS SELECT ... ;
+
+SHOW DYNAMIC TABLES LIKE 'DT_ORDERS%' IN SCHEMA PIPELINE;
+
+SELECT 'Lab 12 streams/tasks/DT ready' AS STATUS;

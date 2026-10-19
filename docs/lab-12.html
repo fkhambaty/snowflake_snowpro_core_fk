@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 12 — Streams, Tasks &amp; Dynamic Tables</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a class="active" href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 12 · Domain 3 · You are Priya</p>
+    <h1>Streams, Tasks &amp; Dynamic Tables</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      Snowpipe gets <em>files in</em>. Streams + Tasks move <em>row changes</em> through Alpine’s pipeline.
+      Dynamic Tables are Snowflake’s declarative “keep this SELECT fresh” option — know when you’d still pick dbt.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      <code>LAB.ORDERS</code> changes all day. Kai’s dashboard reads a curated copy that goes stale unless someone re-runs a MERGE by hand.
+      Riley refuses to cron five overlapping jobs that step on each other.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      Stream <code>PIPELINE.STR_ORDERS_CDC</code> on <code>LAB.ORDERS</code>, task <code>TASK_MERGE_ORDERS</code> that MERGEs changes into
+      <code>PIPELINE.ORDERS_CURATED</code>, plus a Dynamic Table with <code>TARGET_LAG = '1 minute'</code> (or the commented story if edition blocks).
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Stale curated copy</strong>
+        <ul>
+          <li>Full reload or forgotten MERGE</li>
+          <li>No change feed</li>
+          <li>Three tools confused: pipe / stream / DT</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>CDC + scheduled merge</strong>
+        <ul>
+          <li>Stream tracks offsets</li>
+          <li>Task MERGEs only changes</li>
+          <li>DT option for declarative lag</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-12-open" aria-label="Riley draws three pipes">
+      <p class="comic-kicker">Episode 12 · Start here</p>
+      <h2 class="comic-title">Three tools. Three jobs. Don’t mash them.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer — pipelines</span></div>
+          </div>
+          <blockquote class="comic-bubble">Morgan keeps saying “just automate it.” Automate <em>what</em>? Landing files? Applying row changes? Refreshing a mart?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach — explains why</span></div>
+          </div>
+          <blockquote class="comic-bubble">Snowpipe = files in. Stream+Task = “what changed since last time” + run SQL on a schedule. Dynamic Table = declare the SELECT and a lag — Snowflake refreshes it.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">If you mix these on the exam, every distractor looks right.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — pick the right tool</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Lab 11</div>
+          <strong>Snowpipe</strong>
+          <p>New <em>files</em> → table. Not a change log on an existing table.</p>
+          <div class="see-example">CSV lands → rows appear in landing</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">This lab</div>
+          <strong>Stream + Task</strong>
+          <p>Stream = bookmark of changes. Task = scheduled SQL (often MERGE).</p>
+          <div class="see-example">ORDER 105 status flip → stream row → MERGE</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Declarative</div>
+          <strong>Dynamic Table</strong>
+          <p>You write <code>AS SELECT …</code> + <code>TARGET_LAG</code>. Snowflake manages refresh.</p>
+          <div class="see-example"><code>TARGET_LAG = '1 minute'</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Outside Snowflake</div>
+          <strong>dbt (when to prefer)</strong>
+          <p>Complex DAGs, tests, CI, multi-tool warehouses. Exam may still ask Snowflake-native DT.</p>
+          <div class="see-example">dbt models + tests in Git → warehouse</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Contrast — pipe vs stream/task vs DT</h2>
+      <div class="flow-pipeline" aria-label="Automation contrast">
+        <div class="flow-node source">
+          <span class="flow-tag">Snowpipe</span>
+          <strong>Files → table</strong>
+          <span class="flow-sub">serverless COPY</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">Stream + Task</span>
+          <strong>CDC → MERGE</strong>
+          <span class="flow-sub">WH runs task SQL</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">Dynamic Table</span>
+          <strong>SELECT stays fresh</strong>
+          <span class="flow-sub">TARGET_LAG budget</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Kai: “Is a stream a table I query forever?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst — still learning</span></div>
+          </div>
+          <blockquote class="comic-bubble">If I SELECT from the stream twice, do I see the same changes both times?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Consuming the stream (in a DML that reads it, like our MERGE task) advances the offset. Think bookmark, not permanent history table. That’s why “stream offset” shows up on exams.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Curated table + stream on LAB.ORDERS</h2>
+      <p class="teach"><strong>What this does:</strong> Builds the target table and a change feed. Streams need a source table that already exists (Lab 00 sample data).</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · stream</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA PIPELINE;
+
+CREATE OR REPLACE TABLE PIPELINE.ORDERS_CURATED (
+  ORDER_ID NUMBER, CUSTOMER_ID NUMBER,
+  ORDER_TS TIMESTAMP_NTZ, AMOUNT_USD NUMBER(10,2),
+  STATUS STRING, UPDATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+);
+
+CREATE OR REPLACE STREAM PIPELINE.STR_ORDERS_CDC
+  ON TABLE LAB.ORDERS;</code></pre>
+      </div>
+      <div class="badge-ok">✓ SHOW STREAMS should list STR_ORDERS_CDC</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 2 coach">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Make the stream dirty on purpose</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">Empty stream means I did nothing wrong — it means nothing changed since the stream was created.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">Insert and update a couple of orders, then <code>SELECT *</code> from the stream. You should see METADATA$ACTION telling you insert vs delete.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Produce changes + peek the stream</h2>
+      <p class="teach"><strong>What this does:</strong> Creates CDC rows so you can see the feed before the task consumes it.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · change + select</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>INSERT INTO LAB.ORDERS VALUES
+  (106, 5, '2026-02-10 09:00:00', 88.00, 'PENDING');
+UPDATE LAB.ORDERS SET STATUS = 'SHIPPED' WHERE ORDER_ID = 105;
+
+SELECT * FROM PIPELINE.STR_ORDERS_CDC;
+SELECT SYSTEM$STREAM_HAS_DATA('PIPELINE.STR_ORDERS_CDC');</code></pre>
+      </div>
+      <div class="badge-ok">✓ Stream shows change rows (actions / update flags)</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> CREATE TASK + EXECUTE once</h2>
+      <p class="teach"><strong>What this does:</strong> Schedules a MERGE from the stream. Bootstrap granted <code>EXECUTE TASK</code> on the account. Tasks start suspended — resume, execute once for the lab, then suspend so you don’t burn credits hourly.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · task (create)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE TASK PIPELINE.TASK_MERGE_ORDERS
+  WAREHOUSE = WH_CORE_XS
+  SCHEDULE = '60 MINUTE'
+AS
+  MERGE INTO PIPELINE.ORDERS_CURATED t
+  USING (
+    SELECT * FROM PIPELINE.STR_ORDERS_CDC
+  ) s
+  ON t.ORDER_ID = s.ORDER_ID
+  WHEN MATCHED AND s.METADATA$ACTION = 'DELETE' THEN DELETE
+  WHEN MATCHED AND s.METADATA$ISUPDATE THEN UPDATE SET
+    t.STATUS = s.STATUS, t.AMOUNT_USD = s.AMOUNT_USD,
+    t.UPDATED_AT = CURRENT_TIMESTAMP()
+  WHEN NOT MATCHED AND s.METADATA$ACTION = 'INSERT' THEN INSERT
+    (ORDER_ID, CUSTOMER_ID, ORDER_TS, AMOUNT_USD, STATUS)
+    VALUES (s.ORDER_ID, s.CUSTOMER_ID, s.ORDER_TS,
+            s.AMOUNT_USD, s.STATUS);</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · execute + suspend</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>ALTER TASK PIPELINE.TASK_MERGE_ORDERS RESUME;
+EXECUTE TASK PIPELINE.TASK_MERGE_ORDERS;
+SHOW TASKS LIKE 'TASK_MERGE%' IN SCHEMA PIPELINE;
+SELECT * FROM PIPELINE.ORDERS_CURATED ORDER BY ORDER_ID;
+ALTER TASK PIPELINE.TASK_MERGE_ORDERS SUSPEND;</code></pre>
+      </div>
+      <p class="teach">Full MERGE edge cases live in <code>sql/12_streams_tasks.sql</code> — keep the HTML chunk readable.</p>
+      <div class="badge-ok">✓ Curated has new/updated orders; task left SUSPENDED</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 4 coach">
+      <p class="comic-kicker">Before Step 4</p>
+      <h2 class="comic-title">Morgan: “Why not Dynamic Tables for everything?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
+          </div>
+          <blockquote class="comic-bubble">If DT refreshes itself, delete the tasks. Less code, less Priya.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">DT is great for declarative freshness. You still pay for refresh compute. Complex orchestration, tests, and cross-tool graphs often stay in dbt/Tasks. Exam: know TARGET_LAG and that DT is Snowflake-native.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> Dynamic Table (or study the comment)</h2>
+      <p class="teach"><strong>What this does:</strong> Declares a continuously refreshed aggregate. If your edition blocks CREATE DYNAMIC TABLE, leave it commented — still say the TARGET_LAG story out loud.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · dynamic table</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE DYNAMIC TABLE PIPELINE.DT_ORDERS_DAILY
+  TARGET_LAG = '1 minute'
+  WAREHOUSE = WH_CORE_XS
+AS
+SELECT DATE_TRUNC('day', ORDER_TS) AS ORDER_DAY,
+       STATUS,
+       COUNT(*) AS ORDER_CNT,
+       SUM(AMOUNT_USD) AS AMOUNT_SUM
+FROM LAB.ORDERS
+GROUP BY 1, 2;
+
+SHOW DYNAMIC TABLES LIKE 'DT_ORDERS%' IN SCHEMA PIPELINE;</code></pre>
+      </div>
+      <div class="badge-ok">✓ DT created — or you can explain TARGET_LAG without running it</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <details class="drill">
+        <summary><strong>Q1.</strong> What is a stream “offset” in plain English?</summary>
+        <p class="drill-say"><strong>Say:</strong> The bookmark of which changes you’ve already consumed. Reading the stream in a consuming DML advances it so the next run only sees newer changes.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> What is a task graph?</summary>
+        <p class="drill-say"><strong>Say:</strong> Tasks can depend on other tasks (AFTER …). Root task has a schedule; children run when parents succeed — Snowflake-native DAG without an external orchestrator.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> What drives Dynamic Table cost?</summary>
+        <p class="drill-say"><strong>Say:</strong> Refresh compute on the warehouse you assign, driven by how often lag requires refresh and how heavy the SELECT is. Tighter TARGET_LAG → more frequent work.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> When prefer dbt vs Dynamic Tables?</summary>
+        <p class="drill-say"><strong>Say:</strong> Prefer DT for simple Snowflake-native continuous transforms with a lag SLO. Prefer dbt when you need Git-centric models, tests, docs, and complex multi-project DAGs. Exam may highlight Snowflake-native DT.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Snowpipe vs stream — can a stream replace Snowpipe?</summary>
+        <p class="drill-say"><strong>Say:</strong> No. Streams track DML on tables already in Snowflake. Snowpipe loads files from stages/storage. Different layer of the pipeline.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “I put a stream on LAB.ORDERS, merged changes into PIPELINE.ORDERS_CURATED with a task, and practiced EXECUTE TASK then SUSPEND.
+      Dynamic Tables give TARGET_LAG freshness without hand-built MERGE tasks — I still know when dbt wins.
+      <em>Outcome:</em> I can separate Snowpipe, streams/tasks, and DTs on any Domain 3 question.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 13 — Query Profile and the three caches. Domain 4 begins.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-11.html">← Lab 11</a>
+      <a class="btn primary" href="lab-13.html">Lab 13 — query profile →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/12_streams_tasks.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 01 — Three layers + editions</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a class="active" href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 01 · Domain 1 heart (~31%) · You are Priya</p>
+    <h1>Three layers + editions</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      This lab is the exam’s architecture foundation: where data lives, what burns credits,
+      and which edition unlocks which feature. <a href="EXAM_TIPS_DOMAIN1.md">Domain 1 tips</a> after you finish.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Morgan asks: “If we resize the warehouse, do we get more storage?”
+      Kai thinks Snowflake is one blob. Wrong answers here wipe ~⅓ of Core.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      Name the three layers out loud, map editions (Standard → VPS) to Time Travel / MCW / Tri-Secret / PrivateLink,
+      and run tiny SQL that proves compute ≠ storage (plus permanent vs transient).
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>One blurry “Snowflake”</strong>
+        <ul>
+          <li>“Warehouse stores our tables”</li>
+          <li>No idea which edition we need</li>
+          <li>Cloud Services = mystery fee</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Three layers + edition map</strong>
+        <ul>
+          <li>Storage · Compute · Cloud Services</li>
+          <li>90-day TT → Enterprise+</li>
+          <li>WH = engine; tables stay in storage</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-01-open" aria-label="Kai mixes up warehouse and storage">
+      <p class="comic-kicker">Episode 01 · Start here</p>
+      <h2 class="comic-title">Kai mixes up the engine and the shelves.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst — still learning</span></div>
+          </div>
+          <blockquote class="comic-bubble">Morgan said scale the warehouse for the board deck. So… bigger warehouse = more room for history tables, right?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach — explains why</span></div>
+          </div>
+          <blockquote class="comic-bubble">No. Warehouse = kitchen staff (compute). Tables live in the <strong>storage</strong> pantry. Cloud Services is the front desk (login, catalog, planner). Three layers — say them every time.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Exam trap #1 lives here: never say “the warehouse stores data.”</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — three layers with Alpine names</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Layer 1</div>
+          <strong>Database Storage</strong>
+          <p>Compressed micro-partitions on cloud object storage. Your tables live here.</p>
+          <div class="see-example"><code>ALPINE_RETAIL.LAB.CUSTOMERS</code><br>bytes → storage bill</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Layer 2</div>
+          <strong>Query Processing</strong>
+          <p>Virtual warehouses run SQL. Credits while running / resumed.</p>
+          <div class="see-example"><code>WH_CORE_XS</code><br>X-Small · auto-suspend 60s</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Layer 3</div>
+          <strong>Cloud Services</strong>
+          <p>Auth, metadata, optimizer, transaction management, result-cache coordination.</p>
+          <div class="see-example">Login · SHOW · plan query<br>billed when usage exceeds credit</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Why separate?</div>
+          <strong>Scale independently</strong>
+          <p>Grow storage without resizing compute. Pause compute without deleting data.</p>
+          <div class="see-example">Store years of orders<br>+ tiny WH for ad-hoc</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Editions — feature matrix (memorize the deltas)</h2>
+      <p>
+        Alpine’s trial may look like Enterprise features mixed in — for the <em>exam</em>, know the official ladder.
+        Ask: “Which edition first unlocks this?”
+      </p>
+      <div class="flow-pipeline" aria-label="Edition ladder">
+        <div class="flow-node source">
+          <span class="flow-tag">1 · Standard</span>
+          <strong>Baseline</strong>
+          <span class="flow-sub">TT default 1 day</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">2 · Enterprise</span>
+          <strong>+ power</strong>
+          <span class="flow-sub">TT up to 90d · MCW</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">3 · Bus. Critical</span>
+          <strong>+ hardened</strong>
+          <span class="flow-sub">Tri-Secret · PrivateLink</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">4 · VPS</span>
+          <strong>Isolated</strong>
+          <span class="flow-sub">dedicated virtual private</span>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Time Travel</div>
+          <strong>90 days needs Enterprise+</strong>
+          <p>Standard tops out at 1 day retention. Exam loves this distractor.</p>
+          <div class="see-example">“We need 90-day UNDROP” →<br>Enterprise (or higher)</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Security extras</div>
+          <strong>Tri-Secret &amp; PrivateLink</strong>
+          <p>Customer-managed keys + private connectivity → Business Critical (and VPS).</p>
+          <div class="see-example">Sam: “keys we control” →<br>Business Critical+</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Morgan: “Where are we running?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager — deadline</span></div>
+          </div>
+          <blockquote class="comic-bubble">If compliance asks which cloud region Alpine’s account sits in, can you answer in ten seconds?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble"><code>CURRENT_ACCOUNT()</code> and <code>CURRENT_REGION()</code>. Cloud Services knows who you are; storage holds the bytes in that region’s cloud.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Prove who / where you are</h2>
+      <p class="teach"><strong>What this does:</strong> Reads session identity and account location — Cloud Services metadata, not a warehouse scan of table bytes.</p>
+      <p class="teach"><strong>Why:</strong> Exam questions mix “account locator,” region, and warehouse. Separate them.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · account context</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA LAB;
+
+SELECT CURRENT_ACCOUNT() AS account_locator,
+       CURRENT_REGION()  AS region,
+       CURRENT_ROLE()    AS role,
+       CURRENT_WAREHOUSE() AS warehouse;</code></pre>
+      </div>
+      <div class="badge-ok">✓ You should see a locator, a region string, ROLE_CORE_LAB_ADMIN, WH_CORE_XS</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 2 coach">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Kai: “What are PARAMETERS?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">Is DATA_RETENTION_TIME_IN_DAYS a warehouse setting? Feels like compute…</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Retention is about <strong>storage history</strong> (Time Travel window). Edition caps how high you can set it. Warehouse size won’t give you 90 days.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Peek at retention parameters</h2>
+      <p class="teach"><strong>What this does:</strong> Shows account-level knobs tied to Time Travel retention.</p>
+      <p class="teach"><strong>What you should see:</strong> A value (often 1 on trials). Remember: Enterprise unlocks up to 90 days — your trial number ≠ the exam rule.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · SHOW PARAMETERS</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SHOW PARAMETERS LIKE 'DATA_RETENTION_TIME_IN_DAYS'
+  IN ACCOUNT;
+
+SHOW PARAMETERS LIKE 'MIN_DATA_RETENTION_TIME_IN_DAYS'
+  IN ACCOUNT;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Parameter rows appear — note the numeric value, don’t overfit trial quirks</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 3 coach">
+      <p class="comic-kicker">Before Step 3</p>
+      <h2 class="comic-title">Sam: “Fail-safe is not free.”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
+          </div>
+          <blockquote class="comic-bubble">Do we need Fail-safe on every scratch table Priya builds for demos?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">No. <strong>Transient</strong> skips Fail-safe (cheaper). Permanent keeps Fail-safe after Time Travel. Lab 04 digs deeper — today just feel the difference.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Permanent vs transient tiny demo</h2>
+      <p class="teach"><strong>What this does:</strong> Creates one permanent and one transient table so you can say “Fail-safe: yes vs no.”</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · permanent vs transient</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE TABLE LAB.DEMO_PERM_TINY (
+  ID NUMBER, NOTE STRING
+);
+CREATE OR REPLACE TRANSIENT TABLE LAB.DEMO_TRANS_TINY (
+  ID NUMBER, NOTE STRING
+);
+INSERT INTO LAB.DEMO_PERM_TINY VALUES (1, 'has Fail-safe after TT');
+INSERT INTO LAB.DEMO_TRANS_TINY VALUES (1, 'no Fail-safe');
+SHOW TABLES LIKE 'DEMO_%' IN SCHEMA LAB;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Two tables listed — note TRANSIENT kind on one of them</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> Say it: warehouse is not storage</h2>
+      <p class="teach"><strong>What this does:</strong> Reminds you the session warehouse is only the compute handle.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · compute context</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SELECT CURRENT_WAREHOUSE() AS compute_engine_only;
+-- Layers (exam — not SQL objects):
+-- Storage | Query Processing (WH) | Cloud Services</code></pre>
+      </div>
+      <div class="badge-ok">✓ Returns WH_CORE_XS — say aloud: “engine, not pantry”</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <p>Cover each answer <em>before</em> you open it. Domain 1 traps.</p>
+      <details class="drill">
+        <summary><strong>Q1.</strong> Does a virtual warehouse store table data?</summary>
+        <p class="drill-say"><strong>Say:</strong> No. Warehouses are Query Processing (compute). Table data lives in Database Storage as compressed micro-partitions. Bigger warehouse ≠ more storage.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> Which edition do you need for up to 90-day Time Travel?</summary>
+        <p class="drill-say"><strong>Say:</strong> Enterprise or higher. Standard is capped at 1 day. Don’t confuse “my trial shows X” with the edition matrix.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> How is Cloud Services billed?</summary>
+        <p class="drill-say"><strong>Say:</strong> Cloud Services usage is metered; Snowflake applies a daily credit against warehouse compute. Heavy metadata / services beyond that can show as Cloud Services charges — it is not “free forever,” and it is not the same as warehouse credits.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> What’s the benefit of separating storage and compute?</summary>
+        <p class="drill-say"><strong>Say:</strong> Scale and pay for each independently: keep large history in storage while using a small warehouse for light queries, or spin up larger compute for spikes without moving data.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Tri-Secret Secure and AWS PrivateLink — which edition tier?</summary>
+        <p class="drill-say"><strong>Say:</strong> Business Critical (and VPS). Enterprise adds Multi-cluster warehouses and longer Time Travel, but those hardened networking / key features are Business Critical+.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q6.</strong> Name the three architecture layers in exam order.</summary>
+        <p class="drill-say"><strong>Say:</strong> Database Storage, Query Processing (virtual warehouses), and Cloud Services (auth, metadata, optimizer).</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “Alpine’s Snowflake is three layers: storage holds our micro-partitions, warehouses like WH_CORE_XS are compute only,
+      and Cloud Services handles login, metadata, and planning. Editions matter — 90-day Time Travel needs Enterprise+;
+      Tri-Secret and PrivateLink need Business Critical+. Transient tables skip Fail-safe. I will never say the warehouse stores data.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 02 walks the object catalog — tables, views, stages, sequences, and what’s account-level.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-00.html">← Lab 00</a>
+      <a class="btn primary" href="lab-02.html">Lab 02 — object catalog →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/01_architecture.sql · Tips: docs/EXAM_TIPS_DOMAIN1.md</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 10 — Stages &amp; COPY INTO</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a class="active" href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 10 · Domain 3 · You are Priya</p>
+    <h1>Move files through a loading dock</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      Domain 3 starts here: stages hold files, file formats describe shape,
+      <code>COPY INTO</code> moves data in or out. We avoid local PUT so Windows Snowsight still works.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Riley’s vendor drops CSVs. Morgan wants a repeatable dock: named stage, format object,
+      load into a table, and the reverse (unload) for a partner. “No mystery desktop folders.”
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      <code>PIPELINE.STG_ALPINE_LOAD</code>, CSV/JSON file formats, seed with INSERT,
+      unload with <code>COPY INTO @stage FROM (SELECT …)</code>, validate, reload with transform + <code>ON_ERROR</code>.
+      Directory tables for file metadata awareness.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Mystery folders</strong>
+        <ul>
+          <li>Files on laptops only</li>
+          <li>No shared format definition</li>
+          <li>“It worked on my machine”</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Named dock + COPY</strong>
+        <ul>
+          <li>Internal stage in PIPELINE</li>
+          <li>FF_CSV_CUSTOMERS / FF_JSON</li>
+          <li>Load · unload · validate</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-10-open" aria-label="Riley wants a dock">
+      <p class="comic-kicker">Episode 10 · Start here</p>
+      <h2 class="comic-title">Riley draws a loading dock. Dev names every object.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Peer engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">I keep pasting CSV into worksheets. When the file gets big, that falls over. Where do files <em>live</em> before they’re a table?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">On a <strong>stage</strong> — the loading dock. File format = the packing label (CSV vs JSON). COPY INTO = the forklift in or out.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Stage stores files · table stores rows · warehouse runs the COPY.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — stage types</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Personal</div>
+          <strong>User stage <code>@~</code></strong>
+          <p>Your private dock. Fine for scratch; awkward to share with Riley’s role.</p>
+          <div class="see-example"><code>LIST @~;</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Tied to table</div>
+          <strong>Table stage <code>@%T</code></strong>
+          <p>Dock attached to one table. Handy for quick loads into that table only.</p>
+          <div class="see-example"><code>LIST @%CUSTOMERS_LOAD;</code></div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Shared (this lab)</div>
+          <strong>Named internal stage</strong>
+          <p>First-class object you GRANT like a table. Best for team pipelines.</p>
+          <div class="see-example"><code>@STG_ALPINE_LOAD</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Cloud bucket</div>
+          <strong>External stage</strong>
+          <p>Points at S3 / Azure / GCS via storage integration. Same COPY syntax, different dock location.</p>
+          <div class="see-example">s3://alpine-raw/…<br>+ storage integration</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>See it — COPY directions</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Load</div>
+          <strong>Stage → table</strong>
+          <p><code>COPY INTO my_table FROM @stage</code>. Optional SELECT transform, ON_ERROR, VALIDATION_MODE.</p>
+          <div class="see-example">files on dock →<br>rows in CUSTOMERS_LOAD_2</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Unload</div>
+          <strong>Table → stage</strong>
+          <p><code>COPY INTO @stage FROM (SELECT …)</code>. Writes files out for partners or reload drills.</p>
+          <div class="see-example">CUSTOMERS_LOAD →<br>@STG…/customers_unload/</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Objects in this lab</h2>
+      <div class="flow-pipeline" aria-label="COPY pipeline flow">
+        <div class="flow-node source">
+          <span class="flow-tag">1 · Seed</span>
+          <strong>INSERT rows</strong>
+          <span class="flow-sub">CUSTOMERS_LOAD</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">2 · Unload</span>
+          <strong>COPY INTO @stage</strong>
+          <span class="flow-sub">STG_ALPINE_LOAD</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">3 · Validate</span>
+          <strong>VALIDATION_MODE</strong>
+          <span class="flow-sub">no load yet</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">4 · Reload</span>
+          <strong>COPY + transform</strong>
+          <span class="flow-sub">CUSTOMERS_LOAD_2</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Kai: “Is a stage a table?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">If I LIST a stage and see files, can I SELECT * FROM the stage like a table?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Not as normal rows. You LIST files, query with <code>$1, $2</code> in a COPY SELECT, or use a directory table for file metadata. Tables hold typed columns after COPY.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> File formats + named stage</h2>
+      <p class="teach"><strong>What this does:</strong> Creates reusable packing labels (CSV + JSON) and the shared internal dock in <code>PIPELINE</code>, with directory metadata enabled.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · formats + stage</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA PIPELINE;
+
+CREATE OR REPLACE FILE FORMAT FF_CSV_CUSTOMERS
+  TYPE = CSV FIELD_DELIMITER = ',' SKIP_HEADER = 1
+  FIELD_OPTIONALLY_ENCLOSED_BY = '"';
+
+CREATE OR REPLACE STAGE STG_ALPINE_LOAD
+  FILE_FORMAT = FF_CSV_CUSTOMERS
+  DIRECTORY = (ENABLE = TRUE);</code></pre>
+      </div>
+      <div class="badge-ok">✓ SHOW STAGES LIKE 'STG_ALPINE%' returns one row</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Seed the table (INSERT — no PUT)</h2>
+      <p class="teach"><strong>What this does:</strong> Puts three demo customers in <code>CUSTOMERS_LOAD</code>. Snowsight on Windows often can’t PUT local files — INSERT keeps the lab moving.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · create + insert</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE TABLE CUSTOMERS_LOAD (
+  CUSTOMER_ID NUMBER, FULL_NAME STRING,
+  EMAIL STRING, COUNTRY STRING
+);
+
+INSERT INTO CUSTOMERS_LOAD VALUES
+  (10, 'Fran Kim',   'fran.kim@example.com',   'US'),
+  (11, 'Gita Singh', 'gita.singh@example.com', 'CA'),
+  (12, 'Hugo Diaz',  'hugo.diaz@example.com',  'US');
+
+SELECT * FROM CUSTOMERS_LOAD ORDER BY CUSTOMER_ID;</code></pre>
+      </div>
+      <div class="callout tip">
+        <strong>Want real PUT?</strong>
+        SnowSQL: <code>PUT file://customers.csv @STG_ALPINE_LOAD/raw/</code> then COPY — commented in <code>sql/10_copy_stages.sql</code>.
+      </div>
+      <div class="badge-ok">✓ Three rows in CUSTOMERS_LOAD</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Unload coach">
+      <p class="comic-kicker">Before Step 3</p>
+      <h2 class="comic-title">Morgan: “Can we send a file out?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
+          </div>
+          <blockquote class="comic-bubble">Partner asks for a CSV extract. Do we email a spreadsheet from someone’s laptop again?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Peer engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble"><code>COPY INTO @stage FROM (SELECT …)</code> writes files on the dock. Same forklift, opposite direction.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Unload to stage + directory list</h2>
+      <p class="teach"><strong>What this does:</strong> Writes CSV files under <code>@STG_ALPINE_LOAD/customers_unload/</code>, lists them, refreshes directory metadata.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · unload</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>COPY INTO @STG_ALPINE_LOAD/customers_unload/
+  FROM (
+    SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
+      FROM CUSTOMERS_LOAD
+  )
+  FILE_FORMAT = (FORMAT_NAME = 'FF_CSV_CUSTOMERS')
+  OVERWRITE = TRUE HEADER = TRUE;
+
+LIST @STG_ALPINE_LOAD/customers_unload/;
+ALTER STAGE STG_ALPINE_LOAD REFRESH;</code></pre>
+      </div>
+      <div class="badge-ok">✓ LIST shows file(s) under customers_unload/</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> VALIDATION_MODE — check without loading</h2>
+      <p class="teach"><strong>What this does:</strong> Parses stage files and reports errors <em>without</em> inserting rows. Safe dry-run before a big load.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · validate</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>COPY INTO CUSTOMERS_LOAD
+FROM @STG_ALPINE_LOAD/customers_unload/
+FILE_FORMAT = (FORMAT_NAME = 'FF_CSV_CUSTOMERS')
+VALIDATION_MODE = 'RETURN_ERRORS';</code></pre>
+      </div>
+      <div class="badge-ok">✓ Validation output · CUSTOMERS_LOAD row count unchanged</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">5</span> Reload with TRANSFORM + ON_ERROR</h2>
+      <p class="teach"><strong>What this does:</strong> Loads into a second table, uppercasing names and stamping <code>LOADED_AT</code> during COPY. <code>ON_ERROR = CONTINUE</code> keeps good rows if a bad one appears.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · transform load</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE TABLE CUSTOMERS_LOAD_2 (
+  CUSTOMER_ID NUMBER, FULL_NAME STRING,
+  EMAIL STRING, COUNTRY STRING,
+  LOADED_AT TIMESTAMP_NTZ
+);
+
+COPY INTO CUSTOMERS_LOAD_2
+  (CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY, LOADED_AT)
+FROM (
+  SELECT $1::NUMBER, UPPER($2::STRING), $3::STRING,
+         $4::STRING, CURRENT_TIMESTAMP()
+  FROM @STG_ALPINE_LOAD/customers_unload/
+)
+FILE_FORMAT = (FORMAT_NAME = 'FF_CSV_CUSTOMERS')
+ON_ERROR = 'CONTINUE';</code></pre>
+      </div>
+      <div class="badge-ok">✓ Names UPPER · LOADED_AT filled</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">6</span> JSON awareness (tiny)</h2>
+      <p class="teach"><strong>What this does:</strong> Reminds you JSON uses a different file format and often lands in <code>VARIANT</code>. Tiny INSERT stands in for a JSON COPY.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · JSON / VARIANT</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE FILE FORMAT FF_JSON_EVENTS
+  TYPE = JSON STRIP_OUTER_ARRAY = TRUE;
+
+CREATE OR REPLACE TABLE EVENTS_STAGE_LOAD (PAYLOAD VARIANT);
+INSERT INTO EVENTS_STAGE_LOAD
+SELECT PARSE_JSON(COLUMN1) FROM VALUES
+  ('{"event":"click","user":1}'),
+  ('{"event":"purchase","user":2}');
+SELECT * FROM EVENTS_STAGE_LOAD;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Two VARIANT payloads</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <p>Basics moved files through the dock. Cover each answer <em>before</em> you open it.</p>
+      <details class="drill">
+        <summary><strong>Q1.</strong> User vs named vs external stage — when each?</summary>
+        <p class="drill-say"><strong>Say:</strong> User (<code>@~</code>) = personal scratch. Named internal = shared team dock with grants. External = files already in cloud storage via storage integration. Table stage (<code>@%</code>) = dock tied to one table.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> How do you TRANSFORM during COPY?</summary>
+        <p class="drill-say"><strong>Say:</strong> <code>COPY INTO table FROM (SELECT … FROM @stage)</code> — cast columns, UPPER, add defaults like <code>CURRENT_TIMESTAMP()</code>. Transform in the SELECT, not after a blind load, when possible.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> What does PURGE = TRUE do?</summary>
+        <p class="drill-say"><strong>Say:</strong> After a successful load, delete the loaded files from the stage. Saves clutter; don’t purge if you still need the files for audit/replay.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> File format options you must name on CSV questions?</summary>
+        <p class="drill-say"><strong>Say:</strong> TYPE, FIELD_DELIMITER, SKIP_HEADER, FIELD_OPTIONALLY_ENCLOSED_BY, NULL_IF / ERROR_ON_COLUMN_COUNT_MISMATCH as needed. JSON: STRIP_OUTER_ARRAY often matters.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> VALIDATION_MODE vs ON_ERROR CONTINUE?</summary>
+        <p class="drill-say"><strong>Say:</strong> VALIDATION_MODE dry-runs and does not load. ON_ERROR CONTINUE loads good rows and skips bad ones in a real COPY. Different tools — validate first on scary files.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “Domain 3 loading: I created FF_CSV_CUSTOMERS and named stage STG_ALPINE_LOAD in PIPELINE, seeded CUSTOMERS_LOAD with INSERT,
+      unloaded with COPY INTO @stage FROM SELECT, validated with VALIDATION_MODE, then reloaded with a SELECT transform and ON_ERROR CONTINUE.
+      <em>Outcome:</em> a repeatable dock without depending on Windows PUT — ready for Snowpipe / streams in later labs.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 11 — continuous loading (Snowpipe) and related automation. Review <a href="EXAM_TIPS_DOMAIN2_3.md">Domain 2–3 tips</a>.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-09.html">← Lab 09</a>
+      <a class="btn primary" href="lab-11.html">Lab 11 →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/10_copy_stages.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

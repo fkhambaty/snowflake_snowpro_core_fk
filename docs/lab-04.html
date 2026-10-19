@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 04 — Table types</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a class="active" href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 04 · Table types · You are Priya</p>
+    <h1>Permanent, transient, temp, external, Iceberg, dynamic</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      “Table” is not one product. Fail-safe, session scope, files-on-stage, open formats, and auto-refresh pipelines
+      are different object flavors — COF-C03 expects you to pick the right one.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Morgan wants cheaper scratch tables. Sam refuses to lose Fail-safe on customer gold.
+      Riley mentions Iceberg and Dynamic Tables from the C03 blueprint — Kai’s eyes glaze over.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      Create permanent / transient / temporary demos, explain external + Iceberg (commented if trial blocks),
+      and stage a Dynamic Table pattern with a simple source table.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>All tables feel equal</strong>
+        <ul>
+          <li>Transient still has Fail-safe?</li>
+          <li>Temp lasts forever?</li>
+          <li>Iceberg = “another vendor only”</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Pick by job + cost</strong>
+        <ul>
+          <li>Permanent = TT + Fail-safe</li>
+          <li>Transient / temp = no Fail-safe</li>
+          <li>External / Iceberg / DT = special jobs</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-04-open" aria-label="Table types comic">
+      <p class="comic-kicker">Episode 04 · Start here</p>
+      <h2 class="comic-title">Morgan wants cheap. Sam wants Fail-safe.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager — cost</span></div>
+          </div>
+          <blockquote class="comic-bubble">ETL staging tables don’t need a seven-day Snowflake parachute. Stop paying for Fail-safe on junk.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
+          </div>
+          <blockquote class="comic-bubble">Customer gold tables <em>do</em>. Permanent for protected data. Transient for throwaways. Don’t mix them up on the exam — or in prod.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Dev: Temporary = this session only. When you disconnect, it’s gone.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — which table for which job</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Default</div>
+          <strong>Permanent</strong>
+          <p>Time Travel + Fail-safe. Production tables you must recover.</p>
+          <div class="see-example"><code>LAB.T_PERM</code><br>Fail-safe: yes</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Cheaper</div>
+          <strong>Transient</strong>
+          <p>Time Travel yes (short). <strong>No Fail-safe.</strong> Good for ETL staging.</p>
+          <div class="see-example"><code>LAB.T_TRANS</code><br>Fail-safe: no</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Session</div>
+          <strong>Temporary</strong>
+          <p>Visible only in your session / until it ends. No Fail-safe.</p>
+          <div class="see-example"><code>LAB.T_TEMP</code><br>gone after logout</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Files</div>
+          <strong>External table</strong>
+          <p>Metadata over files on a stage — read-oriented, not a normal mutable warehouse table.</p>
+          <div class="see-example">Query @stage files<br>without full COPY first</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">C03</div>
+          <strong>Iceberg table</strong>
+          <p>Open table format; data can live in customer storage with Snowflake catalog options.</p>
+          <div class="see-example">Interop / open format<br>needs volume + catalog</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Pipeline</div>
+          <strong>Dynamic Table</strong>
+          <p>Declarative incremental pipeline: define SELECT + target lag; Snowflake refreshes.</p>
+          <div class="see-example"><code>TARGET_LAG = '1 minute'</code><br>+ warehouse for refresh</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Fail-safe cheat sheet</h2>
+      <div class="flow-pipeline" aria-label="Fail-safe">
+        <div class="flow-node source">
+          <span class="flow-tag">Permanent</span>
+          <strong>Fail-safe YES</strong>
+          <span class="flow-sub">after Time Travel window</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">Transient</span>
+          <strong>Fail-safe NO</strong>
+          <span class="flow-sub">TT still possible</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">Temporary</span>
+          <strong>Fail-safe NO</strong>
+          <span class="flow-sub">session scoped</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Dev: “Create all three side by side.”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">If I run SHOW TABLES, will I see my temporary table tomorrow?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Only while this session lives. Close the worksheet session / disconnect — temporary is gone. Permanent and transient stay.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Permanent + transient + temporary</h2>
+      <p class="teach"><strong>What this does:</strong> Creates three tiny tables so you can contrast scope and Fail-safe.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · three kinds</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA LAB;
+
+CREATE OR REPLACE TABLE LAB.T_PERM (
+  ID NUMBER, LABEL STRING
+);
+CREATE OR REPLACE TRANSIENT TABLE LAB.T_TRANS (
+  ID NUMBER, LABEL STRING
+);
+CREATE OR REPLACE TEMPORARY TABLE LAB.T_TEMP (
+  ID NUMBER, LABEL STRING
+);</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · insert + union</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>INSERT INTO LAB.T_PERM VALUES (1, 'permanent');
+INSERT INTO LAB.T_TRANS VALUES (1, 'transient');
+INSERT INTO LAB.T_TEMP VALUES (1, 'temporary');
+
+SELECT 'PERM' AS kind, * FROM LAB.T_PERM
+UNION ALL SELECT 'TRANS', * FROM LAB.T_TRANS
+UNION ALL SELECT 'TEMP', * FROM LAB.T_TEMP;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Three rows — note TEMPORARY kind on SHOW TABLES</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 2 coach">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Riley: “External is read-oriented.”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">External tables point at files. Don’t treat them like an OLTP table you UPDATE all day.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Exam: external = query files via metadata. Full mutable warehouse tables usually mean COPY into permanent/transient first.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> External + Iceberg (pattern / comments)</h2>
+      <p class="teach"><strong>What this does:</strong> Shows the CREATE shapes. Leave commented until stage/volume exists — still memorize for C03.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · external (commented)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>-- Needs files on @LAB.STG_INBOUND first:
+-- CREATE OR REPLACE EXTERNAL TABLE LAB.EXT_ORDERS (
+--   ORDER_ID NUMBER AS (VALUE:c1::NUMBER),
+--   AMOUNT NUMBER AS (VALUE:c2::NUMBER)
+-- )
+-- LOCATION = @LAB.STG_INBOUND/orders/
+-- FILE_FORMAT = (TYPE = CSV SKIP_HEADER = 1)
+-- AUTO_REFRESH = FALSE;</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · Iceberg (commented)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>-- Needs EXTERNAL VOLUME + catalog setup:
+-- CREATE ICEBERG TABLE LAB.IB_ORDERS (
+--   ORDER_ID NUMBER, AMOUNT NUMBER(10,2)
+-- )
+-- CATALOG = 'SNOWFLAKE'
+-- EXTERNAL_VOLUME = 'my_ext_vol'
+-- BASE_LOCATION = 'orders/';</code></pre>
+      </div>
+      <div class="badge-ok">✓ You can explain why Iceberg is on C03 even if CREATE fails on trial</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 3 coach">
+      <p class="comic-kicker">Before Step 3</p>
+      <h2 class="comic-title">Dynamic Tables = declare the end state</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">Is a Dynamic Table the same as a Task + Stream pipeline?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Related job, different UX. DT: you write the SELECT + lag; Snowflake refreshes. Streams/Tasks: you orchestrate steps yourself.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Dynamic Table intro</h2>
+      <p class="teach"><strong>What this does:</strong> Creates a source table. Try CREATE DYNAMIC TABLE; if trial blocks it, keep the commented pattern for the exam.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · DT source</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE TABLE LAB.DT_SOURCE (
+  EVENT_ID NUMBER,
+  EVENT_TS TIMESTAMP_NTZ,
+  PAYLOAD STRING
+);
+INSERT INTO LAB.DT_SOURCE VALUES
+  (1, CURRENT_TIMESTAMP(), 'click'),
+  (2, CURRENT_TIMESTAMP(), 'purchase');
+SELECT * FROM LAB.DT_SOURCE;</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · dynamic table (may fail on trial)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>-- CREATE OR REPLACE DYNAMIC TABLE LAB.DT_EVENTS
+--   TARGET_LAG = '1 minute'
+--   WAREHOUSE = WH_CORE_XS
+-- AS
+--   SELECT EVENT_ID, EVENT_TS, PAYLOAD
+--   FROM LAB.DT_SOURCE;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Source rows visible; know TARGET_LAG + WH even if DT create is skipped</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <details class="drill">
+        <summary><strong>Q1.</strong> Which table types have Fail-safe?</summary>
+        <p class="drill-say"><strong>Say:</strong> Permanent tables have Fail-safe (after Time Travel). Transient and temporary do <em>not</em>. Classic distractor: “transient has Fail-safe.”</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> What’s the scope of a temporary table?</summary>
+        <p class="drill-say"><strong>Say:</strong> Current session. When the session ends, the temporary table is gone. Other users / later sessions won’t see it.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> Why are external tables described as read-oriented?</summary>
+        <p class="drill-say"><strong>Say:</strong> They query files via metadata on a stage. They’re for reading staged data in place — not a full substitute for mutable permanent tables you load into.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> Why is Iceberg on COF-C03?</summary>
+        <p class="drill-say"><strong>Say:</strong> Snowflake supports Iceberg tables for open-format / external-volume scenarios. Exam expects awareness: catalog, external volume, interoperability — even if your trial never creates one.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Dynamic Table vs Task — pick one sentence?</summary>
+        <p class="drill-say"><strong>Say:</strong> Dynamic Table declares the desired result and lag; Snowflake manages refresh. A Task runs scheduled SQL you control (often with streams). Different control surfaces, overlapping pipeline goals.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “Permanent tables get Time Travel and Fail-safe. Transient and temporary skip Fail-safe — temp dies with the session.
+      External tables read stage files; Iceberg brings open table format (needs volume/catalog). Dynamic Tables declare SELECT + lag for incremental refresh.
+      I pick the type for cost and recovery — not habit.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 05 — interfaces, Snowpark, Cortex, Streamlit, Notebooks.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-03.html">← Lab 03</a>
+      <a class="btn primary" href="lab-05.html">Lab 05 — interfaces + AI →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/04_table_types.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

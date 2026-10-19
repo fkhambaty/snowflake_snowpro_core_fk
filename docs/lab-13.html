@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 13 — Query Profile &amp; caches</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a class="active" href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 13 · Domain 4 · You are Priya</p>
+    <h1>Query Profile — don’t guess, look</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      When Kai says “make the warehouse bigger,” you open <strong>Query Profile</strong> first.
+      Today: three caches, pruning, Profile nodes, and Query Acceleration Service awareness.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      A board query feels slow. Morgan’s reflex: “Upsize to Medium.” Nobody checked whether the bottleneck is
+      scanning almost every micro-partition, spilling to remote storage, or waiting on a join blast.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will practice</strong>
+      Run a selective vs chunky query on <code>LAB.ORDERS</code>, open Snowsight Query Profile, name the three caches,
+      and know when QAS helps (and when a bigger WH won’t).
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Resize first, think later</strong>
+        <ul>
+          <li>“Bigger WH = always faster”</li>
+          <li>No idea which cache hit</li>
+          <li>Pruning never mentioned</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Profile-led triage</strong>
+        <ul>
+          <li>Name result / local / metadata cache</li>
+          <li>Check partitions scanned</li>
+          <li>Spill &amp; QAS in your vocabulary</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-13-open" aria-label="Dev opens Profile">
+      <p class="comic-kicker">Episode 13 · Start here</p>
+      <h2 class="comic-title">Dev: “Show me the Profile before you burn credits.”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager — cost pressure</span></div>
+          </div>
+          <blockquote class="comic-bubble">Just make it Medium. We have a board call in ten minutes.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach — explains why</span></div>
+          </div>
+          <blockquote class="comic-bubble">If we’re scanning 95% of partitions, Medium costs more for the same IO shape. Profile first: TableScan, bytes spilled, join explosion — then decide scale up, clustering, or rewrite.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Exam trap: bigger warehouse ≠ more storage and ≠ automatic pruning.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — three caches</h2>
+      <div class="see-grid three">
+        <div class="see-card">
+          <div class="see-label">Cloud Services</div>
+          <strong>Result cache</strong>
+          <p>Exact same query text + unchanged data → reuse result. Often <strong>0 warehouse credits</strong>.</p>
+          <div class="see-example">Run identical SELECT twice → second may be instant</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Warehouse</div>
+          <strong>Local disk cache</strong>
+          <p>SSD on WH servers holds data from recent scans. Helps warm queries on same WH.</p>
+          <div class="see-example">Suspend WH → local cache goes cold</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Cloud Services</div>
+          <strong>Metadata cache</strong>
+          <p>Micro-partition stats for pruning &amp; planning — not your full result set.</p>
+          <div class="see-example">Optimizer skips irrelevant partitions</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>See it — Profile words you’ll say</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Pruning</div>
+          <strong>Skip micro-partitions</strong>
+          <p>Selective filters on clustered/min-max friendly columns scan fewer partitions.</p>
+          <div class="see-example">WHERE STATUS = 'PENDING' on huge table</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Nodes</div>
+          <strong>TableScan · Join · Bloom</strong>
+          <p>Profile graph shows operators. Bloom filters can reduce join probe work.</p>
+          <div class="see-example">Snowsight → Query History → Profile</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Spill</div>
+          <strong>Memory → local/remote</strong>
+          <p>Heavy sorts/hashes exceed memory → spill. Remote spill hurts latency.</p>
+          <div class="see-example">Profile: bytes spilled to remote storage</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">QAS</div>
+          <strong>Query Acceleration Service</strong>
+          <p>Serverless boost for large scans/filters. Not a cure for bad joins or tiny tables.</p>
+          <div class="see-example">ENABLE_QUERY_ACCELERATION on WH</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Kai opens the wrong panel</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">I stared at the SQL worksheet. Where is the Profile?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">After the query finishes: Query History → click the query → Profile. Look at TableScan partitions scanned vs total.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Selective query (pruning-friendly shape)</h2>
+      <p class="teach"><strong>What this does:</strong> Narrow filter. On a big table this is where pruning shines; our sample is tiny — still practice the Profile habit.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · selective</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA LAB;
+
+SELECT ORDER_ID, CUSTOMER_ID, AMOUNT_USD, STATUS
+FROM LAB.ORDERS
+WHERE STATUS = 'PENDING';</code></pre>
+      </div>
+      <div class="badge-ok">✓ Open Profile — note TableScan / partitions (even if small)</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 2 coach">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Contrast the chunky query</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">Aggregations that touch every row won’t be “fixed” by hoping for result cache on the first run.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Right. First run builds the plan and scans. Second identical run may hit result cache. Don’t confuse cache wins with “Medium made it fast.”</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Broader query + result cache demo</h2>
+      <p class="teach"><strong>What this does:</strong> Run an aggregate, then the same SELECT twice to feel result cache. <code>RESULT_SCAN</code> re-reads the last result without re-running the original SQL.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · aggregate</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SELECT STATUS, COUNT(*) AS N, SUM(AMOUNT_USD) AS TOTAL_USD
+FROM LAB.ORDERS
+GROUP BY STATUS
+ORDER BY TOTAL_USD DESC;</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · result cache + RESULT_SCAN</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SELECT ORDER_ID, AMOUNT_USD
+FROM LAB.ORDERS
+WHERE CUSTOMER_ID = 1
+ORDER BY ORDER_ID;
+
+-- Run the identical statement again, then:
+SELECT * FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));</code></pre>
+      </div>
+      <div class="badge-ok">✓ You can explain result cache vs RESULT_SCAN</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Clustering info (skip if not clustered)</h2>
+      <p class="teach"><strong>What this does:</strong> <code>SYSTEM$CLUSTERING_INFORMATION</code> only helps on clustered (or naturally well-ordered) tables. Our tiny ORDERS sample usually isn’t worth clustering — know the function for the exam.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · clustering (optional)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>-- Only if you clustered a real table:
+-- ALTER TABLE LAB.ORDERS CLUSTER BY (STATUS);
+-- SELECT SYSTEM$CLUSTERING_INFORMATION('LAB.ORDERS', '(STATUS)');
+
+-- QAS awareness (Enterprise+), don’t leave on for tiny labs:
+-- ALTER WAREHOUSE WH_CORE_XS SET
+--   ENABLE_QUERY_ACCELERATION = TRUE
+--   QUERY_ACCELERATION_MAX_SCALE_FACTOR = 4;</code></pre>
+      </div>
+      <div class="badge-ok">✓ You can say when clustering depth / QAS matter</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <details class="drill">
+        <summary><strong>Q1.</strong> What is RESULT_SCAN for?</summary>
+        <p class="drill-say"><strong>Say:</strong> Query a previous result set by query ID without re-executing the original SQL — handy for post-processing the last statement’s output.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> When will a bigger warehouse NOT help?</summary>
+        <p class="drill-say"><strong>Say:</strong> When the bottleneck is poor pruning (scanning almost everything), waiting on cloud services only, tiny data already memory-resident, or a bad SQL shape (exploding joins). Profile first.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> What does spill mean in Profile?</summary>
+        <p class="drill-say"><strong>Say:</strong> Operators ran out of memory and wrote intermediate data to local or remote storage. Remote spill is expensive latency-wise — scale up or reduce memory pressure.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> When consider Query Acceleration Service?</summary>
+        <p class="drill-say"><strong>Say:</strong> Large scans/filters that can offload to QAS serverless acceleration — especially ad-hoc analytical queries. Not a substitute for fixing cardinality explosions.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Name the three caches and who “owns” them.</summary>
+        <p class="drill-say"><strong>Say:</strong> Result cache (cloud services — reused results), local disk cache (warehouse SSDs — warm data), metadata cache (cloud services — partition stats for pruning/planning).</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “I stopped guessing warehouse size. I ran selective vs broader queries, opened Query Profile, and named result cache, local disk cache, and metadata cache.
+      I can explain pruning, spill, RESULT_SCAN, and when QAS is the right lever.
+      <em>Outcome:</em> Domain 4 performance answers start with Profile, not panic resizing.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 14 — scale UP vs scale OUT, auto-suspend, multi-cluster warehouses.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-12.html">← Lab 12</a>
+      <a class="btn primary" href="lab-14.html">Lab 14 — warehouses →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/13_query_profile.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+# SnowPro Core course — do not regress
+
+This repo is certification prep: **Alpine Retail**, student plays **Priya Chen**. Live site: `docs/` (GitHub Pages optional).
+
+## Naming (never invent random names)
+
+| Object | Name |
+|--------|------|
+| Database | `ALPINE_RETAIL` |
+| Warehouse (daily) | `WH_CORE_XS` |
+| Warehouse (heavy) | `WH_CORE_M` |
+| Lab admin | `ROLE_CORE_LAB_ADMIN` |
+| Schemas | `LAB`, `SECURE`, `PIPELINE`, `SHARE_DEMO` |
+
+See `docs/ALPINE_NAMING.md`. Cleanup: `sql/cleanup_lab.sql`.
+
+## Every lab HTML pattern
+
+1. Business problem (`callout bad`)
+2. Solution (`callout ok`)
+3. BEFORE / AFTER (`.ba-grid` + photo or `.ba-diagram`)
+4. Comic strips (`.comic-strip`) — Kai asks, Dev explains why
+5. See-it cards (`.see-grid` / `.see-card`)
+6. Teach-first + ≤12-line SQL chunks
+7. `#interview-drill` / `.drill-wrap` with ≥4 hard exam Q&As
+8. Priya wrap-up (`.soundbite`)
+
+Cover full COF-C03 blueprint — see `docs/EXAM_BLUEPRINT.md`. Do not skip Cortex, Iceberg, Dynamic Tables, Trust Center, Clean Rooms, Snowpipe Streaming.
+
+## HARD RULE — role proofs
+
+```sql
+USE ROLE FR_ANALYST;
+USE SECONDARY ROLES NONE;
+```
+
+## Before shipping lab edits
+
+1. Grep `USE ROLE FR_` — every hit must be followed by `USE SECONDARY ROLES NONE`
+2. HTML SQL must match `sql/*.sql` where a file exists
+3. Labs 00–19 still have `#interview-drill` with ≥4 follow-ups (`scripts/check_lab_invariants.ps1`)

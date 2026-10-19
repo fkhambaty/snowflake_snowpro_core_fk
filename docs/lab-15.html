@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 15 — SQL features &amp; VARIANT</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a class="active" href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 15 · Domain 4 · You are Priya</p>
+    <h1>SQL power tools + JSON (VARIANT)</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      Core loves practical SQL: <code>QUALIFY</code>, <code>MERGE</code>, a taste of <code>PIVOT</code>, tiny UDFs/procs,
+      and pulling fields out of <code>VARIANT</code> with path syntax + <code>FLATTEN</code> on <code>LAB.EVENTS_RAW</code>.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Kai writes nested subqueries for “latest order per customer.” Riley hand-merges JSON click events in Python.
+      Morgan wants one Snowflake-native story for the exam — not five half-finished scripts.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will practice</strong>
+      <code>QUALIFY</code> with <code>ROW_NUMBER</code>, a small <code>PIVOT</code>, <code>MERGE INTO</code>, a SQL UDF, a Snowflake Scripting procedure,
+      and <code>FLATTEN</code> on event payloads.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Awkward SQL + Python glue</strong>
+        <ul>
+          <li>Subquery wrappers for windows</li>
+          <li>Manual upserts</li>
+          <li>JSON parsed outside Snowflake</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Core SQL toolkit</strong>
+        <ul>
+          <li>QUALIFY / MERGE / PIVOT</li>
+          <li>UDF + stored proc</li>
+          <li>VARIANT paths + FLATTEN</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-15-open" aria-label="Kai meets QUALIFY">
+      <p class="comic-kicker">Episode 15 · Start here</p>
+      <h2 class="comic-title">Kai’s subquery onion vs QUALIFY</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">I wrap ROW_NUMBER in a subquery every time. Is there a less ugly way?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach — explains why</span></div>
+          </div>
+          <blockquote class="comic-bubble"><code>QUALIFY</code> filters window-function results the way <code>HAVING</code> filters aggregates. Same power, less nesting — exam favorite.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Remember: WHERE → HAVING → QUALIFY (different stages of the query).</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — today’s toolkit</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Windows</div>
+          <strong>QUALIFY</strong>
+          <p>Keep rows where the window expression is true — no outer SELECT required.</p>
+          <div class="see-example"><code>QUALIFY ROW_NUMBER() … = 1</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Upsert</div>
+          <strong>MERGE INTO</strong>
+          <p>Match keys → update; no match → insert (or delete on match).</p>
+          <div class="see-example">Staging rows → curated table</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Shape</div>
+          <strong>PIVOT awareness</strong>
+          <p>Turn status values into columns. Know it exists; syntax is fiddly — recognize the pattern.</p>
+          <div class="see-example">SHIPPED / PENDING as columns</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">JSON</div>
+          <strong>VARIANT + FLATTEN</strong>
+          <p>Store semi-structured as VARIANT; path with <code>:</code>; explode with lateral FLATTEN.</p>
+          <div class="see-example"><code>payload:user.id</code></div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Function</div>
+          <strong>UDF</strong>
+          <p>Returns a value (scalar) or table (UDTF). Called from SQL like a function.</p>
+          <div class="see-example"><code>FN_USD_TO_CENTS(amount)</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Procedure</div>
+          <strong>Stored proc</strong>
+          <p>Runs procedural logic (Scripting/JS/…). Invoked with <code>CALL</code> — not a drop-in SELECT expression.</p>
+          <div class="see-example"><code>CALL LAB.SP_COUNT_ORDERS()</code></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Latest order per customer — one pass</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">Partition by customer, order by time descending, keep rn = 1. That’s the pattern.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">And QUALIFY lets me filter on rn without wrapping the whole thing in another SELECT.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> QUALIFY with ROW_NUMBER</h2>
+      <p class="teach"><strong>What this does:</strong> Latest order per customer in one readable statement.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · QUALIFY</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA LAB;
+
+SELECT ORDER_ID, CUSTOMER_ID, ORDER_TS, AMOUNT_USD,
+  ROW_NUMBER() OVER (
+    PARTITION BY CUSTOMER_ID ORDER BY ORDER_TS DESC
+  ) AS RN
+FROM LAB.ORDERS
+QUALIFY RN = 1;</code></pre>
+      </div>
+      <div class="badge-ok">✓ One row per customer — the newest order</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> PIVOT awareness + MERGE</h2>
+      <p class="teach"><strong>What this does:</strong> PIVOT reshapes statuses into columns. MERGE upserts into a demo table.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · PIVOT</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SELECT *
+FROM (
+  SELECT CUSTOMER_ID, STATUS, AMOUNT_USD FROM LAB.ORDERS
+)
+PIVOT (
+  SUM(AMOUNT_USD) FOR STATUS IN ('SHIPPED', 'PENDING', 'RETURNED')
+) AS P
+ORDER BY CUSTOMER_ID;</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · MERGE</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE TABLE LAB.ORDERS_UPSERT_DEMO (
+  ORDER_ID NUMBER, CUSTOMER_ID NUMBER,
+  STATUS STRING, AMOUNT_USD NUMBER(10,2)
+);
+
+MERGE INTO LAB.ORDERS_UPSERT_DEMO t
+USING LAB.ORDERS s ON t.ORDER_ID = s.ORDER_ID
+WHEN MATCHED THEN UPDATE SET
+  t.STATUS = s.STATUS, t.AMOUNT_USD = s.AMOUNT_USD
+WHEN NOT MATCHED THEN INSERT
+  (ORDER_ID, CUSTOMER_ID, STATUS, AMOUNT_USD)
+  VALUES (s.ORDER_ID, s.CUSTOMER_ID, s.STATUS, s.AMOUNT_USD);</code></pre>
+      </div>
+      <div class="badge-ok">✓ PIVOT returns columns per status; MERGE fills upsert demo</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 3 coach">
+      <p class="comic-kicker">Before Step 3</p>
+      <h2 class="comic-title">UDF vs procedure — don’t swap them</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">Can I put a stored procedure in the SELECT list like a function?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">No. UDF/UDTF → use in SQL expressions/FROM. Procedure → <code>CALL</code>. UDTF returns a table. Exam distractors love mixing these.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Tiny UDF + stored procedure</h2>
+      <p class="teach"><strong>What this does:</strong> SQL UDF converts dollars to cents. Scripting proc returns a count string via <code>CALL</code>.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · UDF</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE FUNCTION LAB.FN_USD_TO_CENTS(AMOUNT NUMBER)
+  RETURNS NUMBER LANGUAGE SQL
+AS $$ SELECT (AMOUNT * 100)::NUMBER $$;
+
+SELECT ORDER_ID, AMOUNT_USD,
+       LAB.FN_USD_TO_CENTS(AMOUNT_USD) AS CENTS
+FROM LAB.ORDERS LIMIT 5;</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · procedure</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE PROCEDURE LAB.SP_COUNT_ORDERS()
+  RETURNS STRING LANGUAGE SQL
+AS $$
+DECLARE n NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO n FROM LAB.ORDERS;
+  RETURN 'ORDERS row count = ' || n;
+END;
+$$;
+
+CALL LAB.SP_COUNT_ORDERS();</code></pre>
+      </div>
+      <div class="badge-ok">✓ Function works in SELECT; proc responds to CALL</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 4 coach">
+      <p class="comic-kicker">Before Step 4</p>
+      <h2 class="comic-title">Riley opens the JSON events</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble"><code>LAB.EVENTS_RAW</code> already has VARIANT payloads from Lab 00. Path with colon, cast to STRING/NUMBER.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
+          </div>
+          <blockquote class="comic-bubble">FLATTEN turns nested keys into rows — great for exploration. Don’t forget casts so types stay honest in marts.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> VARIANT paths + FLATTEN</h2>
+      <p class="teach"><strong>What this does:</strong> Pull nested fields, then laterally flatten top-level keys for a row-per-key view.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · paths</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SELECT EVENT_ID,
+       PAYLOAD:event::STRING AS EVENT_TYPE,
+       PAYLOAD:user.id::NUMBER AS USER_ID,
+       PAYLOAD:user.plan::STRING AS PLAN
+FROM LAB.EVENTS_RAW;</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · FLATTEN</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SELECT e.EVENT_ID, f.KEY, f.VALUE
+FROM LAB.EVENTS_RAW e,
+LATERAL FLATTEN(INPUT => e.PAYLOAD) f;</code></pre>
+      </div>
+      <p class="teach">If <code>EVENTS_RAW</code> is empty, re-run the insert section of <code>sql/00_sample_data.sql</code>.</p>
+      <div class="badge-ok">✓ Nested fields readable; FLATTEN returns key/value rows</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <details class="drill">
+        <summary><strong>Q1.</strong> QUALIFY vs filtering in an outer subquery?</summary>
+        <p class="drill-say"><strong>Say:</strong> Same idea — keep rows after window functions compute — but QUALIFY is clearer and avoids an extra SELECT wrapper. WHERE can’t see window results; QUALIFY can.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> What does LATERAL FLATTEN do?</summary>
+        <p class="drill-say"><strong>Say:</strong> Expands a VARIANT/ARRAY/OBJECT into a set of rows (keys/elements) correlated to the parent row — classic semi-structured explosion pattern.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> VARIANT path syntax — give an example.</summary>
+        <p class="drill-say"><strong>Say:</strong> <code>payload:user.id::NUMBER</code> or bracket form <code>payload['user']['id']</code>. Cast explicitly when you need typed columns.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> UDF vs UDTF vs stored procedure?</summary>
+        <p class="drill-say"><strong>Say:</strong> UDF returns a scalar in SQL expressions. UDTF returns a table (use in FROM). Stored procedure runs procedural logic via CALL — not a SELECT-list function.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> When is MERGE the right tool?</summary>
+        <p class="drill-say"><strong>Say:</strong> Upserts and CDC-style apply: match on keys, update changed rows, insert new ones, optionally delete. Prefer over delete-all + insert when you need precise row sync.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “I used QUALIFY for latest-order-per-customer, practiced PIVOT and MERGE, shipped a tiny UDF and a CALL-able procedure,
+      and read LAB.EVENTS_RAW with VARIANT paths plus FLATTEN.
+      <em>Outcome:</em> Domain 4 SQL + semi-structured questions have concrete Alpine examples I can say out loud.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 16 — Time Travel &amp; Fail-safe (Domain 5). Skim <code>EXAM_TIPS_DOMAIN4.md</code> while it’s fresh.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-14.html">← Lab 14</a>
+      <a class="btn primary" href="lab-16.html">Lab 16 — Time Travel →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/15_sql_variant.sql · Tips: EXAM_TIPS_DOMAIN4.md</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

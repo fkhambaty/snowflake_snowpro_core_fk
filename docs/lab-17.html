@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 17 — Clone &amp; replication</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a class="active" href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 17 · Domain 5 · You are Priya</p>
+    <h1>Zero-copy clones — then replication (concept)</h1>
+    <p class="lede">
+      Instant Dev copy without waiting for a byte dump. You will clone table / schema / database,
+      prove when storage charges start (divergence), and learn primary vs secondary replication
+      without needing a second production account today.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Morgan wants a Dev copy of Alpine “by lunch.” Kai suggests <code>COPY INTO</code> everything —
+      hours of load and double the storage bill. Riley asks about DR across regions.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      <code>CREATE TABLE … CLONE</code>, schema clone, database clone to <code>ALPINE_RETAIL_DEV</code>,
+      a divergence UPDATE that starts new storage, and commented replication DDL for exam literacy.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Copy-everything mindset</strong>
+        <ul>
+          <li>Physical dump = wait + 2× bytes</li>
+          <li>“Clone = backup” confusion</li>
+          <li>DR = mystery</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Pointers, then divergence</strong>
+        <ul>
+          <li>Zero-copy until writes differ</li>
+          <li>Independent objects after clone</li>
+          <li>Replica = secondary account story</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-17-open" aria-label="Morgan wants Dev by lunch">
+      <p class="comic-kicker">Episode 17 · Clone day</p>
+      <h2 class="comic-title">Morgan wants Dev by lunch. Dev says “don’t copy bytes.”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager — deadline</span></div>
+          </div>
+          <blockquote class="comic-bubble">I need a safe Dev playground of Alpine before the demo. How long for a full copy?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Seconds, not hours — if we <strong>clone</strong>. Snowflake points at the same micro-partitions until someone writes and forces new ones. That’s zero-copy.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Clone ≠ share. Clone is a new object you own; share is live access for another account.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — clone vs copy vs replicate</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Same account</div>
+          <strong>Zero-copy CLONE</strong>
+          <p>New table/schema/DB that starts sharing storage pointers.</p>
+          <div class="see-example"><code>CREATE TABLE T2 CLONE T1;</code><br>Fast · metadata-first</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Byte copy</div>
+          <strong>CREATE TABLE AS SELECT / COPY</strong>
+          <p>Immediately materializes new micro-partitions — pay storage now, wait for data move.</p>
+          <div class="see-example">CTAS / COPY INTO<br>= real bytes today</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">When $ starts</div>
+          <strong>Divergence</strong>
+          <p>After clone, shared history is free-ish pointers. When either side writes, <em>new</em> partitions are stored and billed.</p>
+          <div class="see-example">UPDATE clone → new MPs<br>original unchanged</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Other account</div>
+          <strong>Replication</strong>
+          <p>Primary DB → secondary in another account/region. Refresh keeps it current. Failover promotes secondary.</p>
+          <div class="see-example">Often Business Critical<br>for full failover features</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Clone privileges — exam trap</h2>
+      <p>
+        Cloning creates a new object. You need privileges to create the target (e.g. CREATE TABLE in the schema)
+        and ownership/select-style rights on the source as required by Snowflake’s clone rules.
+        Grants on the <em>source</em> do not automatically make every role able to clone into a privileged place —
+        think “who can CREATE the new object?”
+      </p>
+      <div class="flow-pipeline" aria-label="Clone then diverge">
+        <div class="flow-node source">
+          <span class="flow-tag">1 · Clone</span>
+          <strong>Shared MPs</strong>
+          <span class="flow-sub">no byte dump yet</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">2 · Write</span>
+          <strong>Diverge</strong>
+          <span class="flow-sub">new micro-partitions</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">3 · Bill</span>
+          <strong>Extra storage</strong>
+          <span class="flow-sub">only the changed parts</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Before step 1">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Kai: “Is a clone a backup?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">If I clone CUSTOMERS, am I protected if someone drops the original tomorrow?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
+          </div>
+          <blockquote class="comic-bubble">Partially independent object — but Time Travel / Fail-safe on the <em>original</em> is still your recovery story. Clone is for Dev/QA isolation, not a substitute for retention policy.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Table clone (zero-copy)</h2>
+      <p class="teach"><strong>What this does:</strong> Instant <code>CUSTOMERS_CLONE</code> pointing at the same data as <code>LAB.CUSTOMERS</code>.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · CREATE TABLE CLONE</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA LAB;
+
+CREATE OR REPLACE TABLE CUSTOMERS_CLONE CLONE CUSTOMERS;
+
+SELECT COUNT(*) AS CLONE_ROWS FROM CUSTOMERS_CLONE;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Same row count as <code>CUSTOMERS</code> — created in seconds</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Schema + database clone</h2>
+      <p class="teach"><strong>What this does:</strong> Clones the whole <code>LAB</code> schema, then clones the database into <code>ALPINE_RETAIL_DEV</code>.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · schema &amp; DB clone</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE SCHEMA LAB_CLONE CLONE LAB;
+
+CREATE OR REPLACE DATABASE ALPINE_RETAIL_DEV
+  CLONE ALPINE_RETAIL;</code></pre>
+      </div>
+      <div class="badge-ok">✓ <code>LAB_CLONE</code> and <code>ALPINE_RETAIL_DEV</code> exist in the account</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Before step 3">
+      <p class="comic-kicker">Before Step 3</p>
+      <h2 class="comic-title">Morgan: “When do I start paying double?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager — cost</span></div>
+          </div>
+          <blockquote class="comic-bubble">You said zero-copy. So clones are free forever?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Pipeline</span></div>
+          </div>
+          <blockquote class="comic-bubble">Until someone writes. UPDATE the clone — Snowflake stores new micro-partitions for the changed data. Unchanged history can still be shared. That’s when the bill grows.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Prove divergence (storage starts)</h2>
+      <p class="teach"><strong>What this does:</strong> Changes only the clone; original stays intact — independent objects after write.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · diverge the clone</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>UPDATE ALPINE_RETAIL.LAB.CUSTOMERS_CLONE
+  SET FULL_NAME = 'Cloned Name Change'
+  WHERE CUSTOMER_ID = 1;
+
+SELECT CUSTOMER_ID, FULL_NAME
+  FROM ALPINE_RETAIL.LAB.CUSTOMERS WHERE CUSTOMER_ID = 1;
+SELECT CUSTOMER_ID, FULL_NAME
+  FROM ALPINE_RETAIL.LAB.CUSTOMERS_CLONE WHERE CUSTOMER_ID = 1;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Original name unchanged; clone shows <code>Cloned Name Change</code></div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> Replication syntax (read only — don’t run blind)</h2>
+      <p class="teach"><strong>What this does:</strong> Shows the exam shape of enabling replication. Needs a second account and often Business Critical for full failover.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · commented (exam awareness)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>-- ALTER DATABASE ALPINE_RETAIL
+--   ENABLE REPLICATION TO ACCOUNTS &lt;org&gt;.&lt;account&gt;;
+--
+-- -- On the secondary account:
+-- CREATE DATABASE ALPINE_RETAIL
+--   AS REPLICA OF &lt;org&gt;.&lt;primary&gt;.ALPINE_RETAIL;
+-- ALTER DATABASE ALPINE_RETAIL REFRESH;</code></pre>
+      </div>
+      <div class="badge-ok">✓ You can explain primary (writable) vs secondary (read-only until failover)</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <details class="drill">
+        <summary><strong>Q1.</strong> Clone vs copy — what is “zero-copy”?</summary>
+        <p class="drill-say"><strong>Say:</strong> Clone creates a new object that initially references the same micro-partitions — no immediate full byte duplication. CTAS/COPY materializes new partitions right away. Storage grows as the clone and source diverge via writes.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> What privileges matter for cloning?</summary>
+        <p class="drill-say"><strong>Say:</strong> You need rights to create the target object (CREATE TABLE/SCHEMA/DATABASE in the destination) and appropriate access to the source. Cloning doesn’t magically bypass RBAC; ownership of the new object follows normal create rules.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> Primary vs secondary in replication?</summary>
+        <p class="drill-say"><strong>Say:</strong> Primary is the writable source account/database. Secondary is a replica (typically read-only) refreshed from the primary. Failover promotes a secondary to take writes after an outage/planned cutover.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> Which edition for some failover / HA features?</summary>
+        <p class="drill-say"><strong>Say:</strong> Many multi-account failover / client-redirect style features require Business Critical (or higher). Don’t claim full HA on Standard. Check current docs, but Core exams expect BC for advanced failover.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> When do clone storage charges start in plain English?</summary>
+        <p class="drill-say"><strong>Say:</strong> At clone time you mostly pay metadata/pointers for shared history. When either side inserts/updates/deletes, Snowflake writes new micro-partitions — those unique bytes are stored and billed. Unchanged shared history can remain shared.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “Morgan got Dev by lunch: <code>CUSTOMERS_CLONE</code>, <code>LAB_CLONE</code>, and <code>ALPINE_RETAIL_DEV</code> via zero-copy CLONE —
+      not a BYTE dump. Storage grows after divergence, which I proved with an UPDATE on the clone only.
+      Replication is a different-account story: enable on primary, create replica, refresh; failover often needs Business Critical.
+      <em>Outcome:</em> clone vs copy vs replicate sorted for Domain 5.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 18 — secure shares (provider side) and Marketplace / Clean Rooms awareness.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-16.html">← Lab 16</a>
+      <a class="btn primary" href="lab-18.html">Lab 18 — sharing →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/17_clone_replicate.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

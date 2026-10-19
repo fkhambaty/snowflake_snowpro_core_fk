@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 02 — Object catalog</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a class="active" href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 02 · Domain 1 objects · You are Priya</p>
+    <h1>Object catalog — what lives where</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      Snowflake has many object types. Today you touch the ones Core loves to name-drop —
+      and learn which ones sit at account level vs inside a schema.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Riley says “put it on a stage,” Kai says “isn’t that a table?”, Morgan asks “is a share a database?”
+      Mixing object types = wrong grant, wrong load path, wrong exam answer.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      Create a tiny <code>PRODUCTS</code> table, a view, a sequence, a CSV file format, and an internal named stage
+      in <code>ALPINE_RETAIL.LAB</code> — then SHOW them so the catalog feels real.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Everything is “a table”</strong>
+        <ul>
+          <li>View ≈ materialized view blur</li>
+          <li>User stage vs named stage blur</li>
+          <li>No idea what’s account-level</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Labeled toolbox</strong>
+        <ul>
+          <li>Table / view / sequence / format / stage</li>
+          <li>Named stage = shared folder recipe</li>
+          <li>WH, roles, users → account level</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-02-open" aria-label="Riley names objects">
+      <p class="comic-kicker">Episode 02 · Start here</p>
+      <h2 class="comic-title">Riley names five objects. Kai hears “files.”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer — pipelines</span></div>
+          </div>
+          <blockquote class="comic-bubble">Priya, we need a table for products, a view for cheap SKUs, a sequence for order IDs, a file format, and a stage for inbound CSVs.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst — still learning</span></div>
+          </div>
+          <blockquote class="comic-bubble">That’s… five different things? I thought Snowflake was just tables and SQL.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Dev (off-panel): Each object has a job. The exam asks “which object?” constantly.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — objects as jobs</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Data</div>
+          <strong>TABLE vs VIEW</strong>
+          <p>Table stores rows. View stores a saved SELECT (no private copy of the result).</p>
+          <div class="see-example"><code>LAB.PRODUCTS</code><br><code>LAB.V_PRODUCTS_CHEAP</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">MV awareness</div>
+          <strong>Materialized view</strong>
+          <p>Stores precomputed results — refresh/cost tradeoff. Not the same as a normal view.</p>
+          <div class="see-example">Exam: “precomputed” → MV<br>“just a saved query” → view</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Load path</div>
+          <strong>STAGE + FILE FORMAT</strong>
+          <p>Stage = folder pointer. File format = CSV/JSON recipe. Used together on COPY.</p>
+          <div class="see-example"><code>@LAB.STG_INBOUND</code><br>+ <code>FF_CSV_STD</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Numbers</div>
+          <strong>SEQUENCE</strong>
+          <p>Hands out unique numbers (order IDs) without racing inserts.</p>
+          <div class="see-example"><code>SEQ_ORDER_ID.NEXTVAL</code><br>1000, 1001, …</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Later labs</div>
+          <strong>Pipe · Stream · Task · Share</strong>
+          <p>Continuous load, change feed, schedule, outbound share — know the names today.</p>
+          <div class="see-example">PIPE / STREAM / TASK<br>SHARE (account collab)</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Code</div>
+          <strong>UDF · Procedure</strong>
+          <p>Functions return values; procedures run multi-step logic (often scripting).</p>
+          <div class="see-example">UDF in SELECT<br>CALL my_procedure()</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Account-level vs schema-level</h2>
+      <div class="flow-pipeline" aria-label="Object scope">
+        <div class="flow-node source">
+          <span class="flow-tag">Account</span>
+          <strong>WH · Roles · Users</strong>
+          <span class="flow-sub">also shares, integrations…</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">Database</span>
+          <strong>ALPINE_RETAIL</strong>
+          <span class="flow-sub">contains schemas</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">Schema LAB</span>
+          <strong>Tables · Views · Stages</strong>
+          <span class="flow-sub">sequences · formats · …</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Dev: “Start with SHOW.”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">Do I memorize every object type before creating anything?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">No. SHOW warehouses/databases/schemas first — see the tree. Then create one of each common schema object.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Orient with SHOW</h2>
+      <p class="teach"><strong>What this does:</strong> Lists Alpine’s warehouse, database, and schemas — account vs DB vs schema awareness.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · SHOW catalog</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+
+SHOW WAREHOUSES LIKE 'WH_CORE%';
+SHOW DATABASES LIKE 'ALPINE%';
+SHOW SCHEMAS IN DATABASE ALPINE_RETAIL;</code></pre>
+      </div>
+      <div class="badge-ok">✓ See WH_CORE_XS, ALPINE_RETAIL, schemas LAB / SECURE / PIPELINE / SHARE_DEMO</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 2 coach">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Riley: “Table first, then view.”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">A view is a window on a table. If someone drops the table, the window shows nothing useful.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Exact. Materialized views are different — they store results. Exam distractor: treating MV like a free normal view.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Table + view</h2>
+      <p class="teach"><strong>What this does:</strong> Creates <code>PRODUCTS</code> and a cheap-SKU view.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · table + view</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE SCHEMA LAB;
+
+CREATE OR REPLACE TABLE LAB.PRODUCTS (
+  PRODUCT_ID NUMBER, SKU STRING,
+  NAME STRING, UNIT_PRICE NUMBER(10,2)
+);
+INSERT INTO LAB.PRODUCTS VALUES
+  (1, 'ALP-TEE', 'Alpine Tee', 29.00),
+  (2, 'ALP-HAT', 'Trail Hat', 19.50);</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · view</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE VIEW LAB.V_PRODUCTS_CHEAP AS
+SELECT PRODUCT_ID, SKU, NAME, UNIT_PRICE
+FROM LAB.PRODUCTS
+WHERE UNIT_PRICE &lt; 25;
+
+SELECT * FROM LAB.V_PRODUCTS_CHEAP;</code></pre>
+      </div>
+      <div class="badge-ok">✓ View returns Trail Hat only (19.50)</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 3 coach">
+      <p class="comic-kicker">Before Step 3</p>
+      <h2 class="comic-title">Kai: “What’s NEXTVAL?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">Can two inserts grab the same order ID if they run at once?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Sequences hand out unique numbers safely. Gaps can happen — uniqueness matters more than “no gaps.”</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Sequence</h2>
+      <p class="teach"><strong>What this does:</strong> Creates <code>SEQ_ORDER_ID</code> starting at 1000 and pulls two values.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · sequence</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE SEQUENCE LAB.SEQ_ORDER_ID
+  START = 1000 INCREMENT = 1;
+
+SELECT LAB.SEQ_ORDER_ID.NEXTVAL AS next_id;
+SELECT LAB.SEQ_ORDER_ID.NEXTVAL AS next_id;</code></pre>
+      </div>
+      <div class="badge-ok">✓ First call ≈ 1000, second ≈ 1001</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 4 coach">
+      <p class="comic-kicker">Before Step 4</p>
+      <h2 class="comic-title">Named stage vs user stage</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
+          </div>
+          <blockquote class="comic-bubble">Can everyone dump files into Kai’s personal user stage for production loads?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">No. User stage (<code>@~</code>) is personal. Named stage in a schema is shareable with roles — that’s what teams use.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> File format + internal named stage</h2>
+      <p class="teach"><strong>What this does:</strong> Creates a CSV recipe and an internal stage that references it.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · format + stage</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE OR REPLACE FILE FORMAT LAB.FF_CSV_STD
+  TYPE = CSV FIELD_DELIMITER = ','
+  SKIP_HEADER = 1
+  FIELD_OPTIONALLY_ENCLOSED_BY = '"';
+
+CREATE OR REPLACE STAGE LAB.STG_INBOUND
+  FILE_FORMAT = LAB.FF_CSV_STD;
+
+SHOW STAGES IN SCHEMA LAB;
+SHOW FILE FORMATS IN SCHEMA LAB;</code></pre>
+      </div>
+      <div class="badge-ok">✓ STG_INBOUND and FF_CSV_STD listed under LAB</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <p>Cover each answer <em>before</em> you open it.</p>
+      <details class="drill">
+        <summary><strong>Q1.</strong> View vs materialized view — what’s the difference?</summary>
+        <p class="drill-say"><strong>Say:</strong> A view is a saved query with no stored result set. A materialized view stores precomputed results and has refresh/cost implications. Don’t call every view an MV.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> Named stage vs user stage?</summary>
+        <p class="drill-say"><strong>Say:</strong> User stage (<code>@~</code>) is private to the user. A named stage is a schema object you can grant to roles — preferred for shared pipelines.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> What objects are typically account-level?</summary>
+        <p class="drill-say"><strong>Say:</strong> Warehouses, users, roles, and (among others) shares and account-level integrations. Tables/views/stages usually live in a schema inside a database.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> Why attach a FILE FORMAT to a stage?</summary>
+        <p class="drill-say"><strong>Say:</strong> So COPY / LIST consumers inherit the CSV/JSON parsing recipe. You can still override per statement — defaults reduce mistakes.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Pipe vs Task vs Stream — one sentence each?</summary>
+        <p class="drill-say"><strong>Say:</strong> Pipe = continuous/auto load from stage. Stream = change-data feed on a table. Task = scheduled SQL (often after streams). Different jobs, different CREATE statements.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “In ALPINE_RETAIL.LAB I created PRODUCTS, view V_PRODUCTS_CHEAP, sequence SEQ_ORDER_ID,
+      file format FF_CSV_STD, and named stage STG_INBOUND. Views don’t store results; MVs do.
+      Named stages are shareable; user stages are personal. Warehouses and roles live at account level.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 03 — micro-partitions, pruning, and clustering keys.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-01.html">← Lab 01</a>
+      <a class="btn primary" href="lab-03.html">Lab 03 — micro-partitions →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/02_objects.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

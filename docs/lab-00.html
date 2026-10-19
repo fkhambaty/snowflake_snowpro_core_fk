@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 00 — Alpine Retail workshop</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a class="active" href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 00 · Day 1 morning · You are Priya</p>
+    <h1>Build Alpine Retail’s workshop</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      This lab is the empty store building — warehouse, database, folders (schemas), and your lab-admin badge.
+      <a href="story.html">Story</a> optional but Morgan makes more sense if you skim it.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Alpine has no dedicated Snowflake home. Files and half-built tables live in random places.
+      Morgan (manager) says: “Give us one building, a cheap engine, and a clear owner — today. Then study for Core.”
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      Database <code>ALPINE_RETAIL</code>, warehouse <code>WH_CORE_XS</code>, lab role
+      <code>ROLE_CORE_LAB_ADMIN</code>, schemas <code>LAB</code> / <code>SECURE</code> / <code>PIPELINE</code> / <code>SHARE_DEMO</code>,
+      and sample customers + orders for later labs.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>No Alpine home</strong>
+        <ul>
+          <li>Random tables, no owner</li>
+          <li>No cheap auto-suspend warehouse</li>
+          <li>Nothing named for the exam story</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>One building + engine</strong>
+        <ul>
+          <li><code>ALPINE_RETAIL</code> with labeled schemas</li>
+          <li><code>WH_CORE_XS</code> auto-suspend 60s</li>
+          <li>Daily work as <code>ROLE_CORE_LAB_ADMIN</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-00-open" aria-label="Morgan wants a building">
+      <p class="comic-kicker">Episode 00 · Start here</p>
+      <h2 class="comic-title">Morgan wants a building. Dev draws one.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager — deadline</span></div>
+          </div>
+          <blockquote class="comic-bubble">I hear “data platform” and see twenty random tables. Where does Alpine’s data <em>live</em>?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach — explains why</span></div>
+          </div>
+          <blockquote class="comic-bubble">Think of a building. Database = the building name <code>ALPINE_RETAIL</code>. Schemas = rooms. Warehouse = the engine that runs when we ask questions — then sleeps so we don’t burn money.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">If you remember only one picture today: building → rooms → engine.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — don’t memorize definitions</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Container</div>
+          <strong>Database = the building</strong>
+          <p>Everything Alpine owns lives inside one named database.</p>
+          <div class="see-example">random tables →<br><code>ALPINE_RETAIL</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Folder</div>
+          <strong>Schema = a room</strong>
+          <p>Groups related tables — like floors in the building.</p>
+          <div class="see-example"><code>LAB</code> = practice floor<br><code>SECURE</code> = locked room</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Engine</div>
+          <strong>Warehouse runs queries</strong>
+          <p>Compute you turn on — credits while it’s running. It does <em>not</em> store your tables.</p>
+          <div class="see-example"><code>USE WAREHOUSE WH_CORE_XS;</code><br>X-Small · auto-suspend 60s</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Badges</div>
+          <strong>Two roles today</strong>
+          <p>Mayor bootstraps; Priya wears lab-admin badge for daily labs.</p>
+          <div class="see-example">ACCOUNTADMIN (5 min)<br>→ <code>ROLE_CORE_LAB_ADMIN</code></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>ACCOUNTADMIN vs lab admin — why both?</h2>
+      <p>
+        Snowflake separates <em>who can spin up account-wide powers</em> from <em>who runs the store day to day</em>.
+        Only <code>ACCOUNTADMIN</code> can create warehouses and stamp “CREATE ROLE” on Priya’s badge.
+        After bootstrap, Priya wears <code>ROLE_CORE_LAB_ADMIN</code> — same person, narrower powers (exam-realistic).
+      </p>
+      <div class="flow-pipeline" aria-label="Bootstrap flow">
+        <div class="flow-node source">
+          <span class="flow-tag">1 · Mayor</span>
+          <strong>ACCOUNTADMIN</strong>
+          <span class="flow-sub">create WH + stamp lab admin</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">2 · Builder</span>
+          <strong>ROLE_CORE_LAB_ADMIN</strong>
+          <span class="flow-sub">own DB + schemas + tables</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">3 · Exam you</span>
+          <strong>Daily labs</strong>
+          <span class="flow-sub">never live as ACCOUNTADMIN</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Kai: “Is the warehouse where my data sits?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst — still learning</span></div>
+          </div>
+          <blockquote class="comic-bubble">So if I create a bigger warehouse, I get more storage space, right?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Nope. Warehouse = compute engine (CPU). Your tables live in the <strong>storage</strong> layer. Exam trap #1: never say “the warehouse stores data.”</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Bootstrap as ACCOUNTADMIN</h2>
+      <p class="teach"><strong>What this does:</strong> Creates the cheap warehouse and Priya’s lab-admin role, then grants account powers she’ll need later (tasks, shares, policies).</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · bootstrap (ACCOUNTADMIN)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ACCOUNTADMIN;
+
+CREATE WAREHOUSE IF NOT EXISTS WH_CORE_XS
+  WAREHOUSE_SIZE = 'XSMALL'
+  AUTO_SUSPEND = 60
+  AUTO_RESUME = TRUE
+  INITIALLY_SUSPENDED = TRUE;
+
+CREATE ROLE IF NOT EXISTS ROLE_CORE_LAB_ADMIN;
+
+GRANT USAGE, OPERATE ON WAREHOUSE WH_CORE_XS
+  TO ROLE ROLE_CORE_LAB_ADMIN WITH GRANT OPTION;
+GRANT CREATE DATABASE ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;
+GRANT CREATE ROLE ON ACCOUNT TO ROLE ROLE_CORE_LAB_ADMIN;</code></pre>
+      </div>
+      <p class="teach"><strong>Also run</strong> the rest of <code>sql/00_bootstrap.sql</code> (CREATE USER grant, MANAGE GRANTS, EXECUTE TASK, APPLY POLICY, CREATE SHARE). Then grant the role to <em>your</em> user.</p>
+      <div class="badge-ok">✓ You should see warehouse + role created with no errors</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 2 coach">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Why leave ACCOUNTADMIN?</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">Can’t I just stay ACCOUNTADMIN for the whole course? It’s easier.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Easier ≠ correct. The exam (and real jobs) expect least privilege. Break-glass for bootstrap; lab admin for daily work.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Open the building as lab admin</h2>
+      <p class="teach"><strong>What this does:</strong> Creates <code>ALPINE_RETAIL</code> and the four schemas you’ll reuse all course.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · database + schemas</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+
+CREATE DATABASE IF NOT EXISTS ALPINE_RETAIL;
+USE DATABASE ALPINE_RETAIL;
+
+CREATE SCHEMA IF NOT EXISTS LAB;
+CREATE SCHEMA IF NOT EXISTS SECURE;
+CREATE SCHEMA IF NOT EXISTS PIPELINE;
+CREATE SCHEMA IF NOT EXISTS SHARE_DEMO;
+
+SELECT CURRENT_ROLE(), CURRENT_WAREHOUSE(), CURRENT_DATABASE();</code></pre>
+      </div>
+      <div class="badge-ok">✓ Role = ROLE_CORE_LAB_ADMIN · WH = WH_CORE_XS · DB = ALPINE_RETAIL</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Load sample customers (tiny)</h2>
+      <p class="teach"><strong>What this does:</strong> Puts five customers with PII into <code>LAB.CUSTOMERS</code> so later security labs have something real to lock.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · sample customers</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE SCHEMA LAB;
+
+CREATE OR REPLACE TABLE CUSTOMERS (
+  CUSTOMER_ID NUMBER,
+  FULL_NAME   STRING,
+  EMAIL       STRING,
+  PHONE       STRING,
+  COUNTRY     STRING,
+  SSN_LAST4   STRING
+);
+
+INSERT INTO CUSTOMERS VALUES
+  (1, 'Ava Patel', 'ava.patel@example.com', '+1-555-0101', 'US', '1234'),
+  (2, 'Ben Okonkwo', 'ben.okonkwo@example.com', '+1-555-0102', 'US', '5678');</code></pre>
+      </div>
+      <p class="teach">Finish the other three rows + orders from <code>sql/00_sample_data.sql</code> (or run that whole file).</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · proof</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SELECT * FROM CUSTOMERS ORDER BY CUSTOMER_ID;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Rows with emails and SSN_LAST4 visible while you’re still lab admin</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <p>Basics got you the workshop. Cover each answer <em>before</em> you open it. These are Core traps.</p>
+      <details class="drill">
+        <summary><strong>Q1.</strong> Does a virtual warehouse store table data?</summary>
+        <p class="drill-say"><strong>Say:</strong> No. Warehouses are compute. Table data lives in the storage layer as compressed micro-partitions. Bigger warehouse ≠ more storage.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> Why auto-suspend 60 seconds — what’s the failure mode?</summary>
+        <p class="drill-say"><strong>Say:</strong> Saves idle credits. Too aggressive + chatty short queries = resume latency. No suspend = idle burn. Tune suspend separately from size.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> Why not leave every object under ACCOUNTADMIN?</summary>
+        <p class="drill-say"><strong>Say:</strong> ACCOUNTADMIN is break-glass. Daily DDL under an owned platform/lab role matches least privilege and how the exam frames RBAC.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> Database vs schema — which is the “building”?</summary>
+        <p class="drill-say"><strong>Say:</strong> Database is the building; schemas are rooms/folders. You can have many schemas in one database without splitting billing or replication scopes.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> What three layers must you name on Architecture questions?</summary>
+        <p class="drill-say"><strong>Say:</strong> Database Storage, Query Processing (virtual warehouses), and Cloud Services (auth, metadata, optimizer). Lab 01 drills this harder.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “Alpine had no Snowflake home. As ACCOUNTADMIN I poured the foundation: warehouse WH_CORE_XS with auto-suspend,
+      role ROLE_CORE_LAB_ADMIN, and database ALPINE_RETAIL with LAB, SECURE, PIPELINE, and SHARE_DEMO schemas.
+      I loaded sample customers with PII so we can prove security later.
+      <em>Outcome:</em> one owned playground, near-zero idle cost, ready for architecture Lab 01.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 01 is the exam’s heaviest domain — three layers + editions. Don’t skip it.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="story.html">← Story</a>
+      <a class="btn primary" href="lab-01.html">Lab 01 — three layers →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/00_bootstrap.sql · sql/00_sample_data.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

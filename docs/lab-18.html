@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 18 — Secure Data Sharing</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a class="active" href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 18 · Domain 5 · You are Priya</p>
+    <h1>Share the catalog — no data dump</h1>
+    <p class="lede">
+      Live secure share from Alpine (provider) to another account (consumer).
+      Hands-on is provider-side: create share, grant USAGE + SELECT on a <code>SHARE_DEMO</code> view.
+      Reader accounts, Marketplace, Native Apps, and Clean Rooms are exam see-cards.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      A partner wants Alpine’s product catalog nightly. Kai’s plan: export CSV to S3 every night.
+      Sam: “That’s a stale copy with PII risk if we grab the wrong table.” Morgan: “And who pays every time they query?”
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      Share <code>ALPINE_PRODUCT_SHARE</code>, view <code>SHARE_DEMO.V_PRODUCT_CATALOG</code>,
+      grants of USAGE on DB/schema + SELECT on the view, <code>SHOW SHARES</code>.
+      Note: a real consumer needs a <em>different</em> Snowflake account (or a reader account you create).
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>File dump partnership</strong>
+        <ul>
+          <li>Nightly CSV / COPY OUT</li>
+          <li>Stale + duplicate storage</li>
+          <li>Hard to revoke cleanly</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Live secure share</strong>
+        <ul>
+          <li>One share object + grants</li>
+          <li>Consumer queries live data</li>
+          <li>Revoke = remove from share</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-18-open" aria-label="Partner wants the catalog">
+      <p class="comic-kicker">Episode 18 · Share day</p>
+      <h2 class="comic-title">Partner wants the catalog. Sam won’t approve CSV.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
+          </div>
+          <blockquote class="comic-bubble">No dumping <code>CUSTOMERS</code>. Share a curated view in <code>SHARE_DEMO</code> — products only. Live access, revoke-able.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Exam line: a share is <strong>not a copy</strong>. Consumer queries your data in place. Their warehouse burns <em>their</em> credits when they run SQL.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Provider stores; consumer computes. That’s the usual Core answer for “who pays?”</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — collaboration map (C03 awareness)</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Direct</div>
+          <strong>CREATE SHARE</strong>
+          <p>You pick accounts and grant objects. Hands-on today.</p>
+          <div class="see-example"><code>GRANT SELECT ON VIEW … TO SHARE</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">No full account</div>
+          <strong>Reader account</strong>
+          <p>Provider creates a limited account so a partner can query shared data without buying full Snowflake.</p>
+          <div class="see-example">Provider-managed<br>consumer still needs login</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Catalog</div>
+          <strong>Marketplace listing</strong>
+          <p>Discoverable offering (free/paid) vs private direct share to known accounts.</p>
+          <div class="see-example">Listing = storefront<br>Direct share = handshake</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Apps / privacy</div>
+          <strong>Native Apps &amp; Clean Rooms</strong>
+          <p>Native App: package logic + data as an app. Clean room: parties analyze without freely sharing raw rows.</p>
+          <div class="see-example">Awareness for C03<br>not deep hands-on today</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Provider grant ladder</h2>
+      <div class="flow-pipeline" aria-label="Share grant order">
+        <div class="flow-node source">
+          <span class="flow-tag">1 · Share</span>
+          <strong>CREATE SHARE</strong>
+          <span class="flow-sub">empty container</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">2 · Path</span>
+          <strong>USAGE DB + schema</strong>
+          <span class="flow-sub">see the building</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">3 · Data</span>
+          <strong>SELECT on view</strong>
+          <span class="flow-sub">then ADD ACCOUNTS</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Before step 1">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Kai: “Can I share from the same account to myself?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">If I ADD my own account to the share, do I finish the consumer half in this lab?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
+          </div>
+          <blockquote class="comic-bubble">No — shares are cross-account. Today we prove provider setup. Consumer needs another account or a reader account. Exam still asks the provider grant order.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Curated view in SHARE_DEMO</h2>
+      <p class="teach"><strong>What this does:</strong> Builds a safe product catalog view — nothing from <code>CUSTOMERS</code>.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · share-safe view</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA SHARE_DEMO;
+
+CREATE OR REPLACE VIEW V_PRODUCT_CATALOG AS
+SELECT 1 AS PRODUCT_ID, 'Trail Jacket' AS PRODUCT_NAME, 129.00 AS LIST_PRICE
+UNION ALL SELECT 2, 'Alpine Cap', 24.00
+UNION ALL SELECT 3, 'Summit Pack', 89.00;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Three product rows; no PII columns</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Before step 2">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Riley: “Why USAGE before SELECT?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Pipeline</span></div>
+          </div>
+          <blockquote class="comic-bubble">Same RBAC ladder as roles — you can’t SELECT a table you can’t walk to.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Exactly. USAGE on database and schema, then SELECT on the view — all <code>TO SHARE</code>. Missing USAGE is a classic exam/setup fail.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> CREATE SHARE + grants</h2>
+      <p class="teach"><strong>What this does:</strong> Creates the share container and grants the path + SELECT into it.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · share + grants</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE SHARE IF NOT EXISTS ALPINE_PRODUCT_SHARE
+  COMMENT = 'Alpine Retail catalog share for Core lab';
+
+GRANT USAGE ON DATABASE ALPINE_RETAIL
+  TO SHARE ALPINE_PRODUCT_SHARE;
+GRANT USAGE ON SCHEMA ALPINE_RETAIL.SHARE_DEMO
+  TO SHARE ALPINE_PRODUCT_SHARE;
+GRANT SELECT ON VIEW ALPINE_RETAIL.SHARE_DEMO.V_PRODUCT_CATALOG
+  TO SHARE ALPINE_PRODUCT_SHARE;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Grants succeed (needs CREATE SHARE from Lab 00 bootstrap)</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Prove with SHOW + remember ADD ACCOUNTS</h2>
+      <p class="teach"><strong>What this does:</strong> Lists the share and its grants. Consumer delivery is a commented next step.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · SHOW SHARES</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SHOW SHARES LIKE 'ALPINE_PRODUCT_SHARE';
+SHOW GRANTS TO SHARE ALPINE_PRODUCT_SHARE;
+
+-- Different account locator required for a real consumer:
+-- ALTER SHARE ALPINE_PRODUCT_SHARE
+--   ADD ACCOUNTS = &lt;org_name&gt;.&lt;account_name&gt;;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Share visible; USAGE + SELECT listed on the share</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <details class="drill">
+        <summary><strong>Q1.</strong> Is a share a copy of the data?</summary>
+        <p class="drill-say"><strong>Say:</strong> No — secure sharing is live access to provider-stored data (via granted objects). It is not a nightly export. Revoking or removing an account cuts access without chasing CSV copies.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> Who pays compute when the consumer queries?</summary>
+        <p class="drill-say"><strong>Say:</strong> Typically the consumer’s virtual warehouse credits. The provider pays for storing the shared data. (Don’t say the provider’s WH runs the consumer’s SELECT.)</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> What is a reader account?</summary>
+        <p class="drill-say"><strong>Say:</strong> A provider-managed Snowflake account so a partner can consume shared data without owning a full paid Snowflake account. Still a separate account identity for sharing.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> What problem do Data Clean Rooms solve?</summary>
+        <p class="drill-say"><strong>Say:</strong> Multiple parties want joint analysis without freely exposing raw customer-level rows to each other — controlled, privacy-preserving collaboration (exam awareness, not deep admin).</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Listing vs direct share?</summary>
+        <p class="drill-say"><strong>Say:</strong> Direct share: you ADD known accounts. Marketplace listing: discoverable/commercial offering in the Marketplace. Same collaboration family; different discovery and commercial path.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “We stopped the CSV plan. I created <code>ALPINE_PRODUCT_SHARE</code>, put a safe catalog in
+      <code>SHARE_DEMO.V_PRODUCT_CATALOG</code>, and granted USAGE + SELECT to the share.
+      A live consumer needs another account or a reader account — this lab is provider-side.
+      Shares aren’t copies; consumers pay compute; listings and clean rooms are the C03 awareness layer.
+      <em>Outcome:</em> Domain 5 collaboration complete — time for the mock exam.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 19 — timed mock (40 questions). Aim for ≥32/40 before you book Pearson VUE.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-17.html">← Lab 17</a>
+      <a class="btn primary" href="lab-19.html">Lab 19 — mock exam →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/18_sharing.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

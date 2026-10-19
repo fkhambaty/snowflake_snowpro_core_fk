@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 05 — Interfaces + AI awareness</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a class="active" href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 05 · Interfaces &amp; AI · You are Priya</p>
+    <h1>How you talk to Snowflake — plus Cortex awareness</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      Core asks <em>which interface</em> fits the job: browser, CLI, drivers, Snowpark, Notebooks, Streamlit,
+      and where Cortex fits vs an external LLM.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Kai only knows Snowsight worksheets. Riley wants Python near the data.
+      Morgan asks if we should ship customer text to a random public chatbot.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      Map the interface menu, run session SHOW/SELECT proofs, and learn optional Cortex calls
+      (commented — trials may lack privileges). Domain 1 architecture block closes here.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Only one door</strong>
+        <ul>
+          <li>“Snowflake = the website”</li>
+          <li>Snowpark = mystery</li>
+          <li>Cortex = ChatGPT somewhere</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Right door per job</strong>
+        <ul>
+          <li>Snowsight / SnowSQL / drivers</li>
+          <li>Snowpark when DataFrames help</li>
+          <li>Cortex in-account; SiS apps run in Snowflake</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-05-open" aria-label="Interfaces comic">
+      <p class="comic-kicker">Episode 05 · Start here</p>
+      <h2 class="comic-title">Kai opens the browser. Riley opens Python.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst — still learning</span></div>
+          </div>
+          <blockquote class="comic-bubble">If Snowsight worksheets work, why does anyone install SnowSQL or drivers?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach — explains why</span></div>
+          </div>
+          <blockquote class="comic-bubble">Same SQL engine, different doors. Browser for humans. CLI/scripts for automation. Drivers for apps. Snowpark when you want DataFrames that push work into Snowflake.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Morgan (later): don’t paste customer emails into an external LLM without a governance story.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — interface menu</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Web</div>
+          <strong>Snowsight</strong>
+          <p>Browser UI: worksheets, dashboards, admin. What you’ve been using.</p>
+          <div class="see-example">Click Run · see grids<br>good for learning + ad-hoc</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">CLI</div>
+          <strong>SnowSQL</strong>
+          <p>Command-line client for scripts, PUT/GET, automation.</p>
+          <div class="see-example"><code>snowsql -c alpine</code><br>CI / ops friendly</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Apps</div>
+          <strong>Drivers &amp; connectors</strong>
+          <p>JDBC/ODBC/Python… plus Spark/Kafka connectors for platforms.</p>
+          <div class="see-example">App → driver → Snowflake<br>same roles &amp; WH</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Code</div>
+          <strong>Snowpark</strong>
+          <p>DataFrame API (Python/Java/Scala) that executes lazily in Snowflake.</p>
+          <div class="see-example">Use when pipelines fit DF<br>not every SELECT needs it</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Apps UI</div>
+          <strong>Streamlit in Snowflake</strong>
+          <p>Interactive apps hosted <em>inside</em> the account (SiS) — data stays close.</p>
+          <div class="see-example">Runs in Snowflake<br>not “your laptop only”</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Explore</div>
+          <strong>Notebooks</strong>
+          <p>Interactive cells (SQL/Python) for exploration and documented analysis.</p>
+          <div class="see-example">Teach / experiment<br>shareable in-account</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Cortex AI — in-account helpers</h2>
+      <p>
+        Cortex functions (e.g. <code>SENTIMENT</code>, <code>COMPLETE</code>) run as SQL in Snowflake when enabled.
+        That is different from copying data to an external LLM website. Trials often lack access — know the <em>idea</em> for the exam.
+      </p>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Cortex</div>
+          <strong>Inside Snowflake</strong>
+          <p>Governed with roles, warehouses, and account controls.</p>
+          <div class="see-example"><code>SNOWFLAKE.CORTEX.SENTIMENT(...)</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">External LLM</div>
+          <strong>Outside the account</strong>
+          <p>Data leaves unless you built a careful integration. Sam cares.</p>
+          <div class="see-example">Public chatbot paste<br>≠ Cortex by default</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Same SQL, any door</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">If I run CURRENT_USER in SnowSQL vs Snowsight, do I get a different Snowflake?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Same account engine. Interface changes how you connect — not the three layers underneath.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Session proof (Snowsight or SnowSQL)</h2>
+      <p class="teach"><strong>What this does:</strong> Prints identity and version — works from any SQL interface.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · session context</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
+USE WAREHOUSE WH_CORE_XS;
+USE DATABASE ALPINE_RETAIL;
+USE SCHEMA LAB;
+
+SELECT CURRENT_USER() AS login_user,
+       CURRENT_ROLE() AS role,
+       CURRENT_WAREHOUSE() AS warehouse,
+       CURRENT_VERSION() AS snowflake_version;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Your user, ROLE_CORE_LAB_ADMIN, WH_CORE_XS, a version string</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 2 coach">
+      <p class="comic-kicker">Before Step 2</p>
+      <h2 class="comic-title">Snowpark vs SQL</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">Should I rewrite every SELECT as Snowpark because it’s newer?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">No. SQL for set-based questions. Snowpark when you need DataFrame/Python/Java pipelines that still push compute into Snowflake.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Catalog SHOW (interface-agnostic)</h2>
+      <p class="teach"><strong>What this does:</strong> Confirms Alpine objects — same results in Snowsight or SnowSQL.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · SHOW</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SHOW WAREHOUSES LIKE 'WH_CORE%';
+SHOW DATABASES LIKE 'ALPINE%';
+
+SELECT 'interfaces ok' AS status,
+       COUNT(*) AS product_rows
+FROM LAB.PRODUCTS;</code></pre>
+      </div>
+      <p class="teach">If <code>PRODUCTS</code> is missing, re-run Lab 02 (or <code>sql/02_objects.sql</code>).</p>
+      <div class="badge-ok">✓ Warehouse + DB listed; product_rows ≥ 0</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Step 3 coach">
+      <p class="comic-kicker">Before Step 3</p>
+      <h2 class="comic-title">Sam vs public chatbots</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
+          </div>
+          <blockquote class="comic-bubble">If Cortex isn’t enabled, do <em>not</em> paste customer emails into a random website “just to try sentiment.”</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
+          </div>
+          <blockquote class="comic-bubble">Agreed. For the exam, know Cortex lives in-account. For Alpine, wait for proper enablement.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Optional Cortex (may fail on trial)</h2>
+      <p class="teach"><strong>What this does:</strong> Shows the SQL shape. Keep commented unless your account has Cortex.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · Cortex (optional)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>-- Uncomment only if Cortex is enabled:
+-- SELECT SNOWFLAKE.CORTEX.SENTIMENT(
+--   'Alpine Retail had a great quarter'
+-- ) AS sentiment;
+
+-- SELECT SNOWFLAKE.CORTEX.COMPLETE(
+--   'snowflake-arctic',
+--   'Say hello to Priya in one short sentence.'
+-- ) AS reply;</code></pre>
+      </div>
+      <div class="badge-ok">✓ You can describe SENTIMENT / COMPLETE even if the call errors on trial</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <details class="drill">
+        <summary><strong>Q1.</strong> When Snowpark vs plain SQL?</summary>
+        <p class="drill-say"><strong>Say:</strong> Use SQL for straightforward set-based queries. Use Snowpark when you want DataFrame/Python/Java/Scala logic that still executes inside Snowflake — not because “new is always better.”</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> Cortex vs external LLM?</summary>
+        <p class="drill-say"><strong>Say:</strong> Cortex functions run in the Snowflake account under platform governance. An external LLM usually means data leaves unless you built a controlled integration. Exam: don’t equate “any AI” with Cortex.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> Where does Streamlit in Snowflake run?</summary>
+        <p class="drill-say"><strong>Say:</strong> The Streamlit app is hosted in Snowflake (SiS) — close to the data — not merely a local laptop demo disconnected from the account.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> Snowsight vs SnowSQL — same engine?</summary>
+        <p class="drill-say"><strong>Say:</strong> Yes. Different clients to the same account. Choose UI for interactive work, CLI for scripting/PUT-GET/automation.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Do Notebooks replace warehouses?</summary>
+        <p class="drill-say"><strong>Say:</strong> No. Notebooks are an interface / workspace. Queries still need a virtual warehouse (compute) and still read from storage.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “I can reach Alpine through Snowsight, SnowSQL, drivers, connectors, Snowpark, Notebooks, and Streamlit in Snowflake —
+      same account, different doors. Snowpark for DataFrame pipelines; SQL for set questions.
+      Cortex is in-account AI; external LLMs are a different governance story. Streamlit SiS runs inside Snowflake.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Domain 2 starts at Lab 06 (security / RBAC). Skim <a href="EXAM_TIPS_DOMAIN1.md">EXAM_TIPS_DOMAIN1.md</a> tonight.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-04.html">← Lab 04</a>
+      <a class="btn primary" href="lab-06.html">Lab 06 — (next domain) →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/05_interfaces_ai.sql · Tips: docs/EXAM_TIPS_DOMAIN1.md</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

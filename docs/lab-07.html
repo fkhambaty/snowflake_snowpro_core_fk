@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 07 — Auth &amp; network policies</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a class="active" href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 07 · Domain 2 · You are Priya</p>
+    <h1>Prove who you are — and from where</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      Roles (Lab 06) answer <em>what</em> you can do. This lab answers <em>how you log in</em>
+      and <em>which networks are allowed</em>. Trial accounts may not configure every option — see-cards still count for the exam.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Sam found a shared password in a Slack thread. Morgan wants MFA for humans,
+      key-pair for the nightly loader, and a plan if someone tries to log in from a random café IP.
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will learn</strong>
+      MFA, federated SSO, key-pair, OAuth — when each fits.
+      Network policies as IP allow/block lists (safe allow-all teaching object only).
+      Trust Center as posture awareness — not a substitute for RBAC.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Password-only chaos</strong>
+        <ul>
+          <li>Humans share passwords</li>
+          <li>CI stores plaintext passwords</li>
+          <li>Any IP can attempt login</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Layered front door</strong>
+        <ul>
+          <li>Humans: SSO + MFA</li>
+          <li>Services: key-pair / OAuth</li>
+          <li>Network policy = IP fence</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-07-open" aria-label="Sam finds a password">
+      <p class="comic-kicker">Episode 07 · Start here</p>
+      <h2 class="comic-title">Sam finds a password. Dev draws the front door.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face sam" role="img" aria-label="Sam"></div>
+            <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
+          </div>
+          <blockquote class="comic-bubble">Someone pasted the service account password into Slack. If that leaks, RBAC won’t save us — the thief wears Riley’s badge.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Authentication is the front door. MFA/SSO for people. Key-pair for robots. Network policy decides which streets can even ring the doorbell.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Auth = who · Network policy = from where · RBAC = what they can touch after entry.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — auth methods (exam pictures)</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Human</div>
+          <strong>MFA = password + phone</strong>
+          <p>Second factor (app/Duo) so a stolen password alone fails. Enable in Snowsight user profile.</p>
+          <div class="see-example">Password works →<br>prompt for app code</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Company login</div>
+          <strong>Federated SSO</strong>
+          <p>Log in at Okta / Azure AD; Snowflake trusts the IdP via a SAML security integration. MFA often lives at the IdP.</p>
+          <div class="see-example">One company login →<br>Snowflake session</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Robot</div>
+          <strong>Key-pair for services</strong>
+          <p>Public key on the user; private key in the vault/CI. No shared password in Slack.</p>
+          <div class="see-example"><code>ALTER USER svc SET RSA_PUBLIC_KEY=…</code></div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">App token</div>
+          <strong>OAuth</strong>
+          <p>Partner apps / custom clients get tokens via an OAuth security integration. BI tools often use this.</p>
+          <div class="see-example">App asks IdP →<br>token → Snowflake</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>See it — network policy &amp; Trust Center</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">IP fence</div>
+          <strong>Network policy</strong>
+          <p>Allowed / blocked CIDR lists. Attach to account or a single user. Wrong allow-list = lockout.</p>
+          <div class="see-example">Office <code>203.0.113.10/32</code><br>allowed · café blocked</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Health check</div>
+          <strong>Trust Center</strong>
+          <p>Snowsight scanner for security posture (MFA gaps, risky settings). Awareness for Core — not a magic fix.</p>
+          <div class="see-example">Findings list →<br>fix MFA / policies</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Which door for which visitor?</h2>
+      <div class="flow-pipeline" aria-label="Auth choice flow">
+        <div class="flow-node source">
+          <span class="flow-tag">1 · Human</span>
+          <strong>SSO + MFA</strong>
+          <span class="flow-sub">Priya, Kai, Morgan</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">2 · Batch job</span>
+          <strong>Key-pair</strong>
+          <span class="flow-sub">nightly loader user</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">3 · Partner app</span>
+          <strong>OAuth</strong>
+          <span class="flow-sub">BI / custom client</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">4 · Fence</span>
+          <strong>Network policy</strong>
+          <span class="flow-sub">IP allow where needed</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Riley: “I’ll lock the account to my laptop IP”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Peer engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">I’ll set ALLOWED_IP_LIST to my home IP and attach it to the whole account. Super secure!</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
+          </div>
+          <blockquote class="comic-bubble">Until your ISP rotates the IP and nobody can open Snowsight. On trial: create policies to learn syntax — don’t attach a tight one to the account.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> SHOW network policies (safe)</h2>
+      <p class="teach"><strong>What this does:</strong> Lists any policies already on the account. Read-only — cannot lock you out.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · show policies</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ACCOUNTADMIN;
+
+SHOW NETWORK POLICIES;</code></pre>
+      </div>
+      <div class="badge-ok">✓ Result set (maybe empty on a fresh trial)</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Create a safe allow-all teaching policy</h2>
+      <p class="teach"><strong>What this does:</strong> Practices <code>CREATE NETWORK POLICY</code> / <code>DESCRIBE</code> syntax with <code>0.0.0.0/0</code> (all IPv4). Do <em>not</em> treat this as production hardening. Leave account attach commented.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · create + describe</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>CREATE NETWORK POLICY IF NOT EXISTS NP_ALPINE_LAB_ALLOW_ALL
+  ALLOWED_IP_LIST = ('0.0.0.0/0')
+  COMMENT = 'Lab 07 teaching — allows all IPv4';
+
+DESCRIBE NETWORK POLICY NP_ALPINE_LAB_ALLOW_ALL;
+SHOW NETWORK POLICIES LIKE 'NP_ALPINE%';</code></pre>
+      </div>
+      <div class="callout tip">
+        <strong>Do not run on trial unless you know your IPs</strong>
+        Office-only example lives commented in <code>sql/07_auth_network.sql</code>.
+        Prefer attaching a tight policy to <em>one service user</em> first — not the whole account.
+      </div>
+      <div class="badge-ok">✓ Policy object exists · DESCRIBE shows 0.0.0.0/0</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="SSO coach">
+      <p class="comic-kicker">Before Step 3</p>
+      <h2 class="comic-title">Kai: “Is MFA the same as SSO?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">My company says “use SSO.” Is that MFA? Or something else?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Different layers. SSO = where you prove identity (company IdP). MFA = second factor. Often you get both: SSO login that also demands the phone code.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Auth setup map (read — may not configure on trial)</h2>
+      <p class="teach"><strong>What this does:</strong> Gives you the exam story for each method. Full commented DDL lives in <code>sql/07_auth_network.sql</code>.</p>
+      <div class="code-block">
+        <div class="code-head"><span>Notes · SSO / key-pair / OAuth</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>-- MFA: enable authenticator in Snowsight user profile
+-- SSO: CREATE SECURITY INTEGRATION … TYPE = SAML2 (IdP admin helps)
+-- Key-pair: generate RSA keys → ALTER USER … SET RSA_PUBLIC_KEY='…'
+-- OAuth: CREATE SECURITY INTEGRATION … TYPE = OAUTH for apps
+-- Trust Center: Snowsight → Security → review findings</code></pre>
+      </div>
+      <div class="badge-ok">✓ You can name each method and who it is for</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> Session context check</h2>
+      <p class="teach"><strong>What this does:</strong> Confirms who you are in this session — useful when debugging “wrong user / wrong region” auth tickets.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · session</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SELECT CURRENT_USER(), CURRENT_ROLE(),
+       CURRENT_ACCOUNT(), CURRENT_REGION();</code></pre>
+      </div>
+      <div class="badge-ok">✓ Your user + account locator + region print</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <p>Basics named the doors. Cover each answer <em>before</em> you open it.</p>
+      <details class="drill">
+        <summary><strong>Q1.</strong> MFA vs SSO — same thing?</summary>
+        <p class="drill-say"><strong>Say:</strong> No. SSO federates identity to an IdP (one company login). MFA adds a second factor. They combine often but answer different exam questions.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> Why key-pair for service accounts instead of passwords?</summary>
+        <p class="drill-say"><strong>Say:</strong> Automation shouldn’t share human passwords. Public key on the Snowflake user; private key in a vault. Rotatable, no Slack paste, fits SnowSQL/connectors.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> What does a network policy actually enforce?</summary>
+        <p class="drill-say"><strong>Say:</strong> Client IP must match ALLOWED_IP_LIST and not BLOCKED_IP_LIST. Attach at account or user. Misconfigured allow-list locks legitimate users out — test on one user first.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> What is Trust Center for?</summary>
+        <p class="drill-say"><strong>Say:</strong> Account security posture findings (e.g. users without MFA, risky configs). Awareness/monitoring — it does not replace designing RBAC, SSO, or network policies.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> OAuth vs key-pair — when OAuth?</summary>
+        <p class="drill-say"><strong>Say:</strong> OAuth when a partner app or custom client needs delegated tokens via a security integration. Key-pair when your own service connects directly as a Snowflake user (ETL, scripts).</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “RBAC decides what you can touch after you get in. Auth decides how you prove identity: SSO and MFA for people, key-pair or OAuth for services.
+      Network policies fence which IPs may connect — I practiced CREATE/DESCRIBE with an allow-all lab policy and left tight account attaches commented so I don’t lock the trial.
+      Trust Center surfaces posture gaps. <em>Outcome:</em> I can pick the right front door on Domain 2 questions.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 08 — masking, row access, tags on <code>SECURE.CUSTOMERS_PII</code>.
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-06.html">← Lab 06</a>
+      <a class="btn primary" href="lab-08.html">Lab 08 — governance →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/07_auth_network.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>

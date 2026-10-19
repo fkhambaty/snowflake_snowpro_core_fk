@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab 09 — FinOps (monitors &amp; credits)</title>
+  <link rel="stylesheet" href="assets/course.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="story.html">Story</a>
+        <a href="lab-00.html">00</a>
+        <a href="lab-01.html">01</a>
+        <a href="lab-02.html">02</a>
+        <a href="lab-03.html">03</a>
+        <a href="lab-04.html">04</a>
+        <a href="lab-05.html">05</a>
+        <a href="lab-06.html">06</a>
+        <a href="lab-07.html">07</a>
+        <a href="lab-08.html">08</a>
+        <a class="active" href="lab-09.html">09</a>
+        <a href="lab-10.html">10</a>
+        <a href="lab-11.html">11</a>
+        <a href="lab-12.html">12</a>
+        <a href="lab-13.html">13</a>
+        <a href="lab-14.html">14</a>
+        <a href="lab-15.html">15</a>
+        <a href="lab-16.html">16</a>
+        <a href="lab-17.html">17</a>
+        <a href="lab-18.html">18</a>
+        <a href="lab-19.html">19</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="eyebrow">Lab 09 · Domain 2 · You are Priya</p>
+    <h1>Stop the credit surprise</h1>
+    <p class="lede">
+      Read every <strong>Teach first</strong> section before you copy SQL.
+      Warehouses burn credits while running. Resource monitors are the spending alarm.
+      <code>ACCOUNT_USAGE</code> tells the story — with a lag the exam loves to ask about.
+    </p>
+
+    <div class="callout bad">
+      <strong>Business problem</strong>
+      Morgan saw last month’s bill spike after someone left a Medium warehouse running overnight.
+      “I want a quota, a warning, and a hard stop — before Finance calls me.”
+    </div>
+
+    <div class="callout ok">
+      <strong>Solution you will build</strong>
+      Resource monitor <code>RM_ALPINE_LAB</code> (notify 50/75, suspend at 100),
+      attached to <code>WH_CORE_XS</code> (and <code>WH_CORE_M</code>).
+      Credit math XS vs M · sample <code>WAREHOUSE_METERING_HISTORY</code> + <code>QUERY_HISTORY</code>.
+    </div>
+
+    <div class="ba-grid">
+      <div class="ba-diagram before">
+        <div class="ba-kicker">Before</div>
+        <strong>Hope-based FinOps</strong>
+        <ul>
+          <li>WH left running = silent burn</li>
+          <li>No quota on the account toys</li>
+          <li>“We’ll check the bill later”</li>
+        </ul>
+      </div>
+      <div class="ba-diagram after">
+        <div class="ba-kicker">After</div>
+        <strong>Quota + alarm + history</strong>
+        <ul>
+          <li>Monitor notifies then suspends</li>
+          <li>XS ≈ 1 credit/hr · M ≈ 4</li>
+          <li>ACCOUNT_USAGE (expect lag)</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="comic-strip" id="comic-09-open" aria-label="Morgan and the bill">
+      <p class="comic-kicker">Episode 09 · Start here</p>
+      <h2 class="comic-title">Morgan holds the invoice. Dev draws a fuse.</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
+          </div>
+          <blockquote class="comic-bubble">Auto-suspend helps when we remember to use a small WH. I still need a fuse that trips when we blow the monthly credit budget.</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">Auto-suspend = turns the engine off when idle. Resource monitor = credit quota with NOTIFY / SUSPEND triggers. Different dials — exam will mix them up.</blockquote>
+        </figure>
+      </div>
+      <p class="comic-caption">Suspend idle ≠ monitor quota. You usually want both.</p>
+    </section>
+
+    <section class="teach">
+      <h2>See it — cost controls</h2>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">Idle</div>
+          <strong>Auto-suspend</strong>
+          <p>Warehouse stops after N seconds of no queries — stops <em>idle</em> compute credits.</p>
+          <div class="see-example"><code>AUTO_SUSPEND = 60</code><br>on WH_CORE_XS</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Budget</div>
+          <strong>Resource monitor</strong>
+          <p>Tracks credits used toward a quota. At thresholds: email NOTIFY or SUSPEND the WH.</p>
+          <div class="see-example">50% notify · 100% suspend<br>monthly 20-credit lab quota</div>
+        </div>
+      </div>
+      <div class="see-grid two" style="margin-top:0.85rem">
+        <div class="see-card">
+          <div class="see-label">Math</div>
+          <strong>XS vs Medium</strong>
+          <p>While running, each size step ~doubles credits/hour. Medium ≈ 4× X-Small.</p>
+          <div class="see-example">XS ≈ 1 credit/hr<br>M ≈ 4 credits/hr</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">Lag</div>
+          <strong>ACCOUNT_USAGE delay</strong>
+          <p>Metering and query history views can lag (often ~45 min–3 hr). Empty result ≠ “free.”</p>
+          <div class="see-example">Ran query now →<br>row may appear later</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="teach">
+      <h2>Monitor lifecycle</h2>
+      <div class="flow-pipeline" aria-label="Resource monitor flow">
+        <div class="flow-node source">
+          <span class="flow-tag">1 · Create</span>
+          <strong>RM_ALPINE_LAB</strong>
+          <span class="flow-sub">quota + triggers</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">2 · Attach</span>
+          <strong>ALTER WAREHOUSE</strong>
+          <span class="flow-sub">SET RESOURCE_MONITOR</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node">
+          <span class="flow-tag">3 · Burn</span>
+          <strong>Queries run</strong>
+          <span class="flow-sub">credits accumulate</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="flow-node sink">
+          <span class="flow-tag">4 · Trip</span>
+          <strong>NOTIFY / SUSPEND</strong>
+          <span class="flow-sub">at thresholds</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="comic-strip comic-step" aria-label="Step 1 coach">
+      <p class="comic-kicker">Before Step 1</p>
+      <h2 class="comic-title">Kai: “What happens at 100%?”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face kai" role="img" aria-label="Kai"></div>
+            <div><span class="comic-name">Kai</span><span class="comic-role">Analyst</span></div>
+          </div>
+          <blockquote class="comic-bubble">If the monitor says SUSPEND at 100%, do my tables get deleted?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+          </div>
+          <blockquote class="comic-bubble">No — storage stays. The warehouse suspends so new queries can’t burn more compute on that WH until the monitor resets / you raise quota.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">1</span> Create the resource monitor</h2>
+      <p class="teach"><strong>What this does:</strong> Sets a 20-credit monthly lab quota. Emails at 50% and 75%; suspends warehouses on the monitor at 100%.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · create monitor (ACCOUNTADMIN)</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ACCOUNTADMIN;
+
+CREATE OR REPLACE RESOURCE MONITOR RM_ALPINE_LAB
+  WITH CREDIT_QUOTA = 20
+  FREQUENCY = MONTHLY
+  START_TIMESTAMP = IMMEDIATELY
+  TRIGGERS
+    ON 50 PERCENT DO NOTIFY
+    ON 75 PERCENT DO NOTIFY
+    ON 100 PERCENT DO SUSPEND;
+
+SHOW RESOURCE MONITORS LIKE 'RM_ALPINE%';</code></pre>
+      </div>
+      <div class="badge-ok">✓ Monitor listed with 20-credit quota</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">2</span> Attach to warehouses</h2>
+      <p class="teach"><strong>What this does:</strong> Hooks daily XS (and demo M) so their compute credits count toward the quota.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · attach</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>ALTER WAREHOUSE WH_CORE_XS
+  SET RESOURCE_MONITOR = RM_ALPINE_LAB;
+ALTER WAREHOUSE WH_CORE_M
+  SET RESOURCE_MONITOR = RM_ALPINE_LAB;
+
+SHOW WAREHOUSES LIKE 'WH_CORE%';</code></pre>
+      </div>
+      <div class="badge-ok">✓ Both WH show the resource monitor name</div>
+    </article>
+
+    <section class="comic-strip comic-step" aria-label="Credit math coach">
+      <p class="comic-kicker">Before Step 3</p>
+      <h2 class="comic-title">Riley sizes up “just for speed”</h2>
+      <div class="comic-row two">
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face riley" role="img" aria-label="Riley"></div>
+            <div><span class="comic-name">Riley</span><span class="comic-role">Peer engineer</span></div>
+          </div>
+          <blockquote class="comic-bubble">I’ll run the board deck on Medium all day. Four times the credits is fine, right?</blockquote>
+        </figure>
+        <figure class="comic-panel">
+          <div class="comic-who">
+            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
+            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
+          </div>
+          <blockquote class="comic-bubble">Four times <em>while it’s running</em>. Scale up for the heavy query, then back to XS. Monitor still trips if you forget.</blockquote>
+        </figure>
+      </div>
+    </section>
+
+    <article class="step">
+      <h2><span class="step-num">3</span> Credit math — say the numbers</h2>
+      <p class="teach"><strong>What this does:</strong> Locks the relative burn rates. No SQL required — exam arithmetic.</p>
+      <div class="see-grid two">
+        <div class="see-card">
+          <div class="see-label">XS</div>
+          <strong>~1 credit / hour running</strong>
+          <p>Default lab size. Prefer this for daily work.</p>
+          <div class="see-example">1 hour XS ≈ 1 credit</div>
+        </div>
+        <div class="see-card">
+          <div class="see-label">M</div>
+          <strong>~4 credits / hour running</strong>
+          <p>Same hour on Medium ≈ four XS hours.</p>
+          <div class="see-example">1 hour M ≈ 4 credits</div>
+        </div>
+      </div>
+      <div class="badge-ok">✓ You can compare XS vs M without notes</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">4</span> WAREHOUSE_METERING_HISTORY (lag OK)</h2>
+      <p class="teach"><strong>What this does:</strong> Reads credit burn from <code>ACCOUNT_USAGE</code>. Empty results are common right after activity — wait for lag.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · metering</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>USE ROLE ACCOUNTADMIN;
+
+SELECT START_TIME, WAREHOUSE_NAME,
+       CREDITS_USED, CREDITS_USED_COMPUTE
+  FROM SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY
+ WHERE WAREHOUSE_NAME IN ('WH_CORE_XS', 'WH_CORE_M')
+   AND START_TIME >= DATEADD(day, -7, CURRENT_TIMESTAMP())
+ ORDER BY START_TIME DESC
+ LIMIT 20;</code></pre>
+      </div>
+      <div class="callout tip">
+        <strong>Lag warning</strong>
+        ACCOUNT_USAGE is not real-time. Trial “free” credits still appear here eventually.
+        Prod: same views power chargeback — don’t promise instant dashboards without noting lag.
+      </div>
+      <div class="badge-ok">✓ Query runs (rows may be empty until lag catches up)</div>
+    </article>
+
+    <article class="step">
+      <h2><span class="step-num">5</span> QUERY_HISTORY sample</h2>
+      <p class="teach"><strong>What this does:</strong> Shows recent statements — who, which WH, how long. Pair with metering when hunting a spike.</p>
+      <div class="code-block">
+        <div class="code-head"><span>SQL · query history</span><button type="button" class="copy-btn">Copy</button></div>
+<pre><code>SELECT START_TIME, USER_NAME, WAREHOUSE_NAME,
+       TOTAL_ELAPSED_TIME,
+       LEFT(QUERY_TEXT, 60) AS QUERY_START
+  FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+ WHERE START_TIME >= DATEADD(day, -1, CURRENT_TIMESTAMP())
+ ORDER BY START_TIME DESC
+ LIMIT 15;</code></pre>
+      </div>
+      <p class="teach">Near-real-time alternative for your session: <code>INFORMATION_SCHEMA.QUERY_HISTORY_BY_SESSION()</code> (see SQL file).</p>
+      <div class="badge-ok">✓ You know where to look after a cost spike</div>
+    </article>
+
+    <section class="teach drill-wrap" id="interview-drill" aria-label="Exam presses further">
+      <h2>Exam presses further — say these out loud</h2>
+      <p>Basics attached the fuse. Cover each answer <em>before</em> you open it.</p>
+      <details class="drill">
+        <summary><strong>Q1.</strong> Auto-suspend vs resource monitor — which problem does each solve?</summary>
+        <p class="drill-say"><strong>Say:</strong> Auto-suspend stops idle warehouse compute. Resource monitor enforces a credit quota with NOTIFY/SUSPEND triggers. Idle waste ≠ over-budget active querying — use both.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q2.</strong> What happens at 100% with DO SUSPEND?</summary>
+        <p class="drill-say"><strong>Say:</strong> Warehouses assigned to that monitor suspend; new queries on them fail until quota resets or you change the monitor. Tables/data are not deleted.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q3.</strong> Are cloud services credits the same as warehouse credits?</summary>
+        <p class="drill-say"><strong>Say:</strong> No. Cloud Services (auth, metadata, optimizer work) meters separately. Often partially offset daily, but exam answer: not identical to WH compute credits.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q4.</strong> Trial vs prod FinOps honesty?</summary>
+        <p class="drill-say"><strong>Say:</strong> Trial free credits hide pain; prod needs monitors, sized WHs, and ACCOUNT_USAGE chargeback. Lag still applies in prod — design alerts accordingly.</p>
+      </details>
+      <details class="drill">
+        <summary><strong>Q5.</strong> Why might WAREHOUSE_METERING_HISTORY be empty right after you queried?</summary>
+        <p class="drill-say"><strong>Say:</strong> ACCOUNT_USAGE latency. Wait and re-query, or use nearer Information Schema history for recent session activity. Empty ≠ proof of zero cost.</p>
+      </details>
+    </section>
+
+    <div class="soundbite">
+      <strong>Priya’s wrap-up (say this out loud)</strong><br />
+      “Morgan wanted a spending fuse. I created RM_ALPINE_LAB with notify at 50/75 and suspend at 100, attached it to WH_CORE_XS and WH_CORE_M,
+      and reviewed credit math — Medium burns about four times X-Small while running. ACCOUNT_USAGE metering and query history show the trail after a lag.
+      <em>Outcome:</em> budget alarm on the lab engines, Domain 2 cost topic covered.”
+    </div>
+
+    <div class="callout tip">
+      <strong>Next</strong>
+      Lab 10 — stages, file formats, COPY INTO (Domain 3 loading).
+    </div>
+
+    <div class="pager">
+      <a class="btn ghost" href="lab-08.html">← Lab 08</a>
+      <a class="btn primary" href="lab-10.html">Lab 10 — COPY &amp; stages →</a>
+    </div>
+  </div>
+  <footer class="footer">Source SQL: sql/09_finops.sql</footer>
+  <script src="assets/course.js"></script>
+</body>
+</html>
