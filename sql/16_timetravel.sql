@@ -1,9 +1,9 @@
--- Alpine Retail / SnowPro Core — Lab 16: Time Travel & Fail-safe
+-- DMart — Lab 16: Time Travel & Fail-safe
 -- Run as ROLE_CORE_LAB_ADMIN. Tiny chunks match docs/lab-16.html.
 
 USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 -- Scratch table for DROP / UNDROP / AT|BEFORE demos

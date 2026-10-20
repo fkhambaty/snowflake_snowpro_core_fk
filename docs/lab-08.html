@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,7 +38,7 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 08 · Domain 2 · You are Priya</p>
+    <p class="eyebrow">Lab 08 · Lock emails and other states · You are Priya</p>
     <h1>Hide columns, filter rows, label data</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
@@ -54,15 +54,15 @@
 
     <div class="callout bad">
       <strong>Business problem</strong>
-      Kai needs customer lists for a US campaign. Sam forbids clear emails and non-US rows in Kai’s results.
-      “Same table for Priya (clear) and Kai (masked + US only). No second copy forever.”
+      Kai needs a Maharashtra loyalty list. Sam forbids clear emails, and forbids other states, in Kai’s results.
+      Same table for Priya (clear, every state) and Kai (masked email, Maharashtra only). No second copy.
     </div>
 
     <div class="callout ok">
       <strong>Solution you will build</strong>
       <code>SECURE.CUSTOMERS_PII</code> from <code>LAB.CUSTOMERS</code>, masking policy on <code>EMAIL</code>,
-      row access policy on <code>COUNTRY</code>, object tags for cost/class.
-      Proof: lab admin sees all · <code>FR_ANALYST</code> + <code>SECONDARY ROLES NONE</code> sees masked US rows.
+      row access policy on <code>STATE</code>, object tags for cost/class.
+      Proof: lab admin sees all · <code>FR_ANALYST</code> + <code>SECONDARY ROLES NONE</code> sees masked Maharashtra rows.
     </div>
 
     <aside class="exam-tip" data-exam-tip="08-after-solution" aria-label="Exam tip">
@@ -73,8 +73,8 @@
     
     <div class="ba-grid">
       <figure class="ba-panel before">
-        <img src="assets/lab08-before.jpg" alt="BEFORE: Same SELECT leaks email + all countries." width="1600" height="900" loading="eager" />
-        <figcaption><strong>Before</strong> Same SELECT leaks email + all countries.</figcaption>
+        <img src="assets/lab08-before.jpg" alt="BEFORE: Same SELECT leaks email + all states." width="1600" height="900" loading="eager" />
+        <figcaption><strong>Before</strong> Same SELECT leaks email + all states.</figcaption>
       </figure>
       <figure class="ba-panel after">
         <img src="assets/lab08-after.jpg" alt="AFTER: Masking + RAP — different views per role." width="1600" height="900" loading="eager" />
@@ -100,7 +100,7 @@
           <blockquote class="comic-bubble">Same <code>SELECT *</code>, different movie depending on my role. Policies use <code>CURRENT_ROLE()</code> — primary role only.</blockquote>
         </figure>
       </div>
-      <p class="comic-caption">Column problem → masking · Row problem → RAP · Don’t swap them on the exam.</p>
+      <p class="comic-caption">Column problem → masking · Row problem → RAP · Don’t swap them.</p>
     </section>
 
     <section class="teach">
@@ -192,11 +192,11 @@
         <div class="code-head"><span>SQL · secure table</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA SECURE;
 
 CREATE OR REPLACE TABLE CUSTOMERS_PII AS
-SELECT * FROM ALPINE_RETAIL.LAB.CUSTOMERS;
+SELECT * FROM DMART.LAB.CUSTOMERS;
 
 SELECT COUNT(*) AS N FROM CUSTOMERS_PII;</code></pre>
       </div>
@@ -231,37 +231,37 @@ ALTER TABLE CUSTOMERS_PII MODIFY COLUMN EMAIL
             <div class="comic-face riley" role="img" aria-label="Riley"></div>
             <div><span class="comic-name">Riley</span><span class="comic-role">Peer engineer</span></div>
           </div>
-          <blockquote class="comic-bubble">I’ll mask COUNTRY to hide Canada. Done, right?</blockquote>
+          <blockquote class="comic-bubble">I’ll mask STATE to hide Karnataka. Done, right?</blockquote>
         </figure>
         <figure class="comic-panel">
           <div class="comic-who">
             <div class="comic-face sam" role="img" aria-label="Sam"></div>
             <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
           </div>
-          <blockquote class="comic-bubble">Wrong tool. Masking rewrites a cell; the row still exists (and other columns leak). RAP removes the row. Canada needs RAP.</blockquote>
+          <blockquote class="comic-bubble">Wrong tool. Masking rewrites a cell; the row still exists (and other columns leak). RAP removes the row. Other states need RAP.</blockquote>
         </figure>
       </div>
     </section>
 
     <article class="step">
-      <h2><span class="step-num">3</span> Row access policy on COUNTRY</h2>
-      <p class="teach"><strong>What this does:</strong> Lab admin sees all countries. <code>FR_ANALYST</code> only gets rows where <code>COUNTRY = 'US'</code>.</p>
+      <h2><span class="step-num">3</span> Row access policy on STATE</h2>
+      <p class="teach"><strong>What this does:</strong> Lab admin sees all states. <code>FR_ANALYST</code> only gets rows where <code>STATE = 'MH'</code>.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · RAP create + attach</span><button type="button" class="copy-btn">Copy</button></div>
-<pre><code>CREATE OR REPLACE ROW ACCESS POLICY RAP_COUNTRY_US
-  AS (COUNTRY STRING) RETURNS BOOLEAN ->
+<pre><code>CREATE OR REPLACE ROW ACCESS POLICY RAP_STATE_MH
+  AS (STATE STRING) RETURNS BOOLEAN ->
   CASE
     WHEN CURRENT_ROLE() IN ('ROLE_CORE_LAB_ADMIN', 'ACCOUNTADMIN')
       THEN TRUE
-    WHEN CURRENT_ROLE() = 'FR_ANALYST' AND COUNTRY = 'US'
+    WHEN CURRENT_ROLE() = 'FR_ANALYST' AND STATE = 'MH'
       THEN TRUE
     ELSE FALSE
   END;
 
 ALTER TABLE CUSTOMERS_PII
-  ADD ROW ACCESS POLICY RAP_COUNTRY_US ON (COUNTRY);</code></pre>
+  ADD ROW ACCESS POLICY RAP_STATE_MH ON (STATE);</code></pre>
       </div>
-      <div class="badge-ok">✓ RAP bound to COUNTRY column</div>
+      <div class="badge-ok">✓ RAP bound to STATE column</div>
     </article>
 
     <article class="step">
@@ -283,18 +283,18 @@ ALTER TABLE CUSTOMERS_PII SET TAG
 
     <article class="step">
       <h2><span class="step-num">5</span> Grant SELECT path + proof as lab admin</h2>
-      <p class="teach"><strong>What this does:</strong> Lets <code>AR_LAB_READ</code> see the secure table, then shows clear emails and all countries as lab admin.</p>
+      <p class="teach"><strong>What this does:</strong> Lets <code>AR_LAB_READ</code> see the secure table, then shows clear emails and all states as lab admin.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · grants + admin proof</span><button type="button" class="copy-btn">Copy</button></div>
-<pre><code>GRANT USAGE ON SCHEMA ALPINE_RETAIL.SECURE TO ROLE AR_LAB_READ;
-GRANT SELECT ON TABLE ALPINE_RETAIL.SECURE.CUSTOMERS_PII
+<pre><code>GRANT USAGE ON SCHEMA DMART.SECURE TO ROLE AR_LAB_READ;
+GRANT SELECT ON TABLE DMART.SECURE.CUSTOMERS_PII
   TO ROLE AR_LAB_READ;
 
-SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
+SELECT CUSTOMER_ID, FULL_NAME, EMAIL, STATE
   FROM CUSTOMERS_PII
  ORDER BY CUSTOMER_ID;</code></pre>
       </div>
-      <div class="badge-ok">✓ Clear emails · US + CA + UK visible</div>
+      <div class="badge-ok">✓ Clear emails · MH + KA + TS visible</div>
     </article>
 
     <section class="comic-strip comic-step" aria-label="Proof coach">
@@ -320,20 +320,20 @@ SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
 
     <article class="step">
       <h2><span class="step-num">6</span> Proof as FR_ANALYST (SECONDARY ROLES NONE)</h2>
-      <p class="teach"><strong>What this does:</strong> Proves masked email + US-only rows. Run alone — not in a Run All with lab-admin setup.</p>
+      <p class="teach"><strong>What this does:</strong> Proves masked email + Maharashtra-only rows. Run alone — not in a Run All with lab-admin setup.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · analyst proof</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE FR_ANALYST;
 USE SECONDARY ROLES NONE;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 
 SELECT CURRENT_ROLE(), CURRENT_SECONDARY_ROLES();
-SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
+SELECT CUSTOMER_ID, FULL_NAME, EMAIL, STATE
   FROM SECURE.CUSTOMERS_PII
  ORDER BY CUSTOMER_ID;</code></pre>
       </div>
-      <div class="badge-ok">✓ EMAIL like ****@… · only US countries · no CA/UK</div>
+      <div class="badge-ok">✓ EMAIL like ****@… · only MH · no KA or TS</div>
     </article>
 
     
@@ -369,8 +369,8 @@ SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
 
     <div class="soundbite">
       <strong>Priya’s wrap-up (say this out loud)</strong><br />
-      “We copied customers into SECURE.CUSTOMERS_PII, masked EMAIL for non-admins, and added a row access policy so FR_ANALYST only sees US rows.
-      Tags labeled the table PII with a cost center. I proved as FR_ANALYST with SECONDARY ROLES NONE — masked emails, US only.
+      “We copied customers into SECURE.CUSTOMERS_PII, masked EMAIL for non-admins, and added a row access policy so FR_ANALYST only sees Maharashtra rows.
+      Tags labeled the table PII with a cost center. I proved as FR_ANALYST with SECONDARY ROLES NONE — masked emails, MH only.
       <em>Outcome:</em> one table, role-aware privacy, ready for FinOps Lab 09.”
     </div>
 

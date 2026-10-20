@@ -34,10 +34,10 @@ export const MORE_LABS = [
         sql: `USE ROLE ACCOUNTADMIN;
 SHOW NETWORK POLICIES;
 -- Example ONLY — do not set ALLOWED_IP_LIST empty:
--- CREATE NETWORK POLICY NP_ALPINE_OFFICE
+-- CREATE NETWORK POLICY NP_DMART_OFFICE
 --   ALLOWED_IP_LIST = ('203.0.113.10/32')
 --   BLOCKED_IP_LIST = ('0.0.0.0/0');
--- ALTER USER MY_USER SET NETWORK_POLICY = NP_ALPINE_OFFICE;`,
+-- ALTER USER MY_USER SET NETWORK_POLICY = NP_DMART_OFFICE;`,
         see: "SHOW returns existing policies (maybe none)",
         comic: {
           title: "Don’t lock yourself out",
@@ -104,7 +104,7 @@ SHOW NETWORK POLICIES;
         what: "Working copy for policies so LAB practice data stays intact.",
         sql: `USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 
 CREATE OR REPLACE TABLE SECURE.CUSTOMERS_PII AS
 SELECT * FROM LAB.CUSTOMERS;
@@ -186,7 +186,7 @@ SELECT FULL_NAME, EMAIL FROM SECURE.CUSTOMERS_PII;
         what: "Small credit quota for the lab warehouse — adjust numbers for your trial.",
         sql: `USE ROLE ACCOUNTADMIN;
 
-CREATE OR REPLACE RESOURCE MONITOR RM_ALPINE_LAB
+CREATE OR REPLACE RESOURCE MONITOR RM_DMART_LAB
   WITH CREDIT_QUOTA = 20
   FREQUENCY = MONTHLY
   START_TIMESTAMP = IMMEDIATELY
@@ -194,7 +194,7 @@ CREATE OR REPLACE RESOURCE MONITOR RM_ALPINE_LAB
     ON 80 PERCENT DO NOTIFY
     ON 100 PERCENT DO SUSPEND;
 
-ALTER WAREHOUSE WH_CORE_XS SET RESOURCE_MONITOR = RM_ALPINE_LAB;
+ALTER WAREHOUSE WH_CORE_XS SET RESOURCE_MONITOR = RM_DMART_LAB;
 SHOW RESOURCE MONITORS;`,
         see: "Monitor exists and WH references it",
         comic: {
@@ -225,7 +225,7 @@ LIMIT 20;`,
       ["Cloud services billing?", "Cloud Services has its own considerations; warehouse metering is the main compute story you must know."],
       ["What if monitor suspends mid-demo?", "Raise quota or clear monitor — and treat it as success of the guardrail."],
     ],
-    wrap: "“I attached RM_ALPINE_LAB to WH_CORE_XS, kept auto-suspend, and know where ACCOUNT_USAGE metering lives. <em>Outcome:</em> FinOps questions aren’t vibes — they’re controls.”",
+    wrap: "“I attached RM_DMART_LAB to WH_CORE_XS, kept auto-suspend, and know where ACCOUNT_USAGE metering lives. <em>Outcome:</em> FinOps questions aren’t vibes — they’re controls.”",
   },
   {
     n: 10,
@@ -260,7 +260,7 @@ LIMIT 20;`,
         what: "Objects COPY needs.",
         sql: `USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA PIPELINE;
 
 CREATE OR REPLACE TABLE CUSTOMERS_LOAD (
@@ -344,7 +344,7 @@ SELECT * FROM PIPELINE.CUSTOMERS_LOAD;`,
         what: "Keep latest order row without nested subquery hell.",
         sql: `USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 SELECT *
@@ -416,7 +416,7 @@ FROM EVENTS_RAW;
         what: "Instant twin table.",
         sql: `USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 CREATE OR REPLACE TABLE CUSTOMERS_QA CLONE CUSTOMERS;
@@ -434,7 +434,7 @@ SELECT COUNT(*) FROM CUSTOMERS_QA;`,
       {
         title: "Replication vocabulary (commented)",
         what: "Know commands/concepts even if trial can’t demo cross-region.",
-        sql: `-- ALTER DATABASE ALPINE_RETAIL ENABLE REPLICATION TO ACCOUNTS <org.account>;
+        sql: `-- ALTER DATABASE DMART ENABLE REPLICATION TO ACCOUNTS <org.account>;
 -- On secondary: CREATE DATABASE ... AS REPLICA OF ...
 -- Failover/failback are Business Critical conversations on many exam stems.
 SELECT 'clone = in-account zero-copy' AS a,
@@ -457,7 +457,7 @@ SELECT 'clone = in-account zero-copy' AS a,
     eyebrow: "Collaboration",
     h1: "Secure share, reader accounts, Marketplace, Clean Rooms",
     lede: "Sharing gives live access — not a weekly CSV. Marketplace/listings and clean rooms expand the collaboration story on C03.",
-    problem: "A partner wants Alpine order summaries. Riley’s first idea: email a dump. Sam panics.",
+    problem: "A partner wants DMart order summaries. Riley’s first idea: email a dump. Sam panics.",
     solution: "Create a share of a safe view in <code>SHARE_DEMO</code>; learn reader accounts, listings, Native Apps, clean rooms as exam vocabulary.",
     before: { title: "Email the CSV", bullets: ["Stale data", "PII risk", "No revoke story"] },
     after: { title: "Live governed share", bullets: ["SHARE object", "Grant SELECT on view", "Revocable access"] },
@@ -483,16 +483,16 @@ SELECT 'clone = in-account zero-copy' AS a,
         title: "Curated view + share",
         what: "Never share raw PII tables casually.",
         sql: `USE ROLE ROLE_CORE_LAB_ADMIN;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 
 CREATE OR REPLACE VIEW SHARE_DEMO.V_ORDER_SUMMARY AS
 SELECT ORDER_ID, CUSTOMER_ID, ORDER_TS, AMOUNT_USD, STATUS
 FROM LAB.ORDERS;
 
-CREATE SHARE IF NOT EXISTS ALPINE_ORDERS_SHARE;
-GRANT USAGE ON DATABASE ALPINE_RETAIL TO SHARE ALPINE_ORDERS_SHARE;
-GRANT USAGE ON SCHEMA SHARE_DEMO TO SHARE ALPINE_ORDERS_SHARE;
-GRANT SELECT ON VIEW SHARE_DEMO.V_ORDER_SUMMARY TO SHARE ALPINE_ORDERS_SHARE;
+CREATE SHARE IF NOT EXISTS DMART_ORDERS_SHARE;
+GRANT USAGE ON DATABASE DMART TO SHARE DMART_ORDERS_SHARE;
+GRANT USAGE ON SCHEMA SHARE_DEMO TO SHARE DMART_ORDERS_SHARE;
+GRANT SELECT ON VIEW SHARE_DEMO.V_ORDER_SUMMARY TO SHARE DMART_ORDERS_SHARE;
 SHOW SHARES;`,
         see: "Share listed; grants visible via SHOW GRANTS",
         comic: {
@@ -512,7 +512,7 @@ SHOW SHARES;`,
       ["Native Apps?", "Package app logic + data distribution in Snowflake’s app framework — awareness for C03."],
       ["Clean room purpose?", "Collaborate without freely exposing raw sensitive datasets."],
     ],
-    wrap: "“I shared a curated view via ALPINE_ORDERS_SHARE — live, revocable, no CSV email. I can explain reader accounts, Marketplace, Native Apps, and clean rooms. <em>Outcome:</em> Domain 5 sharing questions covered.”",
+    wrap: "“I shared a curated view via DMART_ORDERS_SHARE — live, revocable, no CSV email. I can explain reader accounts, Marketplace, Native Apps, and clean rooms. <em>Outcome:</em> Domain 5 sharing questions covered.”",
   },
   {
     n: 19,

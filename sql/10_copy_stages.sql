@@ -1,11 +1,11 @@
--- Alpine Retail / SnowPro Core — Lab 10 · Stages, file formats, COPY
+-- DMart — Lab 10 · Stages, file formats, COPY
 -- Windows-friendly: seed with INSERT, unload via COPY INTO @stage,
 -- reload with COPY INTO table (no local PUT required).
 -- Optional PUT path commented for SnowSQL users.
 
 USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA PIPELINE;
 
 -- ---------------------------------------------------------------------------
@@ -25,13 +25,13 @@ CREATE OR REPLACE FILE FORMAT FF_JSON_EVENTS
 -- ---------------------------------------------------------------------------
 -- 2) Named internal stage (+ directory table metadata)
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE STAGE STG_ALPINE_LOAD
+CREATE OR REPLACE STAGE STG_DMART_LOAD
   FILE_FORMAT = FF_CSV_CUSTOMERS
   DIRECTORY = (ENABLE = TRUE)
   COMMENT = 'Lab 10 internal stage for COPY demos';
 
-SHOW STAGES LIKE 'STG_ALPINE%';
-DESC STAGE STG_ALPINE_LOAD;
+SHOW STAGES LIKE 'STG_DMART%';
+DESC STAGE STG_DMART_LOAD;
 
 -- ---------------------------------------------------------------------------
 -- 3) Target table + seed rows (INSERT — no PUT)
@@ -40,40 +40,40 @@ CREATE OR REPLACE TABLE CUSTOMERS_LOAD (
   CUSTOMER_ID NUMBER,
   FULL_NAME   STRING,
   EMAIL       STRING,
-  COUNTRY     STRING
+  STATE     STRING
 );
 
 INSERT INTO CUSTOMERS_LOAD VALUES
-  (10, 'Fran Kim',   'fran.kim@example.com',   'US'),
-  (11, 'Gita Singh', 'gita.singh@example.com', 'CA'),
-  (12, 'Hugo Diaz',  'hugo.diaz@example.com',  'US');
+  (10, 'Neha Kulkarni', 'neha.k@example.com', 'MH'),
+  (11, 'Gita Singh',    'gita.singh@example.com', 'KA'),
+  (12, 'Arjun Nair',    'arjun.nair@example.com', 'TS');
 
 SELECT * FROM CUSTOMERS_LOAD ORDER BY CUSTOMER_ID;
 
 -- ---------------------------------------------------------------------------
 -- 4) Unload: COPY INTO stage FROM (SELECT …)
 -- ---------------------------------------------------------------------------
-COPY INTO @STG_ALPINE_LOAD/customers_unload/
+COPY INTO @STG_DMART_LOAD/customers_unload/
   FROM (
-    SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
+    SELECT CUSTOMER_ID, FULL_NAME, EMAIL, STATE
       FROM CUSTOMERS_LOAD
   )
   FILE_FORMAT = (FORMAT_NAME = 'FF_CSV_CUSTOMERS')
   OVERWRITE = TRUE
   HEADER = TRUE;
 
-LIST @STG_ALPINE_LOAD/customers_unload/;
+LIST @STG_DMART_LOAD/customers_unload/;
 
-ALTER STAGE STG_ALPINE_LOAD REFRESH;
+ALTER STAGE STG_DMART_LOAD REFRESH;
 SELECT RELATIVE_PATH, SIZE, LAST_MODIFIED
-  FROM DIRECTORY(@STG_ALPINE_LOAD)
+  FROM DIRECTORY(@STG_DMART_LOAD)
  LIMIT 20;
 
 -- ---------------------------------------------------------------------------
 -- 5) VALIDATION_MODE — check files without loading
 -- ---------------------------------------------------------------------------
 COPY INTO CUSTOMERS_LOAD
-FROM @STG_ALPINE_LOAD/customers_unload/
+FROM @STG_DMART_LOAD/customers_unload/
 FILE_FORMAT = (FORMAT_NAME = 'FF_CSV_CUSTOMERS')
 VALIDATION_MODE = 'RETURN_ERRORS';
 -- Expect: validation result only — table row count unchanged
@@ -85,11 +85,11 @@ CREATE OR REPLACE TABLE CUSTOMERS_LOAD_2 (
   CUSTOMER_ID NUMBER,
   FULL_NAME   STRING,
   EMAIL       STRING,
-  COUNTRY     STRING,
+  STATE     STRING,
   LOADED_AT   TIMESTAMP_NTZ
 );
 
-COPY INTO CUSTOMERS_LOAD_2 (CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY, LOADED_AT)
+COPY INTO CUSTOMERS_LOAD_2 (CUSTOMER_ID, FULL_NAME, EMAIL, STATE, LOADED_AT)
 FROM (
   SELECT
     $1::NUMBER,
@@ -97,7 +97,7 @@ FROM (
     $3::STRING,
     $4::STRING,
     CURRENT_TIMESTAMP()
-  FROM @STG_ALPINE_LOAD/customers_unload/
+  FROM @STG_DMART_LOAD/customers_unload/
 )
 FILE_FORMAT = (FORMAT_NAME = 'FF_CSV_CUSTOMERS')
 ON_ERROR = 'CONTINUE';
@@ -118,9 +118,9 @@ SELECT * FROM CUSTOMERS_LOAD_2 ORDER BY CUSTOMER_ID;
 -- 8) Optional local PUT (SnowSQL) — hard in Snowsight on Windows
 -- ---------------------------------------------------------------------------
 /*
--- PUT file://customers.csv @STG_ALPINE_LOAD/raw/ AUTO_COMPRESS=TRUE;
--- LIST @STG_ALPINE_LOAD/raw/;
--- COPY INTO CUSTOMERS_LOAD FROM @STG_ALPINE_LOAD/raw/
+-- PUT file://customers.csv @STG_DMART_LOAD/raw/ AUTO_COMPRESS=TRUE;
+-- LIST @STG_DMART_LOAD/raw/;
+-- COPY INTO CUSTOMERS_LOAD FROM @STG_DMART_LOAD/raw/
 --   FILE_FORMAT = (FORMAT_NAME = 'FF_CSV_CUSTOMERS')
 --   ON_ERROR = 'ABORT_STATEMENT'
 --   PURGE = TRUE;
@@ -142,5 +142,5 @@ SELECT * FROM EVENTS_STAGE_LOAD;
 -- Stage types (exam):
 --   User stage   @~
 --   Table stage  @%TABLE_NAME
---   Named stage  @STG_ALPINE_LOAD   ← this lab
+--   Named stage  @STG_DMART_LOAD   ← this lab
 --   External     @ext_stage (s3/azure/gcs + storage integration)

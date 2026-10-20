@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,7 +38,7 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 14 · Domain 4 · You are Priya</p>
+    <p class="eyebrow">Lab 14 · Festival weekend traffic · You are Priya</p>
     <h1>Warehouses — up vs out</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
@@ -135,7 +135,7 @@
     </section>
 
     <section class="teach">
-      <h2>Flow — Alpine’s two engines</h2>
+      <h2>Flow — DMart’s two engines</h2>
       <div class="flow-pipeline" aria-label="Warehouse roles">
         <div class="flow-node source">
           <span class="flow-tag">Daily</span>
@@ -205,7 +205,7 @@ SHOW WAREHOUSES LIKE 'WH_CORE%';</code></pre>
             <div class="comic-face dev" role="img" aria-label="Dev"></div>
             <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
           </div>
-          <blockquote class="comic-bubble">Resize is online. Running queries finish on the old servers; new queries pick up the new size. Exam loves that phrase.</blockquote>
+          <blockquote class="comic-bubble">Resize is online. Running queries finish on the old servers; new queries pick up the new size. Nobody is kicked off mid-query.</blockquote>
         </figure>
       </div>
     </section>
@@ -235,7 +235,7 @@ SELECT CURRENT_WAREHOUSE();</code></pre>
 
     <article class="step">
       <h2><span class="step-num">3</span> Multi-cluster awareness (Enterprise)</h2>
-      <p class="teach"><strong>What this does:</strong> You may not be able to enable MCW on Standard trial — still memorize MIN/MAX clusters and scaling policy for the exam.</p>
+      <p class="teach"><strong>What this does:</strong> You may not be able to enable multi-cluster warehouses on a Standard trial — still know MIN/MAX clusters and the scaling policy.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · MCW (commented if blocked)</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>-- Enterprise+ multi-cluster (scale OUT):
@@ -283,7 +283,7 @@ SELECT CURRENT_WAREHOUSE();</code></pre>
       <strong>Priya’s wrap-up (say this out loud)</strong><br />
       “Scale UP changes warehouse size for heavy queries; scale OUT adds clusters for concurrency (Enterprise multi-cluster).
       I demoed WH_CORE_M, set suspend/resume and a statement timeout, then returned to WH_CORE_XS and suspended M.
-      <em>Outcome:</em> I pick the right warehouse knob — and I don’t leave Alpine on an expensive engine.”
+      <em>Outcome:</em> I pick the right warehouse knob — and I don’t leave DMart on an expensive engine.”
     </div>
 
     <div class="callout tip">

@@ -1,19 +1,19 @@
--- Alpine Retail / SnowPro Core — Lab 06 · RBAC
+-- DMart — Lab 06 · RBAC
 -- Run as ROLE_CORE_LAB_ADMIN (Lab 00 must exist: LAB.CUSTOMERS).
 -- Proof blocks: run separately — do NOT "Run All" past USE ROLE FR_ANALYST.
 
 USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 
 -- ---------------------------------------------------------------------------
 -- 1) Functional roles (job badges) + access role (key-ring)
 -- ---------------------------------------------------------------------------
 CREATE ROLE IF NOT EXISTS FR_ANALYST
-  COMMENT = 'Alpine analyst — Kai job badge';
+  COMMENT = 'DMart analyst — Kai job badge';
 
 CREATE ROLE IF NOT EXISTS FR_DATA_ENGINEER
-  COMMENT = 'Alpine data engineer — Riley job badge';
+  COMMENT = 'DMart data engineer — Riley job badge';
 
 CREATE ROLE IF NOT EXISTS AR_LAB_READ
   COMMENT = 'Access role: SELECT on LAB practice tables';
@@ -21,13 +21,13 @@ CREATE ROLE IF NOT EXISTS AR_LAB_READ
 -- ---------------------------------------------------------------------------
 -- 2) USAGE on database + schema (required before object grants matter)
 -- ---------------------------------------------------------------------------
-GRANT USAGE ON DATABASE ALPINE_RETAIL TO ROLE AR_LAB_READ;
-GRANT USAGE ON SCHEMA ALPINE_RETAIL.LAB TO ROLE AR_LAB_READ;
+GRANT USAGE ON DATABASE DMART TO ROLE AR_LAB_READ;
+GRANT USAGE ON SCHEMA DMART.LAB TO ROLE AR_LAB_READ;
 
 -- ---------------------------------------------------------------------------
 -- 3) Object privilege → access role → functional role (never grant table→FR direct)
 -- ---------------------------------------------------------------------------
-GRANT SELECT ON TABLE ALPINE_RETAIL.LAB.CUSTOMERS TO ROLE AR_LAB_READ;
+GRANT SELECT ON TABLE DMART.LAB.CUSTOMERS TO ROLE AR_LAB_READ;
 
 GRANT ROLE AR_LAB_READ TO ROLE FR_ANALYST;
 GRANT ROLE AR_LAB_READ TO ROLE FR_DATA_ENGINEER;
@@ -44,13 +44,13 @@ GRANT ROLE FR_DATA_ENGINEER TO USER IDENTIFIER($uname);
 -- ---------------------------------------------------------------------------
 -- 4) Inspect grants (ownership + privilege trail)
 -- ---------------------------------------------------------------------------
-SHOW GRANTS ON TABLE ALPINE_RETAIL.LAB.CUSTOMERS;
+SHOW GRANTS ON TABLE DMART.LAB.CUSTOMERS;
 SHOW GRANTS TO ROLE AR_LAB_READ;
 SHOW GRANTS TO ROLE FR_ANALYST;
 SHOW GRANTS OF ROLE AR_LAB_READ;
 
 -- Who owns the table? (creator / OWNERSHIP privilege)
-SHOW GRANTS ON TABLE ALPINE_RETAIL.LAB.CUSTOMERS;
+SHOW GRANTS ON TABLE DMART.LAB.CUSTOMERS;
 -- Look for privilege OWNERSHIP → ROLE_CORE_LAB_ADMIN
 
 -- ---------------------------------------------------------------------------
@@ -60,10 +60,10 @@ SHOW GRANTS ON TABLE ALPINE_RETAIL.LAB.CUSTOMERS;
 USE ROLE FR_ANALYST;
 USE SECONDARY ROLES NONE;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 
 SELECT CURRENT_ROLE(), CURRENT_SECONDARY_ROLES();
-SELECT CUSTOMER_ID, FULL_NAME, COUNTRY
+SELECT CUSTOMER_ID, FULL_NAME, STATE
   FROM LAB.CUSTOMERS
  ORDER BY CUSTOMER_ID
  LIMIT 5;
@@ -79,7 +79,7 @@ REVOKE ROLE AR_LAB_READ FROM ROLE FR_ANALYST;
 
 USE ROLE FR_ANALYST;
 USE SECONDARY ROLES NONE;
-SELECT * FROM ALPINE_RETAIL.LAB.CUSTOMERS;  -- expect: insufficient privileges
+SELECT * FROM DMART.LAB.CUSTOMERS;  -- expect: insufficient privileges
 
 USE ROLE ROLE_CORE_LAB_ADMIN;
 GRANT ROLE AR_LAB_READ TO ROLE FR_ANALYST;
@@ -100,6 +100,6 @@ SHOW GRANTS ON TABLE LAB.RBAC_OWNERSHIP_DEMO;
 -- ---------------------------------------------------------------------------
 -- 8) Future grants awareness (schema-level — new tables inherit SELECT for AR)
 -- ---------------------------------------------------------------------------
-GRANT SELECT ON FUTURE TABLES IN SCHEMA ALPINE_RETAIL.LAB TO ROLE AR_LAB_READ;
+GRANT SELECT ON FUTURE TABLES IN SCHEMA DMART.LAB TO ROLE AR_LAB_READ;
 
-SHOW FUTURE GRANTS IN SCHEMA ALPINE_RETAIL.LAB;
+SHOW FUTURE GRANTS IN SCHEMA DMART.LAB;

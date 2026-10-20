@@ -84,7 +84,7 @@ function svg(kind, title, bullets) {
   <text x="90" y="110" font-size="28" font-weight="700" fill="#5a6b7d" font-family="Segoe UI, Arial" letter-spacing="4">${kind.toUpperCase()}</text>
   <text x="90" y="175" font-size="48" font-weight="700" fill="#1a2433" font-family="Segoe UI, Arial">${escapeXml(title)}</text>
   ${items}
-  <text x="90" y="820" font-size="24" fill="#176f9e" font-family="Segoe UI, Arial">Alpine Retail · SnowPro Core comic board</text>
+  <text x="90" y="820" font-size="24" fill="#176f9e" font-family="Segoe UI, Arial">DMart · SnowPro Core comic board</text>
 </svg>`;
 }
 

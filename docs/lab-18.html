@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,10 +38,10 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 18 · Domain 5 · You are Priya</p>
+    <p class="eyebrow">Lab 18 · Share the catalog, not a CSV · You are Priya</p>
     <h1>Share the catalog — no data dump</h1>
     <p class="lede">
-      Live secure share from Alpine (provider) to another account (consumer).
+      Live secure share from DMart (provider) to another account (consumer).
       Hands-on is provider-side: create share, grant USAGE + SELECT on a <code>SHARE_DEMO</code> view.
       Reader accounts, Marketplace, Native Apps, and Clean Rooms are exam see-cards.
     </p>
@@ -54,13 +54,13 @@
 
     <div class="callout bad">
       <strong>Business problem</strong>
-      A partner wants Alpine’s product catalog nightly. Kai’s plan: export CSV to S3 every night.
-      Sam: “That’s a stale copy with PII risk if we grab the wrong table.” Morgan: “And who pays every time they query?”
+      A supplier wants DMart’s product catalog every night. Kai’s plan: export a CSV.
+      Sam: “That’s a stale copy, and we might grab a loyalty table by mistake.” Morgan: “And who pays every time they query?”
     </div>
 
     <div class="callout ok">
       <strong>Solution you will build</strong>
-      Share <code>ALPINE_PRODUCT_SHARE</code>, view <code>SHARE_DEMO.V_PRODUCT_CATALOG</code>,
+      Share <code>DMART_PRODUCT_SHARE</code>, view <code>SHARE_DEMO.V_PRODUCT_CATALOG</code>,
       grants of USAGE on DB/schema + SELECT on the view, <code>SHOW SHARES</code>.
       Note: a real consumer needs a <em>different</em> Snowflake account (or a reader account you create).
     </div>
@@ -186,13 +186,13 @@
         <div class="code-head"><span>SQL · share-safe view</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA SHARE_DEMO;
 
 CREATE OR REPLACE VIEW V_PRODUCT_CATALOG AS
-SELECT 1 AS PRODUCT_ID, 'Trail Jacket' AS PRODUCT_NAME, 129.00 AS LIST_PRICE
-UNION ALL SELECT 2, 'Alpine Cap', 24.00
-UNION ALL SELECT 3, 'Summit Pack', 89.00;</code></pre>
+SELECT 1 AS PRODUCT_ID, 'Chakki Atta 10kg' AS PRODUCT_NAME, 420.00 AS LIST_PRICE
+UNION ALL SELECT 2, 'Toor Dal 1kg', 145.00
+UNION ALL SELECT 3, 'Sunflower Oil 1L', 160.00;</code></pre>
       </div>
       <div class="badge-ok">✓ Three product rows; no PII columns</div>
     </article>
@@ -223,15 +223,15 @@ UNION ALL SELECT 3, 'Summit Pack', 89.00;</code></pre>
       <p class="teach"><strong>What this does:</strong> Creates the share container and grants the path + SELECT into it.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · share + grants</span><button type="button" class="copy-btn">Copy</button></div>
-<pre><code>CREATE SHARE IF NOT EXISTS ALPINE_PRODUCT_SHARE
-  COMMENT = 'Alpine Retail catalog share for Core lab';
+<pre><code>CREATE SHARE IF NOT EXISTS DMART_PRODUCT_SHARE
+  COMMENT = 'DMart catalog share for Core lab';
 
-GRANT USAGE ON DATABASE ALPINE_RETAIL
-  TO SHARE ALPINE_PRODUCT_SHARE;
-GRANT USAGE ON SCHEMA ALPINE_RETAIL.SHARE_DEMO
-  TO SHARE ALPINE_PRODUCT_SHARE;
-GRANT SELECT ON VIEW ALPINE_RETAIL.SHARE_DEMO.V_PRODUCT_CATALOG
-  TO SHARE ALPINE_PRODUCT_SHARE;</code></pre>
+GRANT USAGE ON DATABASE DMART
+  TO SHARE DMART_PRODUCT_SHARE;
+GRANT USAGE ON SCHEMA DMART.SHARE_DEMO
+  TO SHARE DMART_PRODUCT_SHARE;
+GRANT SELECT ON VIEW DMART.SHARE_DEMO.V_PRODUCT_CATALOG
+  TO SHARE DMART_PRODUCT_SHARE;</code></pre>
       </div>
       <div class="badge-ok">✓ Grants succeed (needs CREATE SHARE from Lab 00 bootstrap)</div>
     </article>
@@ -241,11 +241,11 @@ GRANT SELECT ON VIEW ALPINE_RETAIL.SHARE_DEMO.V_PRODUCT_CATALOG
       <p class="teach"><strong>What this does:</strong> Lists the share and its grants. Consumer delivery is a commented next step.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · SHOW SHARES</span><button type="button" class="copy-btn">Copy</button></div>
-<pre><code>SHOW SHARES LIKE 'ALPINE_PRODUCT_SHARE';
-SHOW GRANTS TO SHARE ALPINE_PRODUCT_SHARE;
+<pre><code>SHOW SHARES LIKE 'DMART_PRODUCT_SHARE';
+SHOW GRANTS TO SHARE DMART_PRODUCT_SHARE;
 
 -- Different account locator required for a real consumer:
--- ALTER SHARE ALPINE_PRODUCT_SHARE
+-- ALTER SHARE DMART_PRODUCT_SHARE
 --   ADD ACCOUNTS = &lt;org_name&gt;.&lt;account_name&gt;;</code></pre>
       </div>
       <div class="badge-ok">✓ Share visible; USAGE + SELECT listed on the share</div>
@@ -283,7 +283,7 @@ SHOW GRANTS TO SHARE ALPINE_PRODUCT_SHARE;
 
     <div class="soundbite">
       <strong>Priya’s wrap-up (say this out loud)</strong><br />
-      “We stopped the CSV plan. I created <code>ALPINE_PRODUCT_SHARE</code>, put a safe catalog in
+      “We stopped the CSV plan. I created <code>DMART_PRODUCT_SHARE</code>, put a safe catalog in
       <code>SHARE_DEMO.V_PRODUCT_CATALOG</code>, and granted USAGE + SELECT to the share.
       A live consumer needs another account or a reader account — this lab is provider-side.
       Shares aren’t copies; consumers pay compute; listings and clean rooms are the C03 awareness layer.
@@ -292,7 +292,7 @@ SHOW GRANTS TO SHARE ALPINE_PRODUCT_SHARE;
 
     <div class="callout tip">
       <strong>Next</strong>
-      Lab 19 — timed mock (40 questions). Aim for ≥32/40 before you book Pearson VUE.
+      Lab 19 — forty questions on the choices you just made for the catalog share.
     </div>
 
     <div class="pager">

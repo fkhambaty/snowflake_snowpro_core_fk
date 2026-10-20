@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,12 +38,12 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 07 · Domain 2 · You are Priya</p>
+    <p class="eyebrow">Lab 07 · Who can log in, and from where · You are Priya</p>
     <h1>Prove who you are — and from where</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
       Roles (Lab 06) answer <em>what</em> you can do. This lab answers <em>how you log in</em>
-      and <em>which networks are allowed</em>. Trial accounts may not configure every option — see-cards still count for the exam.
+      and <em>which networks are allowed</em>. A trial may not let you turn every option on — the cards still name each method.
     </p>
 
     <div class="picture-first" aria-label="How to study this lab">
@@ -220,12 +220,12 @@ SHOW NETWORK POLICIES;</code></pre>
       <p class="teach"><strong>What this does:</strong> Practices <code>CREATE NETWORK POLICY</code> / <code>DESCRIBE</code> syntax with <code>0.0.0.0/0</code> (all IPv4). Do <em>not</em> treat this as production hardening. Leave account attach commented.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · create + describe</span><button type="button" class="copy-btn">Copy</button></div>
-<pre><code>CREATE NETWORK POLICY IF NOT EXISTS NP_ALPINE_LAB_ALLOW_ALL
+<pre><code>CREATE NETWORK POLICY IF NOT EXISTS NP_DMART_LAB_ALLOW_ALL
   ALLOWED_IP_LIST = ('0.0.0.0/0')
   COMMENT = 'Lab 07 teaching — allows all IPv4';
 
-DESCRIBE NETWORK POLICY NP_ALPINE_LAB_ALLOW_ALL;
-SHOW NETWORK POLICIES LIKE 'NP_ALPINE%';</code></pre>
+DESCRIBE NETWORK POLICY NP_DMART_LAB_ALLOW_ALL;
+SHOW NETWORK POLICIES LIKE 'NP_DMART%';</code></pre>
       </div>
       <div class="callout tip">
         <strong>Do not run on trial unless you know your IPs</strong>
@@ -258,7 +258,7 @@ SHOW NETWORK POLICIES LIKE 'NP_ALPINE%';</code></pre>
 
     <article class="step">
       <h2><span class="step-num">3</span> Auth setup map (read — may not configure on trial)</h2>
-      <p class="teach"><strong>What this does:</strong> Gives you the exam story for each method. Full commented DDL lives in <code>sql/07_auth_network.sql</code>.</p>
+      <p class="teach"><strong>What this does:</strong> Names each login method. Full commented DDL lives in <code>sql/07_auth_network.sql</code>.</p>
       <div class="code-block">
         <div class="code-head"><span>Notes · SSO / key-pair / OAuth</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>-- MFA: enable authenticator in Snowsight user profile

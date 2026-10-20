@@ -1,10 +1,10 @@
--- Alpine Retail / SnowPro Core — Lab 04
+-- DMart — Lab 04
 -- Permanent / Transient / Temporary / External / Iceberg / Dynamic Tables
 -- Run as ROLE_CORE_LAB_ADMIN after Lab 00.
 
 USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 -- Permanent (default) — Time Travel + Fail-safe

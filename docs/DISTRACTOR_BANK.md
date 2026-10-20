@@ -1,6 +1,6 @@
 # Distractor bank — wrong-answer autopsy (COF-C03)
 
-Use this when you miss a mock question: match the wrong choice → why it fails → which Alpine lab to re-drill aloud.
+Use this when you miss a mock question: match the wrong choice → why it fails → which lab to re-drill aloud.
 
 | # | Classic distractor (sounds smart) | Why it’s wrong | Re-drill lab |
 |---|-----------------------------------|----------------|--------------|

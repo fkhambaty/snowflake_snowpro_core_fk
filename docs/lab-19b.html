@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lab 19b — Full 100-question mock (COF-C03)</title>
+  <title>Lab 19b — One hundred questions</title>
   <link rel="stylesheet" href="assets/course.css" />
 </head>
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -39,13 +39,13 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 19b · Capstone boost · You are Priya · COF-C03</p>
-    <h1>Full timed mock — 100 questions</h1>
+    <p class="eyebrow">Lab 19b · One hundred questions · For you</p>
+    <h1>One hundred questions, timed</h1>
     <p class="lede">
-      Real exam shape: <strong>100 questions · 115 minutes</strong>. Closed notes. Score yourself /100.
-      Gate: <strong>≥75</strong> before you book (official pass is scaled <strong>750</strong>/1000 — aim high).
-      Warm-up: <a href="lab-19.html">Lab 19 (40Q)</a> · Night drills: <a href="flashcards.html">flashcards</a> ·
-      Autopsy: <a href="DISTRACTOR_BANK.md">DISTRACTOR_BANK.md</a>.
+      Same idea as Lab 19, longer: <strong>100 questions · 115 minutes</strong>. Closed notes. Score yourself /100.
+      The yellow note says what “ready” means.
+      Warm-up: <a href="lab-19.html">Lab 19 (40Q)</a> · Flips: <a href="flashcards.html">flashcards</a> ·
+      Why a wrong answer sounded smart: <a href="DISTRACTOR_BANK.md">DISTRACTOR_BANK.md</a>.
     </p>
 
     <div class="picture-first" aria-label="How to study this lab">
@@ -55,15 +55,16 @@
     </div>
 
     <div class="callout bad">
-      <strong>Business problem</strong>
-      Morgan wants Pearson booked this week. Priya cleared Lab 19 once while peeking at two answers —
-      that is not exam proof. A lucky 40Q is not the same as a cold 100Q under time.
+      <strong>Why this set exists</strong>
+      Forty questions can feel fine while you still peek. This set is longer, timed, and closed.
+      A lucky short run is not the same as explaining the platform under a clock.
     </div>
 
     <div class="callout ok">
-      <strong>Solution you will build</strong>
-      One honest full mock matching COF-C03 weights (~31 Arch / ~20 Account / ~18 Load / ~21 Perf / ~10 Collab).
-      Score ≥75, autopsy wrong distractors, re-drill weak labs aloud, then book.
+      <strong>How to use it</strong>
+      One sitting. The mix follows the same topics as the labs
+      (where data lives, who can see it, how files land, slow queries, sharing).
+      Score it, then reopen the labs you missed.
     </div>
 
     <aside class="exam-tip" data-exam-tip="19b-after-solution" aria-label="Exam tip">
@@ -82,26 +83,26 @@
       </figure>
     </div>
 
-    <section class="comic-strip" id="comic-19b-open" aria-label="Morgan pushes booking">
-      <p class="comic-kicker">Episode 19b · Full mock</p>
-      <h2 class="comic-title">Morgan pushes booking. Dev says finish 19b first.</h2>
+    <section class="comic-strip" id="comic-19b-open" aria-label="Longer question set">
+      <p class="comic-kicker">After the build</p>
+      <h2 class="comic-title">Dev: the long set, notes closed.</h2>
       <div class="comic-row two">
         <figure class="comic-panel">
           <div class="comic-who">
-            <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
-            <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
+            <div class="comic-face dev" role="img" aria-label="Dev"></div>
+            <div><span class="comic-name">Dev</span><span class="comic-role">Senior engineer</span></div>
           </div>
-          <blockquote class="comic-bubble">Pearson has seats Friday. You did Lab 19. Let’s book.</blockquote>
+          <blockquote class="comic-bubble">Forty was the short set. This one is a hundred questions and 115 minutes. Finish it cold — no peeking.</blockquote>
         </figure>
         <figure class="comic-panel">
           <div class="comic-who">
-            <div class="comic-face dev" role="img" aria-label="Dev"></div>
-            <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
+            <div class="comic-face priya" role="img" aria-label="Priya"></div>
+            <div><span class="comic-name">Priya</span><span class="comic-role">You</span></div>
           </div>
-          <blockquote class="comic-bubble">Not yet. Real exam is <strong>100 questions / 115 minutes</strong>. Finish Lab 19b cold — no peeking. Seventy-five or higher, then we book.</blockquote>
+          <blockquote class="comic-bubble">I’ll score it, then redo the labs I miss and say those wrap-ups again.</blockquote>
         </figure>
       </div>
-      <p class="comic-caption">Vibes don’t pay retake fees. Timer + closed notes do.</p>
+      <p class="comic-caption">The yellow note on this page is the bar. The questions are for you.</p>
     </section>
 
     <section class="teach">
@@ -290,10 +291,10 @@
           </details>
         </li>
         <li>
-          <p>Separation of storage and compute means Alpine can:</p>
+          <p>Separation of storage and compute means DMart can:</p>
           <ul>
             <li>A. Only scale storage by resizing WH_CORE_XS</li>
-            <li>B. Scale warehouses independently of how much data sits in ALPINE_RETAIL</li>
+            <li>B. Scale warehouses independently of how much data sits in DMART</li>
             <li>C. Delete Cloud Services to save money</li>
             <li>D. Store tables only inside the warehouse local disk forever</li>
           </ul>
@@ -722,7 +723,7 @@
           </details>
         </li>
         <li>
-          <p>Which is a FinOps best practice for Alpine?</p>
+          <p>Which is a FinOps best practice for DMart?</p>
           <ul>
             <li>A. Leave WH_CORE_M running 24/7 with no monitor</li>
             <li>B. Attach resource monitors and use auto-suspend on warehouses</li>
@@ -746,7 +747,7 @@
           </details>
         </li>
         <li>
-          <p>Least privilege for Alpine analysts usually means:</p>
+          <p>Least privilege for DMart analysts usually means:</p>
           <ul>
             <li>A. Everyone is ACCOUNTADMIN</li>
             <li>B. Functional roles with only needed object grants (not god-mode)</li>
@@ -969,7 +970,7 @@
           </details>
         </li>
         <li>
-          <p>Which load pattern fits nightly Alpine order files you control?</p>
+          <p>Which load pattern fits nightly DMart order files you control?</p>
           <ul>
             <li>A. Always Snowpipe Streaming SDK for a single daily CSV</li>
             <li>B. Batch COPY INTO from a stage on a schedule (or task)</li>
@@ -1466,7 +1467,7 @@
     </section>
 
     <div class="soundbite">
-      <strong>Priya’s wrap-up — booking checklist</strong><br />
+      <strong>For you — before you book</strong><br />
       “I timed 100 questions closed-notes. Score ___ / 100.
       If ≥75: skim <a href="flashcards.html">flashcards</a> + <a href="EXAM_DAY_PLAYBOOK.md">EXAM_DAY_PLAYBOOK.md</a>, re-say Domain 5 traps, book Pearson VUE.
       If &lt;75: <a href="DISTRACTOR_BANK.md">distractor bank</a> → labs → cold retake.
@@ -1487,7 +1488,7 @@
       <a class="btn primary" href="flashcards.html">Flashcards →</a>
     </div>
   </div>
-  <footer class="footer">Lab 19b · 100Q timed mock · COF-C03 · Alpine Retail</footer>
+  <footer class="footer">Lab 19b · 100Q timed mock · COF-C03 · DMart</footer>
   <script src="assets/course.js"></script>
 </body>
 </html>

@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,11 +38,11 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 11 · Domain 3 · You are Priya</p>
+    <p class="eyebrow">Lab 11 · Stop babysitting the load · You are Priya</p>
     <h1>Snowpipe — stop babysitting COPY</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
-      Lab 10 was you running <code>COPY INTO</code> by hand. Today Alpine gets a <em>pipe</em> —
+      Lab 10 was you running <code>COPY INTO</code> by hand. Today DMart gets a <em>pipe</em> —
       a named object that owns a COPY statement and can wake up when new files land.
       Also: <strong>Snowpipe Streaming</strong> (COF-C03) vs classic file-based pipe.
     </p>
@@ -91,7 +91,7 @@
             <div class="comic-face riley" role="img" aria-label="Riley"></div>
             <div><span class="comic-name">Riley</span><span class="comic-role">Engineer — pipelines</span></div>
           </div>
-          <blockquote class="comic-bubble">Files land every few minutes. If I’m in a meeting, Alpine’s dashboard is stale. Can’t Snowflake just… notice?</blockquote>
+          <blockquote class="comic-bubble">Files land every few minutes. If I’m in a meeting, DMart’s dashboard is stale. Can’t Snowflake just… notice?</blockquote>
         </figure>
         <figure class="comic-panel">
           <div class="comic-who">
@@ -182,19 +182,19 @@
 
     <article class="step">
       <h2><span class="step-num">1</span> Landing table in PIPELINE</h2>
-      <p class="teach"><strong>What this does:</strong> Creates the table the pipe will load into — Alpine’s “inbox” for order files.</p>
+      <p class="teach"><strong>What this does:</strong> Creates the table the pipe will load into — DMart’s “inbox” for order files.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · landing table</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA PIPELINE;
 
 CREATE OR REPLACE TABLE PIPELINE.STG_ORDERS_LANDING (
   ORDER_ID     NUMBER,
   CUSTOMER_ID  NUMBER,
   ORDER_TS     TIMESTAMP_NTZ,
-  AMOUNT_USD   NUMBER(10,2),
+  AMOUNT_INR   NUMBER(10,2),
   STATUS       STRING,
   LOADED_AT    TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
 );</code></pre>
@@ -211,7 +211,7 @@ CREATE OR REPLACE TABLE PIPELINE.STG_ORDERS_LANDING (
             <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
             <div><span class="comic-name">Morgan</span><span class="comic-role">Manager — cost &amp; deadline</span></div>
           </div>
-          <blockquote class="comic-bubble">I need the exam answer, not a three-week AWS ticket. What do we actually run today?</blockquote>
+          <blockquote class="comic-bubble">I don’t have a three-week cloud ticket. What do we actually run today?</blockquote>
         </figure>
         <figure class="comic-panel">
           <div class="comic-who">
@@ -233,7 +233,7 @@ CREATE OR REPLACE TABLE PIPELINE.STG_ORDERS_LANDING (
   COMMENT = 'Demo pipe — wire notifications for AUTO_INGEST'
   AS
   COPY INTO PIPELINE.STG_ORDERS_LANDING
-    (ORDER_ID, CUSTOMER_ID, ORDER_TS, AMOUNT_USD, STATUS)
+    (ORDER_ID, CUSTOMER_ID, ORDER_TS, AMOUNT_INR, STATUS)
   FROM (
     SELECT $1::NUMBER, $2::NUMBER, $3::TIMESTAMP_NTZ,
            $4::NUMBER(10,2), $5::STRING
@@ -269,14 +269,14 @@ SELECT SYSTEM$PIPE_STATUS('PIPELINE.PIPE_ORDERS_AUTO');
             <div class="comic-face riley" role="img" aria-label="Riley"></div>
             <div><span class="comic-name">Riley</span><span class="comic-role">Engineer</span></div>
           </div>
-          <blockquote class="comic-bubble">Exam distractor: “Snowpipe Streaming means AUTO_INGEST on a pipe.” That’s wrong, right?</blockquote>
+          <blockquote class="comic-bubble">So Snowpipe Streaming is just AUTO_INGEST on a pipe? Same thing, right?</blockquote>
         </figure>
         <figure class="comic-panel">
           <div class="comic-who">
             <div class="comic-face dev" role="img" aria-label="Dev"></div>
             <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
           </div>
-          <blockquote class="comic-bubble">Right. Streaming = row API/SDK path. Classic pipe = files on a stage + COPY. Same product family, different ingest shape. Say both on COF-C03.</blockquote>
+          <blockquote class="comic-bubble">No. Streaming is a row API. A classic pipe loads files from a stage with COPY. Same family, different job.</blockquote>
         </figure>
       </div>
     </section>
@@ -330,9 +330,9 @@ SELECT SYSTEM$PIPE_STATUS('PIPELINE.PIPE_ORDERS_AUTO');
 
     <div class="soundbite">
       <strong>Priya’s wrap-up (say this out loud)</strong><br />
-      “Alpine was waiting on humans to run COPY. I created PIPELINE.STG_ORDERS_LANDING and PIPE_ORDERS_AUTO as a COPY wrapped in a pipe object.
+      “DMart was waiting on humans to run COPY. I created PIPELINE.STG_ORDERS_LANDING and PIPE_ORDERS_AUTO as a COPY wrapped in a pipe object.
       Classic Snowpipe is serverless file ingest; AUTO_INGEST needs cloud notifications. Snowpipe Streaming is the row/SDK path — not the same as AUTO_INGEST.
-      <em>Outcome:</em> I can pick COPY vs pipe vs streaming on the exam without mixing the billing stories.”
+      <em>Outcome:</em> I can pick COPY vs pipe vs streaming without mixing up who pays for each.”
     </div>
 
     <div class="callout tip">

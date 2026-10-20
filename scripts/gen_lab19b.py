@@ -63,9 +63,9 @@ D1 = [
       "Granting ACCOUNTADMIN rights",
       "Creating reader accounts"],
      "B", "Clustering aids pruning when filters align — not RBAC or suspend."),
-    ("Separation of storage and compute means Alpine can:",
+    ("Separation of storage and compute means DMart can:",
      ["Only scale storage by resizing WH_CORE_XS",
-      "Scale warehouses independently of how much data sits in ALPINE_RETAIL",
+      "Scale warehouses independently of how much data sits in DMART",
       "Delete Cloud Services to save money",
       "Store tables only inside the warehouse local disk forever"],
      "B", "Elastic compute ≠ storage growth. WH size does not create more storage."),
@@ -204,13 +204,13 @@ D2 = [
     ("OAuth for Snowflake clients is primarily about:",
      ["Delegated authentication for applications", "Compressing micro-partitions", "Creating Dynamic Tables", "Fail-safe restore"],
      "A", "OAuth = app auth pattern alongside SSO/key-pair/MFA."),
-    ("Which is a FinOps best practice for Alpine?",
+    ("Which is a FinOps best practice for DMart?",
      ["Leave WH_CORE_M running 24/7 with no monitor", "Attach resource monitors and use auto-suspend on warehouses", "Grant ACCOUNTADMIN to every analyst", "Disable ACCOUNT_USAGE"],
      "B", "Monitors + auto-suspend = credit control."),
     ("INFORMATION_SCHEMA vs ACCOUNT_USAGE — pick the true statement:",
      ["They are identical with zero latency differences", "INFORMATION_SCHEMA is more real-time for current DB; ACCOUNT_USAGE is account history with latency", "ACCOUNT_USAGE replaces all stages", "INFORMATION_SCHEMA deletes Fail-safe"],
      "B", "Know latency/history tradeoff."),
-    ("Least privilege for Alpine analysts usually means:",
+    ("Least privilege for DMart analysts usually means:",
      ["Everyone is ACCOUNTADMIN", "Functional roles with only needed object grants (not god-mode)", "No roles at all", "Only PUBLIC role forever"],
      "B", "Grant minimum needed via roles."),
     ("Sam asks: can masking hide SSN while RAP limits store_id rows together?",
@@ -267,7 +267,7 @@ D3 = [
     ("API integrations (exam awareness) support:",
      ["Secure calls to external APIs from Snowflake features", "Deleting micro-partitions", "Replacing editions", "Fail-safe tickets"],
      "A", "Integrations family includes API/storage/notification themes."),
-    ("Which load pattern fits nightly Alpine order files you control?",
+    ("Which load pattern fits nightly DMart order files you control?",
      ["Always Snowpipe Streaming SDK for a single daily CSV", "Batch COPY INTO from a stage on a schedule (or task)", "Only Fail-safe restore", "Only zero-copy clone"],
      "B", "Batch files → COPY; continuous files → pipe."),
     ("FORCE => TRUE on COPY (exam spirit) can:",
@@ -410,7 +410,7 @@ html = f'''<!DOCTYPE html>
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -663,7 +663,7 @@ html = f'''<!DOCTYPE html>
       <a class="btn primary" href="flashcards.html">Flashcards →</a>
     </div>
   </div>
-  <footer class="footer">Lab 19b · 100Q timed mock · COF-C03 · Alpine Retail</footer>
+  <footer class="footer">Lab 19b · 100Q timed mock · COF-C03 · DMart</footer>
   <script src="assets/course.js"></script>
 </body>
 </html>

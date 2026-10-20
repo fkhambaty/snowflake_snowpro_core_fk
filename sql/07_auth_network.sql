@@ -1,4 +1,4 @@
--- Alpine Retail / SnowPro Core — Lab 07 · Auth & network policies
+-- DMart — Lab 07 · Auth & network policies
 -- Mostly conceptual for trial accounts. Do NOT apply a restrictive network
 -- policy that locks you out — examples below are commented or allow-all.
 
@@ -15,30 +15,30 @@ SHOW NETWORK POLICIES;
 -- Creating is OK; ATTACHING to account/user can still surprise you — leave
 -- ALTER commented unless you know your egress IPs.
 -- ---------------------------------------------------------------------------
-CREATE NETWORK POLICY IF NOT EXISTS NP_ALPINE_LAB_ALLOW_ALL
+CREATE NETWORK POLICY IF NOT EXISTS NP_DMART_LAB_ALLOW_ALL
   ALLOWED_IP_LIST = ('0.0.0.0/0')
   COMMENT = 'Lab 07 teaching object — allows all IPv4; do not treat as prod hardening';
 
-DESCRIBE NETWORK POLICY NP_ALPINE_LAB_ALLOW_ALL;
-SHOW NETWORK POLICIES LIKE 'NP_ALPINE%';
+DESCRIBE NETWORK POLICY NP_DMART_LAB_ALLOW_ALL;
+SHOW NETWORK POLICIES LIKE 'NP_DMART%';
 
 -- DO NOT run on a shared/prod account without knowing your IPs:
 /*
-CREATE NETWORK POLICY NP_ALPINE_OFFICE_ONLY
+CREATE NETWORK POLICY NP_DMART_OFFICE_ONLY
   ALLOWED_IP_LIST = ('203.0.113.10/32')   -- replace with YOUR office IP
   BLOCKED_IP_LIST = ()
   COMMENT = 'Example — office allow-list';
 
 -- Attach to account (dangerous if IP wrong):
--- ALTER ACCOUNT SET NETWORK_POLICY = NP_ALPINE_OFFICE_ONLY;
+-- ALTER ACCOUNT SET NETWORK_POLICY = NP_DMART_OFFICE_ONLY;
 
 -- Attach to a single user (safer blast radius):
--- ALTER USER some_service_user SET NETWORK_POLICY = NP_ALPINE_OFFICE_ONLY;
+-- ALTER USER some_service_user SET NETWORK_POLICY = NP_DMART_OFFICE_ONLY;
 
 -- Remove:
 -- ALTER ACCOUNT UNSET NETWORK_POLICY;
 -- ALTER USER some_service_user UNSET NETWORK_POLICY;
--- DROP NETWORK POLICY NP_ALPINE_OFFICE_ONLY;
+-- DROP NETWORK POLICY NP_DMART_OFFICE_ONLY;
 */
 
 -- ---------------------------------------------------------------------------
@@ -50,7 +50,7 @@ CREATE NETWORK POLICY NP_ALPINE_OFFICE_ONLY
 --   (phone/app) + password. Reduces credential-stuffing risk.
 
 -- Federated SSO (ACCOUNTADMIN + IdP admin — Security Integrations):
---   CREATE SECURITY INTEGRATION alpine_sso
+--   CREATE SECURITY INTEGRATION dmart_sso
 --     TYPE = SAML2
 --     ENABLED = TRUE
 --     SAML2_ISSUER = '...'

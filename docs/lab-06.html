@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,7 +38,7 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 06 · Domain 2 · You are Priya</p>
+    <p class="eyebrow">Lab 06 · Kai can read, not administer · You are Priya</p>
     <h1>Hand out badges — not master keys</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
@@ -90,7 +90,7 @@
             <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
             <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
           </div>
-          <blockquote class="comic-bubble">Kai needs customer counts by country by Friday. Don’t make them a database admin.</blockquote>
+          <blockquote class="comic-bubble">Kai needs customer counts by state by Friday. Don’t make them a database admin.</blockquote>
         </figure>
         <figure class="comic-panel">
           <div class="comic-who">
@@ -141,7 +141,7 @@
         <div class="flow-node source">
           <span class="flow-tag">1 · Container</span>
           <strong>USAGE on DB + schema</strong>
-          <span class="flow-sub">ALPINE_RETAIL · LAB</span>
+          <span class="flow-sub">DMART · LAB</span>
         </div>
         <div class="flow-arrow" aria-hidden="true"><span></span></div>
         <div class="flow-node">
@@ -180,7 +180,7 @@
             <div class="comic-face dev" role="img" aria-label="Dev"></div>
             <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
           </div>
-          <blockquote class="comic-bubble">Exam + real life: privileges live on <strong>roles</strong>, not on people. When Kai leaves, revoke the FR — the key-ring stays reusable for the next analyst.</blockquote>
+          <blockquote class="comic-bubble">Privileges live on <strong>roles</strong>, not on people. When Kai leaves, revoke the job role — the key-ring stays reusable for the next analyst.</blockquote>
         </figure>
       </div>
     </section>
@@ -198,12 +198,12 @@
         <div class="code-head"><span>SQL · create roles</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 
 CREATE ROLE IF NOT EXISTS FR_ANALYST
-  COMMENT = 'Alpine analyst — Kai job badge';
+  COMMENT = 'DMart analyst — Kai job badge';
 CREATE ROLE IF NOT EXISTS FR_DATA_ENGINEER
-  COMMENT = 'Alpine data engineer — Riley job badge';
+  COMMENT = 'DMart data engineer — Riley job badge';
 CREATE ROLE IF NOT EXISTS AR_LAB_READ
   COMMENT = 'Access role: SELECT on LAB practice tables';</code></pre>
       </div>
@@ -233,12 +233,12 @@ CREATE ROLE IF NOT EXISTS AR_LAB_READ
 
     <article class="step">
       <h2><span class="step-num">2</span> USAGE on database and schema</h2>
-      <p class="teach"><strong>What this does:</strong> Lets the key-ring enter the building (<code>ALPINE_RETAIL</code>) and the practice room (<code>LAB</code>).</p>
+      <p class="teach"><strong>What this does:</strong> Lets the key-ring enter the building (<code>DMART</code>) and the practice room (<code>LAB</code>).</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · USAGE grants</span><button type="button" class="copy-btn">Copy</button></div>
-<pre><code>GRANT USAGE ON DATABASE ALPINE_RETAIL
+<pre><code>GRANT USAGE ON DATABASE DMART
   TO ROLE AR_LAB_READ;
-GRANT USAGE ON SCHEMA ALPINE_RETAIL.LAB
+GRANT USAGE ON SCHEMA DMART.LAB
   TO ROLE AR_LAB_READ;</code></pre>
       </div>
       <div class="badge-ok">✓ AR_LAB_READ can “see” the schema path</div>
@@ -249,7 +249,7 @@ GRANT USAGE ON SCHEMA ALPINE_RETAIL.LAB
       <p class="teach"><strong>What this does:</strong> Hangs the SELECT key on <code>AR_LAB_READ</code>, then hands that key-ring to both job badges. Also grants warehouse USAGE so they can run queries.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · object + role grants</span><button type="button" class="copy-btn">Copy</button></div>
-<pre><code>GRANT SELECT ON TABLE ALPINE_RETAIL.LAB.CUSTOMERS
+<pre><code>GRANT SELECT ON TABLE DMART.LAB.CUSTOMERS
   TO ROLE AR_LAB_READ;
 
 GRANT ROLE AR_LAB_READ TO ROLE FR_ANALYST;
@@ -274,7 +274,7 @@ GRANT ROLE FR_DATA_ENGINEER TO USER IDENTIFIER($uname);</code></pre>
       <p class="teach"><strong>What this does:</strong> Lists privileges on the table, on the AR, and which roles received the AR. Look for <code>OWNERSHIP</code> on the lab-admin role.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · inspect grants</span><button type="button" class="copy-btn">Copy</button></div>
-<pre><code>SHOW GRANTS ON TABLE ALPINE_RETAIL.LAB.CUSTOMERS;
+<pre><code>SHOW GRANTS ON TABLE DMART.LAB.CUSTOMERS;
 SHOW GRANTS TO ROLE AR_LAB_READ;
 SHOW GRANTS TO ROLE FR_ANALYST;
 SHOW GRANTS OF ROLE AR_LAB_READ;</code></pre>
@@ -311,10 +311,10 @@ SHOW GRANTS OF ROLE AR_LAB_READ;</code></pre>
 <pre><code>USE ROLE FR_ANALYST;
 USE SECONDARY ROLES NONE;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 
 SELECT CURRENT_ROLE(), CURRENT_SECONDARY_ROLES();
-SELECT CUSTOMER_ID, FULL_NAME, COUNTRY
+SELECT CUSTOMER_ID, FULL_NAME, STATE
   FROM LAB.CUSTOMERS
  ORDER BY CUSTOMER_ID
  LIMIT 5;</code></pre>
@@ -333,9 +333,9 @@ SELECT CUSTOMER_ID, FULL_NAME, COUNTRY
       <div class="code-block">
         <div class="code-head"><span>SQL · future grants</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
-GRANT SELECT ON FUTURE TABLES IN SCHEMA ALPINE_RETAIL.LAB
+GRANT SELECT ON FUTURE TABLES IN SCHEMA DMART.LAB
   TO ROLE AR_LAB_READ;
-SHOW FUTURE GRANTS IN SCHEMA ALPINE_RETAIL.LAB;</code></pre>
+SHOW FUTURE GRANTS IN SCHEMA DMART.LAB;</code></pre>
       </div>
       <div class="badge-ok">✓ Future SELECT listed for AR_LAB_READ</div>
     </article>
@@ -373,7 +373,7 @@ SHOW FUTURE GRANTS IN SCHEMA ALPINE_RETAIL.LAB;</code></pre>
 
     <div class="soundbite">
       <strong>Priya’s wrap-up (say this out loud)</strong><br />
-      “Kai needed read access without becoming admin. I created FR_ANALYST and AR_LAB_READ, granted USAGE on ALPINE_RETAIL and LAB,
+      “Kai needed read access without becoming admin. I created FR_ANALYST and AR_LAB_READ, granted USAGE on DMART and LAB,
       SELECT on LAB.CUSTOMERS to the access role, then the AR to the FR. I proved it with USE SECONDARY ROLES NONE so lab-admin powers couldn’t cheat.
       <em>Outcome:</em> least-privilege analyst access, grant trail visible in SHOW GRANTS, ready for auth Lab 07.”
     </div>

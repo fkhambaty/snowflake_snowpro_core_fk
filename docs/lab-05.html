@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,7 +38,7 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 05 · Interfaces &amp; AI · You are Priya</p>
+    <p class="eyebrow">Lab 05 · How people reach the platform · You are Priya</p>
     <h1>How you talk to Snowflake — plus Cortex awareness</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
@@ -115,7 +115,7 @@
           <div class="see-label">CLI</div>
           <strong>SnowSQL</strong>
           <p>Command-line client for scripts, PUT/GET, automation.</p>
-          <div class="see-example"><code>snowsql -c alpine</code><br>CI / ops friendly</div>
+          <div class="see-example"><code>snowsql -c dmart</code><br>CI / ops friendly</div>
         </div>
       </div>
       <div class="see-grid two" style="margin-top:0.85rem">
@@ -152,7 +152,7 @@
       <h2>Cortex AI — in-account helpers</h2>
       <p>
         Cortex functions (e.g. <code>SENTIMENT</code>, <code>COMPLETE</code>) run as SQL in Snowflake when enabled.
-        That is different from copying data to an external LLM website. Trials often lack access — know the <em>idea</em> for the exam.
+        That is different from copying data to an external LLM website. Trials often lack access — the idea is that Cortex runs inside the account.
       </p>
       <div class="see-grid two">
         <div class="see-card">
@@ -198,7 +198,7 @@
         <div class="code-head"><span>SQL · session context</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 SELECT CURRENT_USER() AS login_user,
@@ -232,11 +232,11 @@ SELECT CURRENT_USER() AS login_user,
 
     <article class="step">
       <h2><span class="step-num">2</span> Catalog SHOW (interface-agnostic)</h2>
-      <p class="teach"><strong>What this does:</strong> Confirms Alpine objects — same results in Snowsight or SnowSQL.</p>
+      <p class="teach"><strong>What this does:</strong> Confirms DMart objects — same results in Snowsight or SnowSQL.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · SHOW</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>SHOW WAREHOUSES LIKE 'WH_CORE%';
-SHOW DATABASES LIKE 'ALPINE%';
+SHOW DATABASES LIKE 'DMART%';
 
 SELECT 'interfaces ok' AS status,
        COUNT(*) AS product_rows
@@ -262,7 +262,7 @@ FROM LAB.PRODUCTS;</code></pre>
             <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
             <div><span class="comic-name">Morgan</span><span class="comic-role">Manager</span></div>
           </div>
-          <blockquote class="comic-bubble">Agreed. For the exam, know Cortex lives in-account. For Alpine, wait for proper enablement.</blockquote>
+          <blockquote class="comic-bubble">Agreed. Cortex runs inside our account. Until Sam enables it, we do not paste loyalty comments into a public chatbot.</blockquote>
         </figure>
       </div>
     </section>
@@ -274,7 +274,7 @@ FROM LAB.PRODUCTS;</code></pre>
         <div class="code-head"><span>SQL · Cortex (optional)</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>-- Uncomment only if Cortex is enabled:
 -- SELECT SNOWFLAKE.CORTEX.SENTIMENT(
---   'Alpine Retail had a great quarter'
+--   'DMart had a great quarter'
 -- ) AS sentiment;
 
 -- SELECT SNOWFLAKE.CORTEX.COMPLETE(
@@ -317,7 +317,7 @@ FROM LAB.PRODUCTS;</code></pre>
 
     <div class="soundbite">
       <strong>Priya’s wrap-up (say this out loud)</strong><br />
-      “I can reach Alpine through Snowsight, SnowSQL, drivers, connectors, Snowpark, Notebooks, and Streamlit in Snowflake —
+      “I can reach DMart through Snowsight, SnowSQL, drivers, connectors, Snowpark, Notebooks, and Streamlit in Snowflake —
       same account, different doors. Snowpark for DataFrame pipelines; SQL for set questions.
       Cortex is in-account AI; external LLMs are a different governance story. Streamlit SiS runs inside Snowflake.”
     </div>

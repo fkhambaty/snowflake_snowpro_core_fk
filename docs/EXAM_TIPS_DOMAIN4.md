@@ -28,7 +28,7 @@ Say these out loud. Distractors usually swap *which lever* fixes *which pain*.
 | AUTO_SUSPEND / RESUME | Stop idle credit burn; resume on next statement. Too aggressive → resume latency chatter |
 | MCW min/max | Floor/ceiling of clusters; credits ≈ size × active clusters × time |
 | Statement timeout | Guardrail against runaway SQL (`STATEMENT_TIMEOUT_IN_SECONDS`) |
-| Alpine habit | Daily work on `WH_CORE_XS`; demo `WH_CORE_M` then shrink + suspend |
+| DMart habit | Daily work on `WH_CORE_XS`; demo `WH_CORE_M` then shrink + suspend |
 
 **Spoken one-liner:** “Queues → out. Heavy single query → up. Never leave Medium idling.”
 
@@ -68,7 +68,7 @@ Say these out loud. Distractors usually swap *which lever* fixes *which pain*.
 ## Quick self-check (before Lab 19 mock)
 
 - [ ] Name three caches + one sentence each  
-- [ ] Scale up vs out with an Alpine example  
+- [ ] Scale up vs out with an DMart example  
 - [ ] Draw QUALIFY vs subquery mentally  
 - [ ] UDF vs UDTF vs proc in one breath  
 - [ ] Read `payload:user.id` and explain FLATTEN  

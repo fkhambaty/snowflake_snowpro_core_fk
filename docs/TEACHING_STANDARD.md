@@ -2,7 +2,7 @@
 
 Students can copy-paste and finish without learning. **That is a fail.** Prefer **seeing** over theory tables.
 
-This course exists so Priya **passes SnowPro Core (COF-C03)** — not so she finishes worksheets. Basics without exam follow-ups is a fail.
+The story is one project: Priya building **DMart’s** grocery platform. Do not give Priya a second plot about sitting a certification. Yellow **EXAM TIP** boxes and the spoken drills are for the reader. Basics without those follow-ups is a fail — the tips stay, the story stays the store.
 
 ## Required shape (comic-book first)
 

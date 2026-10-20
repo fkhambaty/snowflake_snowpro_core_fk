@@ -1,4 +1,4 @@
--- Alpine Retail / SnowPro Core — Lab 14
+-- DMart — Lab 14
 -- Scale UP vs OUT · auto-suspend · multi-cluster awareness · statement timeout
 -- IMPORTANT: leave student on WH_CORE_XS (cheap). Do not stay on MEDIUM.
 -- Run as ROLE_CORE_LAB_ADMIN (OPERATE on WH_CORE_XS / WH_CORE_M from bootstrap).
@@ -14,7 +14,7 @@ CREATE WAREHOUSE IF NOT EXISTS WH_CORE_XS
   AUTO_SUSPEND = 60
   AUTO_RESUME = TRUE
   INITIALLY_SUSPENDED = TRUE
-  COMMENT = 'Alpine Retail daily lab warehouse';
+  COMMENT = 'DMart daily lab warehouse';
 
 -- Bigger warehouse for scale-up demos only
 CREATE WAREHOUSE IF NOT EXISTS WH_CORE_M

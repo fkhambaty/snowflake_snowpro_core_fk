@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,12 +38,12 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 01 · Domain 1 heart (~31%) · You are Priya</p>
+    <p class="eyebrow">Lab 01 · Where the bill comes from · You are Priya</p>
     <h1>Three layers + editions</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
-      This lab is the exam’s architecture foundation: where data lives, what burns credits,
-      and which edition unlocks which feature. <a href="EXAM_TIPS_DOMAIN1.md">Domain 1 tips</a> after you finish.
+      Morgan’s question is simple: if the warehouse gets bigger, do we keep more years of bills?
+      You will separate where sales data lives from what burns credits.
     </p>
 
     <div class="picture-first" aria-label="How to study this lab">
@@ -54,8 +54,8 @@
 
     <div class="callout bad">
       <strong>Business problem</strong>
-      Morgan asks: “If we resize the warehouse, do we get more storage?”
-      Kai thinks Snowflake is one blob. Wrong answers here wipe ~⅓ of Core.
+      Morgan asks: “If we resize the warehouse, do we store more grocery history?”
+      Kai thinks Snowflake is one blob. A wrong answer here makes the store bill nonsense.
     </div>
 
     <div class="callout ok">
@@ -109,13 +109,13 @@
     </figure>
 
     <section class="teach">
-      <h2>See it — three layers with Alpine names</h2>
+      <h2>See it — three layers with DMart names</h2>
       <div class="see-grid two">
         <div class="see-card">
           <div class="see-label">Layer 1</div>
           <strong>Database Storage</strong>
           <p>Compressed micro-partitions on cloud object storage. Your tables live here.</p>
-          <div class="see-example"><code>ALPINE_RETAIL.LAB.CUSTOMERS</code><br>bytes → storage bill</div>
+          <div class="see-example"><code>DMART.LAB.CUSTOMERS</code><br>bytes → storage bill</div>
         </div>
         <div class="see-card">
           <div class="see-label">Layer 2</div>
@@ -143,7 +143,7 @@
     <section class="teach">
       <h2>Editions — feature matrix (memorize the deltas)</h2>
       <p>
-        Alpine’s trial may look like Enterprise features mixed in — for the <em>exam</em>, know the official ladder.
+        DMart’s trial may show a mix of features. The ladder below is the one that decides Time Travel days, multi-cluster warehouses, and private networking.
         Ask: “Which edition first unlocks this?”
       </p>
       <div class="flow-pipeline" aria-label="Edition ladder">
@@ -196,7 +196,7 @@
             <div class="comic-face morgan" role="img" aria-label="Morgan"></div>
             <div><span class="comic-name">Morgan</span><span class="comic-role">Manager — deadline</span></div>
           </div>
-          <blockquote class="comic-bubble">If compliance asks which cloud region Alpine’s account sits in, can you answer in ten seconds?</blockquote>
+          <blockquote class="comic-bubble">If compliance asks which cloud region DMart’s account sits in, can you answer in ten seconds?</blockquote>
         </figure>
         <figure class="comic-panel">
           <div class="comic-who">
@@ -222,7 +222,7 @@
         <div class="code-head"><span>SQL · account context</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 SELECT CURRENT_ACCOUNT() AS account_locator,
@@ -257,7 +257,7 @@ SELECT CURRENT_ACCOUNT() AS account_locator,
     <article class="step">
       <h2><span class="step-num">2</span> Peek at retention parameters</h2>
       <p class="teach"><strong>What this does:</strong> Shows account-level knobs tied to Time Travel retention.</p>
-      <p class="teach"><strong>What you should see:</strong> A value (often 1 on trials). Remember: Enterprise unlocks up to 90 days — your trial number ≠ the exam rule.</p>
+      <p class="teach"><strong>What you should see:</strong> A value (often 1 on trials). Enterprise unlocks up to 90 days — the number on your trial is not the edition rule.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · SHOW PARAMETERS</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>SHOW PARAMETERS LIKE 'DATA_RETENTION_TIME_IN_DAYS'
@@ -357,7 +357,7 @@ SHOW TABLES LIKE 'DEMO_%' IN SCHEMA LAB;</code></pre>
 
     <div class="soundbite">
       <strong>Priya’s wrap-up (say this out loud)</strong><br />
-      “Alpine’s Snowflake is three layers: storage holds our micro-partitions, warehouses like WH_CORE_XS are compute only,
+      “DMart’s Snowflake is three layers: storage holds our micro-partitions, warehouses like WH_CORE_XS are compute only,
       and Cloud Services handles login, metadata, and planning. Editions matter — 90-day Time Travel needs Enterprise+;
       Tri-Secret and PrivateLink need Business Critical+. Transient tables skip Fail-safe. I will never say the warehouse stores data.”
     </div>

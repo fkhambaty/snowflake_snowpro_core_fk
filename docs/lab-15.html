@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,7 +38,7 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 15 · Domain 4 · You are Priya</p>
+    <p class="eyebrow">Lab 15 · Latest bill, and the JSON receipt · You are Priya</p>
     <h1>SQL power tools + JSON (VARIANT)</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
@@ -54,8 +54,8 @@
 
     <div class="callout bad">
       <strong>Business problem</strong>
-      Kai writes nested subqueries for “latest order per customer.” Riley hand-merges JSON click events in Python.
-      Morgan wants one Snowflake-native story for the exam — not five half-finished scripts.
+      Kai writes nested subqueries for “latest bill per loyalty member.” Store-app events arrive as JSON.
+      Morgan wants that work done in Snowflake — not five half-finished scripts.
     </div>
 
     <div class="callout ok">
@@ -96,7 +96,7 @@
             <div class="comic-face dev" role="img" aria-label="Dev"></div>
             <div><span class="comic-name">Dev</span><span class="comic-role">Coach — explains why</span></div>
           </div>
-          <blockquote class="comic-bubble"><code>QUALIFY</code> filters window-function results the way <code>HAVING</code> filters aggregates. Same power, less nesting — exam favorite.</blockquote>
+          <blockquote class="comic-bubble"><code>QUALIFY</code> filters window-function results the way <code>HAVING</code> filters aggregates. Same power, less nesting.</blockquote>
         </figure>
       </div>
       <p class="comic-caption">Remember: WHERE → HAVING → QUALIFY (different stages of the query).</p>
@@ -137,7 +137,7 @@
           <div class="see-label">Function</div>
           <strong>UDF</strong>
           <p>Returns a value (scalar) or table (UDTF). Called from SQL like a function.</p>
-          <div class="see-example"><code>FN_USD_TO_CENTS(amount)</code></div>
+          <div class="see-example"><code>FN_INR_TO_PAISE(amount)</code></div>
         </div>
         <div class="see-card">
           <div class="see-label">Procedure</div>
@@ -176,10 +176,10 @@
         <div class="code-head"><span>SQL · QUALIFY</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
-SELECT ORDER_ID, CUSTOMER_ID, ORDER_TS, AMOUNT_USD,
+SELECT ORDER_ID, CUSTOMER_ID, ORDER_TS, AMOUNT_INR,
   ROW_NUMBER() OVER (
     PARTITION BY CUSTOMER_ID ORDER BY ORDER_TS DESC
   ) AS RN
@@ -196,10 +196,10 @@ QUALIFY RN = 1;</code></pre>
         <div class="code-head"><span>SQL · PIVOT</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>SELECT *
 FROM (
-  SELECT CUSTOMER_ID, STATUS, AMOUNT_USD FROM LAB.ORDERS
+  SELECT CUSTOMER_ID, STATUS, AMOUNT_INR FROM LAB.ORDERS
 )
 PIVOT (
-  SUM(AMOUNT_USD) FOR STATUS IN ('SHIPPED', 'PENDING', 'RETURNED')
+  SUM(AMOUNT_INR) FOR STATUS IN ('SHIPPED', 'PENDING', 'RETURNED')
 ) AS P
 ORDER BY CUSTOMER_ID;</code></pre>
       </div>
@@ -207,16 +207,16 @@ ORDER BY CUSTOMER_ID;</code></pre>
         <div class="code-head"><span>SQL · MERGE</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>CREATE OR REPLACE TABLE LAB.ORDERS_UPSERT_DEMO (
   ORDER_ID NUMBER, CUSTOMER_ID NUMBER,
-  STATUS STRING, AMOUNT_USD NUMBER(10,2)
+  STATUS STRING, AMOUNT_INR NUMBER(10,2)
 );
 
 MERGE INTO LAB.ORDERS_UPSERT_DEMO t
 USING LAB.ORDERS s ON t.ORDER_ID = s.ORDER_ID
 WHEN MATCHED THEN UPDATE SET
-  t.STATUS = s.STATUS, t.AMOUNT_USD = s.AMOUNT_USD
+  t.STATUS = s.STATUS, t.AMOUNT_INR = s.AMOUNT_INR
 WHEN NOT MATCHED THEN INSERT
-  (ORDER_ID, CUSTOMER_ID, STATUS, AMOUNT_USD)
-  VALUES (s.ORDER_ID, s.CUSTOMER_ID, s.STATUS, s.AMOUNT_USD);</code></pre>
+  (ORDER_ID, CUSTOMER_ID, STATUS, AMOUNT_INR)
+  VALUES (s.ORDER_ID, s.CUSTOMER_ID, s.STATUS, s.AMOUNT_INR);</code></pre>
       </div>
       <div class="badge-ok">✓ PIVOT returns columns per status; MERGE fills upsert demo</div>
     </article>
@@ -237,7 +237,7 @@ WHEN NOT MATCHED THEN INSERT
             <div class="comic-face dev" role="img" aria-label="Dev"></div>
             <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
           </div>
-          <blockquote class="comic-bubble">No. UDF/UDTF → use in SQL expressions/FROM. Procedure → <code>CALL</code>. UDTF returns a table. Exam distractors love mixing these.</blockquote>
+          <blockquote class="comic-bubble">No. A function belongs in a SELECT or FROM. A procedure is something you CALL. A table function returns rows. Don’t mix them.</blockquote>
         </figure>
       </div>
     </section>
@@ -247,12 +247,12 @@ WHEN NOT MATCHED THEN INSERT
       <p class="teach"><strong>What this does:</strong> SQL UDF converts dollars to cents. Scripting proc returns a count string via <code>CALL</code>.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · UDF</span><button type="button" class="copy-btn">Copy</button></div>
-<pre><code>CREATE OR REPLACE FUNCTION LAB.FN_USD_TO_CENTS(AMOUNT NUMBER)
+<pre><code>CREATE OR REPLACE FUNCTION LAB.FN_INR_TO_PAISE(AMOUNT NUMBER)
   RETURNS NUMBER LANGUAGE SQL
 AS $$ SELECT (AMOUNT * 100)::NUMBER $$;
 
-SELECT ORDER_ID, AMOUNT_USD,
-       LAB.FN_USD_TO_CENTS(AMOUNT_USD) AS CENTS
+SELECT ORDER_ID, AMOUNT_INR,
+       LAB.FN_INR_TO_PAISE(AMOUNT_INR) AS PAISE
 FROM LAB.ORDERS LIMIT 5;</code></pre>
       </div>
       <div class="code-block">
@@ -348,7 +348,7 @@ LATERAL FLATTEN(INPUT => e.PAYLOAD) f;</code></pre>
       <strong>Priya’s wrap-up (say this out loud)</strong><br />
       “I used QUALIFY for latest-order-per-customer, practiced PIVOT and MERGE, shipped a tiny UDF and a CALL-able procedure,
       and read LAB.EVENTS_RAW with VARIANT paths plus FLATTEN.
-      <em>Outcome:</em> Domain 4 SQL + semi-structured questions have concrete Alpine examples I can say out loud.”
+      <em>Outcome:</em> latest bill per member, and store-app JSON, are queries I can say out loud.”
     </div>
 
     <div class="callout tip">

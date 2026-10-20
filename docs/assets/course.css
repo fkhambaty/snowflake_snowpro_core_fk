@@ -1649,7 +1649,7 @@ img, svg, video {
   box-shadow: 2px 2px 0 rgba(26, 36, 51, 0.25);
 }
 /* Individual headshots (cropped from cast-sheet.jpg via scripts/crop_cast_faces.py) */
-/* Alpine Retail cast (SnowPro Core) â€” reuse face assets with new names */
+/* DMart cast (SnowPro Core) â€” reuse face assets with new names */
 .comic-face.priya { background-image: url("cast/elena.jpg"); border-color: #c9a45c; }
 .comic-face.dev { background-image: url("cast/dev.jpg"); border-color: #0d7a6f; }
 .comic-face.kai { background-image: url("cast/alex.jpg"); border-color: #176f9e; }
@@ -1781,7 +1781,7 @@ img, svg, video {
   margin-top: 0.75rem;
 }
 
-/* —— Visual comic-book upgrade (SnowPro Core) —— */
+/* Visual comic-book upgrade */
 .picture-first {
   display: flex;
   gap: 0.85rem;

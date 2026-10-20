@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,7 +38,7 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 16 · Domain 5 · You are Priya</p>
+    <p class="eyebrow">Lab 16 · Undo a bad edit · You are Priya</p>
     <h1>Undo the bad edit — Time Travel</h1>
     <p class="lede">
       Domain 5 starts here. You will query the past with <code>AT</code> / <code>BEFORE</code>,
@@ -61,7 +61,7 @@
 
     <div class="callout ok">
       <strong>Solution you will build</strong>
-      Scratch table in <code>ALPINE_RETAIL.LAB</code>, Time Travel query with <code>AT(OFFSET =&gt; …)</code>,
+      Scratch table in <code>DMART.LAB</code>, Time Travel query with <code>AT(OFFSET =&gt; …)</code>,
       clone-at-timestamp, <code>DROP</code> then <code>UNDROP</code>, and a clear mental model:
       Time Travel = you; Fail-safe = Snowflake Support only (7 days on permanent tables).
     </div>
@@ -191,7 +191,7 @@
         <div class="code-head"><span>SQL · scratch + bad UPDATE</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 CREATE OR REPLACE TABLE SCRATCH_TT (
@@ -327,7 +327,7 @@ SELECT * FROM SCRATCH_TT;</code></pre>
       cloned history into <code>SCRATCH_TT_CLONE_AT</code>, then proved DROP + UNDROP.
       Retention is <code>DATA_RETENTION_TIME_IN_DAYS</code> — Standard 1 day, Enterprise up to 90.
       Fail-safe is seven extra days on permanent tables and Support-only — never something I SELECT.
-      <em>Outcome:</em> Domain 5 recovery story locked for the exam.”
+      <em>Outcome:</em> I can get yesterday’s row back, and I know when Fail-safe means calling Support.”
     </div>
 
     <div class="callout tip">

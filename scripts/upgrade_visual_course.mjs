@@ -1,5 +1,5 @@
 /**
- * Visual + exam-tip upgrade for Alpine SnowPro Core labs.
+ * Visual + exam-tip upgrade for DMart SnowPro Core labs.
  * - Wire BEFORE/AFTER JPGs when present
  * - Inject sticky exam tips after solution / mid-lab / before drills
  * - Add visual “picture first” banner
@@ -100,7 +100,7 @@ const EXAM_TIPS = {
 };
 
 const BA_CAPTIONS = {
-  "00": ["No Alpine home — files and tables everywhere.", "One building ALPINE_RETAIL + WH_CORE_XS + lab-admin badge."],
+  "00": ["No DMart home — files and tables everywhere.", "One building DMART + WH_CORE_XS + lab-admin badge."],
   "01": ["Myth: warehouse stores tables.", "Truth: Storage · Compute · Cloud Services."],
   "02": ["Name soup — stage ≈ table?", "Named toolbox — stage = files, table = rows."],
   "03": ["Full scans forever.", "Pruning skips useless micro-partitions."],

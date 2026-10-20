@@ -1,17 +1,17 @@
--- Alpine Retail / SnowPro Core — Lab 08 · Governance (masking, RAP, tags)
+-- DMart — Lab 08 · Governance (masking, RAP, tags)
 -- Requires Lab 00 LAB.CUSTOMERS and Lab 06 FR_ANALYST (for proof).
 -- Proof: run FR_ANALYST block separately with USE SECONDARY ROLES NONE.
 
 USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA SECURE;
 
 -- ---------------------------------------------------------------------------
 -- 1) PII table in SECURE (clone/copy from LAB.CUSTOMERS)
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TABLE CUSTOMERS_PII AS
-SELECT * FROM ALPINE_RETAIL.LAB.CUSTOMERS;
+SELECT * FROM DMART.LAB.CUSTOMERS;
 
 SELECT COUNT(*) AS N FROM CUSTOMERS_PII;
 
@@ -32,20 +32,20 @@ ALTER TABLE CUSTOMERS_PII
   SET MASKING POLICY MP_EMAIL_MASK;
 
 -- ---------------------------------------------------------------------------
--- 3) Row access policy on COUNTRY — analysts see US only
+-- 3) Row access policy on STATE — analysts see Maharashtra only
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE ROW ACCESS POLICY RAP_COUNTRY_US AS (COUNTRY STRING)
+CREATE OR REPLACE ROW ACCESS POLICY RAP_STATE_MH AS (STATE STRING)
   RETURNS BOOLEAN ->
   CASE
     WHEN CURRENT_ROLE() IN ('ROLE_CORE_LAB_ADMIN', 'ACCOUNTADMIN')
       THEN TRUE
-    WHEN CURRENT_ROLE() = 'FR_ANALYST' AND COUNTRY = 'US'
+    WHEN CURRENT_ROLE() = 'FR_ANALYST' AND STATE = 'MH'
       THEN TRUE
     ELSE FALSE
   END;
 
 ALTER TABLE CUSTOMERS_PII
-  ADD ROW ACCESS POLICY RAP_COUNTRY_US ON (COUNTRY);
+  ADD ROW ACCESS POLICY RAP_STATE_MH ON (STATE);
 
 -- ---------------------------------------------------------------------------
 -- 4) Object tags (cost / compliance labels)
@@ -67,8 +67,8 @@ ALTER TABLE CUSTOMERS_PII MODIFY COLUMN EMAIL
 
 SHOW TAGS IN SCHEMA SECURE;
 SELECT SYSTEM$GET_TAG(
-  'ALPINE_RETAIL.SECURE.TAG_DATA_CLASS',
-  'ALPINE_RETAIL.SECURE.CUSTOMERS_PII',
+  'DMART.SECURE.TAG_DATA_CLASS',
+  'DMART.SECURE.CUSTOMERS_PII',
   'TABLE'
 ) AS TABLE_CLASS;
 
@@ -83,35 +83,35 @@ SELECT SYSTEM$GET_TAG(
 */
 
 -- ---------------------------------------------------------------------------
--- 6) Proof as ROLE_CORE_LAB_ADMIN — clear email, all countries
+-- 6) Proof as ROLE_CORE_LAB_ADMIN — clear email, all states
 -- ---------------------------------------------------------------------------
-SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
+SELECT CUSTOMER_ID, FULL_NAME, EMAIL, STATE
   FROM CUSTOMERS_PII
  ORDER BY CUSTOMER_ID;
--- Expect: full emails · US + CA + UK rows
+-- Expect: full emails · MH + KA + TS rows
 
 -- ---------------------------------------------------------------------------
 -- 7) Grant SELECT path for FR_ANALYST via AR_LAB_READ (Lab 06)
 -- ---------------------------------------------------------------------------
-GRANT USAGE ON DATABASE ALPINE_RETAIL TO ROLE AR_LAB_READ;
-GRANT USAGE ON SCHEMA ALPINE_RETAIL.SECURE TO ROLE AR_LAB_READ;
-GRANT SELECT ON TABLE ALPINE_RETAIL.SECURE.CUSTOMERS_PII TO ROLE AR_LAB_READ;
+GRANT USAGE ON DATABASE DMART TO ROLE AR_LAB_READ;
+GRANT USAGE ON SCHEMA DMART.SECURE TO ROLE AR_LAB_READ;
+GRANT SELECT ON TABLE DMART.SECURE.CUSTOMERS_PII TO ROLE AR_LAB_READ;
 
 -- ---------------------------------------------------------------------------
--- 8) Proof as FR_ANALYST — masked email, US rows only
+-- 8) Proof as FR_ANALYST — masked email, Maharashtra rows only
 --    Run this block ALONE in a new worksheet:
 -- ---------------------------------------------------------------------------
 /*
 USE ROLE FR_ANALYST;
 USE SECONDARY ROLES NONE;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 
 SELECT CURRENT_ROLE(), CURRENT_SECONDARY_ROLES();
-SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
+SELECT CUSTOMER_ID, FULL_NAME, EMAIL, STATE
   FROM SECURE.CUSTOMERS_PII
  ORDER BY CUSTOMER_ID;
--- Expect: EMAIL like ****@example.com · COUNTRY = US only (no CA/UK)
+-- Expect: EMAIL like ****@example.com · STATE = MH only (no KA/TS)
 */
 
 -- ---------------------------------------------------------------------------
@@ -119,4 +119,4 @@ SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
 -- ---------------------------------------------------------------------------
 USE ROLE ROLE_CORE_LAB_ADMIN;
 DESC MASKING POLICY MP_EMAIL_MASK;
-DESC ROW ACCESS POLICY RAP_COUNTRY_US;
+DESC ROW ACCESS POLICY RAP_STATE_MH;

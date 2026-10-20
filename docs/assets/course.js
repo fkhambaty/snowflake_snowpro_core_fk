@@ -207,7 +207,7 @@
     }
 
     if (atStmt(s, "CREATE\\s+(?:OR\\s+REPLACE\\s+)?(?:DATABASE|SCHEMA|ROLE|WAREHOUSE)\\b")) {
-      return "Create the Alpine lab object(s) this step needs (database, schema, role, or warehouse).";
+      return "Create the DMart lab object(s) this step needs (database, schema, role, or warehouse).";
     }
 
     if (atStmt(s, "DELETE\\b") && atStmt(s, "INSERT\\b")) {

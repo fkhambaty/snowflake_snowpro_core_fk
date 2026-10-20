@@ -1,5 +1,5 @@
 /**
- * Generates a full teaching lab HTML page for Alpine Retail SnowPro Core.
+ * Generates a full teaching lab HTML page for DMart SnowPro Core.
  * Usage: node scripts/gen_lab_html.mjs
  * Edits LAB_DEFS below, then re-run for missing labs only (skips existing unless --force).
  */
@@ -112,7 +112,7 @@ function render(lab) {
 <body>
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -241,14 +241,14 @@ const LAB_DEFS = [
         label: "table + view",
         sql: `USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 CREATE OR REPLACE TABLE PRODUCTS (
   PRODUCT_ID NUMBER, SKU STRING, NAME STRING, UNIT_PRICE NUMBER(10,2)
 );
 INSERT INTO PRODUCTS VALUES
-  (1, 'ALP-TEE', 'Alpine Tee', 29.00),
+  (1, 'ALP-TEE', 'DMart Tee', 29.00),
   (2, 'ALP-HAT', 'Trail Hat', 19.50);
 
 CREATE OR REPLACE VIEW V_PRODUCTS_CHEAP AS
@@ -323,7 +323,7 @@ SHOW STAGES IN SCHEMA LAB;`,
         what: "Rows across dates so pruning has something to do.",
         sql: `USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 CREATE OR REPLACE TABLE ORDER_HISTORY (
@@ -398,7 +398,7 @@ SELECT SYSTEM$CLUSTERING_INFORMATION('LAB.ORDER_HISTORY');
         what: "Feel the three classic types in LAB.",
         sql: `USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 CREATE OR REPLACE TABLE T_PERM (ID INT);
@@ -494,7 +494,7 @@ SHOW PARAMETERS LIKE 'PYTHON_CONNECTOR%' IN SESSION;`,
         title: "Cortex awareness (may fail on some trials)",
         what: "Try a tiny Cortex call; if unsupported, still memorize the capability for the exam.",
         sql: `-- May error if Cortex not enabled — that's OK for study:
--- SELECT SNOWFLAKE.CORTEX.SENTIMENT('Alpine gear is awesome');
+-- SELECT SNOWFLAKE.CORTEX.SENTIMENT('DMart gear is awesome');
 -- SELECT SNOWFLAKE.CORTEX.COMPLETE('snowflake-arctic', 'Define micro-partition in one sentence');
 
 SELECT 'Study: Cortex = AI functions inside Snowflake' AS note,

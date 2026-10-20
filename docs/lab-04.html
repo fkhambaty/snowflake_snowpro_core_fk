@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,7 +38,7 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 04 · Table types · You are Priya</p>
+    <p class="eyebrow">Lab 04 · What we keep, and what we throw away · You are Priya</p>
     <h1>Permanent, transient, temp, external, Iceberg, dynamic</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
@@ -54,8 +54,8 @@
 
     <div class="callout bad">
       <strong>Business problem</strong>
-      Morgan wants cheaper scratch tables. Sam refuses to lose Fail-safe on customer gold.
-      Riley mentions Iceberg and Dynamic Tables from the C03 blueprint — Kai’s eyes glaze over.
+      Morgan wants cheaper scratch tables for overnight file loads. Sam refuses to drop Fail-safe on loyalty data we must keep.
+      A supplier also drops Iceberg files, and Kai wants a sales summary that refreshes itself.
     </div>
 
     <div class="callout ok">
@@ -96,7 +96,7 @@
             <div class="comic-face sam" role="img" aria-label="Sam"></div>
             <div><span class="comic-name">Sam</span><span class="comic-role">Compliance</span></div>
           </div>
-          <blockquote class="comic-bubble">Customer gold tables <em>do</em>. Permanent for protected data. Transient for throwaways. Don’t mix them up on the exam — or in prod.</blockquote>
+          <blockquote class="comic-bubble">Loyalty tables <em>do</em>. Permanent for data we must protect. Transient for throwaway loads. Don’t mix them up on the store platform.</blockquote>
         </figure>
       </div>
       <p class="comic-caption">Dev: Temporary = this session only. When you disconnect, it’s gone.</p>
@@ -199,7 +199,7 @@
         <div class="code-head"><span>SQL · three kinds</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 CREATE OR REPLACE TABLE LAB.T_PERM (
@@ -241,7 +241,7 @@ UNION ALL SELECT 'TEMP', * FROM LAB.T_TEMP;</code></pre>
             <div class="comic-face dev" role="img" aria-label="Dev"></div>
             <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
           </div>
-          <blockquote class="comic-bubble">Exam: external = query files via metadata. Full mutable warehouse tables usually mean COPY into permanent/transient first.</blockquote>
+          <blockquote class="comic-bubble">An external table reads files through metadata. If we update rows all day, load them into a real table first.</blockquote>
         </figure>
       </div>
     </section>
@@ -296,7 +296,7 @@ UNION ALL SELECT 'TEMP', * FROM LAB.T_TEMP;</code></pre>
 
     <article class="step">
       <h2><span class="step-num">3</span> Dynamic Table intro</h2>
-      <p class="teach"><strong>What this does:</strong> Creates a source table. Try CREATE DYNAMIC TABLE; if trial blocks it, keep the commented pattern for the exam.</p>
+      <p class="teach"><strong>What this does:</strong> Creates a source table. Try CREATE DYNAMIC TABLE; if the trial blocks it, keep the commented pattern anyway.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · DT source</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>CREATE OR REPLACE TABLE LAB.DT_SOURCE (

@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,7 +38,7 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 03 · Storage internals · You are Priya</p>
+    <p class="eyebrow">Lab 03 · Why a date filter skips months · You are Priya</p>
     <h1>Micro-partitions, pruning, clustering</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
@@ -150,7 +150,7 @@
             <div class="comic-face dev" role="img" aria-label="Dev"></div>
             <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
           </div>
-          <blockquote class="comic-bubble">Right. Today’s table is tiny so you won’t see dramatic Profile wins — you’re learning the story the exam tests.</blockquote>
+          <blockquote class="comic-bubble">Right. Today’s table is tiny, so you won’t see a dramatic Profile win. On two years of bills, that date filter is what skips the other months.</blockquote>
         </figure>
       </div>
     </section>
@@ -162,7 +162,7 @@
         <div class="code-head"><span>SQL · table + rows</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 CREATE OR REPLACE TABLE LAB.ORDERS_BY_DATE (
@@ -248,7 +248,7 @@ WHERE ORDER_DATE BETWEEN '2024-03-01'
   CLUSTER BY (ORDER_DATE);
 
 SELECT SYSTEM$CLUSTERING_INFORMATION(
-  'ALPINE_RETAIL.LAB.ORDERS_BY_DATE'
+  'DMART.LAB.ORDERS_BY_DATE'
 );</code></pre>
       </div>
       <div class="badge-ok">✓ ALTER succeeds; function returns JSON-ish clustering details</div>
@@ -264,7 +264,7 @@ SELECT SYSTEM$CLUSTERING_INFORMATION(
 SELECT TABLE_NAME, ACTIVE_BYTES,
        TIME_TRAVEL_BYTES, FAILSAFE_BYTES
 FROM TABLE(INFORMATION_SCHEMA.TABLE_STORAGE_METRICS)
-WHERE TABLE_CATALOG = 'ALPINE_RETAIL'
+WHERE TABLE_CATALOG = 'DMART'
   AND TABLE_NAME = 'ORDERS_BY_DATE';</code></pre>
       </div>
       <div class="badge-ok">✓ Metrics row appears (byte counts may be small on demo)</div>

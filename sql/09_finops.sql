@@ -1,4 +1,4 @@
--- Alpine Retail / SnowPro Core — Lab 09 · FinOps (resource monitors & usage)
+-- DMart — Lab 09 · FinOps (resource monitors & usage)
 -- Run monitor DDL as ACCOUNTADMIN. Queries as ROLE_CORE_LAB_ADMIN OK.
 -- ACCOUNT_USAGE views can lag ~45 minutes to 3 hours — exam loves this.
 
@@ -7,7 +7,7 @@ USE ROLE ACCOUNTADMIN;
 -- ---------------------------------------------------------------------------
 -- 1) Resource monitor — notify then suspend at thresholds
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE RESOURCE MONITOR RM_ALPINE_LAB
+CREATE OR REPLACE RESOURCE MONITOR RM_DMART_LAB
   WITH CREDIT_QUOTA = 20
   FREQUENCY = MONTHLY
   START_TIMESTAMP = IMMEDIATELY
@@ -16,13 +16,13 @@ CREATE OR REPLACE RESOURCE MONITOR RM_ALPINE_LAB
     ON 75 PERCENT DO NOTIFY
     ON 100 PERCENT DO SUSPEND;
 
-SHOW RESOURCE MONITORS LIKE 'RM_ALPINE%';
+SHOW RESOURCE MONITORS LIKE 'RM_DMART%';
 
 -- Attach to daily warehouse (monitor watches this WH's credits)
-ALTER WAREHOUSE WH_CORE_XS SET RESOURCE_MONITOR = RM_ALPINE_LAB;
+ALTER WAREHOUSE WH_CORE_XS SET RESOURCE_MONITOR = RM_DMART_LAB;
 
 -- Optional: also attach medium WH used in scale demos
-ALTER WAREHOUSE WH_CORE_M SET RESOURCE_MONITOR = RM_ALPINE_LAB;
+ALTER WAREHOUSE WH_CORE_M SET RESOURCE_MONITOR = RM_DMART_LAB;
 
 -- Inspect
 SHOW WAREHOUSES LIKE 'WH_CORE%';
@@ -83,5 +83,5 @@ SELECT QUERY_ID, USER_NAME, WAREHOUSE_NAME, EXECUTION_STATUS,
 /*
 ALTER WAREHOUSE WH_CORE_XS UNSET RESOURCE_MONITOR;
 ALTER WAREHOUSE WH_CORE_M UNSET RESOURCE_MONITOR;
-DROP RESOURCE MONITOR IF EXISTS RM_ALPINE_LAB;
+DROP RESOURCE MONITOR IF EXISTS RM_DMART_LAB;
 */

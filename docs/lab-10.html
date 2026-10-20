@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,7 +38,7 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 10 · Domain 3 · You are Priya</p>
+    <p class="eyebrow">Lab 10 · Last night’s store files · You are Priya</p>
     <h1>Move files through a loading dock</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
@@ -60,7 +60,7 @@
 
     <div class="callout ok">
       <strong>Solution you will build</strong>
-      <code>PIPELINE.STG_ALPINE_LOAD</code>, CSV/JSON file formats, seed with INSERT,
+      <code>PIPELINE.STG_DMART_LOAD</code>, CSV/JSON file formats, seed with INSERT,
       unload with <code>COPY INTO @stage FROM (SELECT …)</code>, validate, reload with transform + <code>ON_ERROR</code>.
       Directory tables for file metadata awareness.
     </div>
@@ -124,13 +124,13 @@
           <div class="see-label">Shared (this lab)</div>
           <strong>Named internal stage</strong>
           <p>First-class object you GRANT like a table. Best for team pipelines.</p>
-          <div class="see-example"><code>@STG_ALPINE_LOAD</code></div>
+          <div class="see-example"><code>@STG_DMART_LOAD</code></div>
         </div>
         <div class="see-card">
           <div class="see-label">Cloud bucket</div>
           <strong>External stage</strong>
           <p>Points at S3 / Azure / GCS via storage integration. Same COPY syntax, different dock location.</p>
-          <div class="see-example">s3://alpine-raw/…<br>+ storage integration</div>
+          <div class="see-example">s3://dmart-raw/…<br>+ storage integration</div>
         </div>
       </div>
     </section>
@@ -165,7 +165,7 @@
         <div class="flow-node">
           <span class="flow-tag">2 · Unload</span>
           <strong>COPY INTO @stage</strong>
-          <span class="flow-sub">STG_ALPINE_LOAD</span>
+          <span class="flow-sub">STG_DMART_LOAD</span>
         </div>
         <div class="flow-arrow" aria-hidden="true"><span></span></div>
         <div class="flow-node">
@@ -210,18 +210,18 @@
         <div class="code-head"><span>SQL · formats + stage</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA PIPELINE;
 
 CREATE OR REPLACE FILE FORMAT FF_CSV_CUSTOMERS
   TYPE = CSV FIELD_DELIMITER = ',' SKIP_HEADER = 1
   FIELD_OPTIONALLY_ENCLOSED_BY = '"';
 
-CREATE OR REPLACE STAGE STG_ALPINE_LOAD
+CREATE OR REPLACE STAGE STG_DMART_LOAD
   FILE_FORMAT = FF_CSV_CUSTOMERS
   DIRECTORY = (ENABLE = TRUE);</code></pre>
       </div>
-      <div class="badge-ok">✓ SHOW STAGES LIKE 'STG_ALPINE%' returns one row</div>
+      <div class="badge-ok">✓ SHOW STAGES LIKE 'STG_DMART%' returns one row</div>
     </article>
 
     <article class="step">
@@ -231,19 +231,19 @@ CREATE OR REPLACE STAGE STG_ALPINE_LOAD
         <div class="code-head"><span>SQL · create + insert</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>CREATE OR REPLACE TABLE CUSTOMERS_LOAD (
   CUSTOMER_ID NUMBER, FULL_NAME STRING,
-  EMAIL STRING, COUNTRY STRING
+  EMAIL STRING, STATE STRING
 );
 
 INSERT INTO CUSTOMERS_LOAD VALUES
-  (10, 'Fran Kim',   'fran.kim@example.com',   'US'),
-  (11, 'Gita Singh', 'gita.singh@example.com', 'CA'),
-  (12, 'Hugo Diaz',  'hugo.diaz@example.com',  'US');
+  (10, 'Neha Kulkarni', 'neha.k@example.com', 'MH'),
+  (11, 'Gita Singh',    'gita.singh@example.com', 'KA'),
+  (12, 'Arjun Nair',    'arjun.nair@example.com', 'TS');
 
 SELECT * FROM CUSTOMERS_LOAD ORDER BY CUSTOMER_ID;</code></pre>
       </div>
       <div class="callout tip">
         <strong>Want real PUT?</strong>
-        SnowSQL: <code>PUT file://customers.csv @STG_ALPINE_LOAD/raw/</code> then COPY — commented in <code>sql/10_copy_stages.sql</code>.
+        SnowSQL: <code>PUT file://customers.csv @STG_DMART_LOAD/raw/</code> then COPY — commented in <code>sql/10_copy_stages.sql</code>.
       </div>
       <div class="badge-ok">✓ Three rows in CUSTOMERS_LOAD</div>
     </article>
@@ -271,19 +271,19 @@ SELECT * FROM CUSTOMERS_LOAD ORDER BY CUSTOMER_ID;</code></pre>
 
     <article class="step">
       <h2><span class="step-num">3</span> Unload to stage + directory list</h2>
-      <p class="teach"><strong>What this does:</strong> Writes CSV files under <code>@STG_ALPINE_LOAD/customers_unload/</code>, lists them, refreshes directory metadata.</p>
+      <p class="teach"><strong>What this does:</strong> Writes CSV files under <code>@STG_DMART_LOAD/customers_unload/</code>, lists them, refreshes directory metadata.</p>
       <div class="code-block">
         <div class="code-head"><span>SQL · unload</span><button type="button" class="copy-btn">Copy</button></div>
-<pre><code>COPY INTO @STG_ALPINE_LOAD/customers_unload/
+<pre><code>COPY INTO @STG_DMART_LOAD/customers_unload/
   FROM (
-    SELECT CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY
+    SELECT CUSTOMER_ID, FULL_NAME, EMAIL, STATE
       FROM CUSTOMERS_LOAD
   )
   FILE_FORMAT = (FORMAT_NAME = 'FF_CSV_CUSTOMERS')
   OVERWRITE = TRUE HEADER = TRUE;
 
-LIST @STG_ALPINE_LOAD/customers_unload/;
-ALTER STAGE STG_ALPINE_LOAD REFRESH;</code></pre>
+LIST @STG_DMART_LOAD/customers_unload/;
+ALTER STAGE STG_DMART_LOAD REFRESH;</code></pre>
       </div>
       <div class="badge-ok">✓ LIST shows file(s) under customers_unload/</div>
     </article>
@@ -294,7 +294,7 @@ ALTER STAGE STG_ALPINE_LOAD REFRESH;</code></pre>
       <div class="code-block">
         <div class="code-head"><span>SQL · validate</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>COPY INTO CUSTOMERS_LOAD
-FROM @STG_ALPINE_LOAD/customers_unload/
+FROM @STG_DMART_LOAD/customers_unload/
 FILE_FORMAT = (FORMAT_NAME = 'FF_CSV_CUSTOMERS')
 VALIDATION_MODE = 'RETURN_ERRORS';</code></pre>
       </div>
@@ -308,16 +308,16 @@ VALIDATION_MODE = 'RETURN_ERRORS';</code></pre>
         <div class="code-head"><span>SQL · transform load</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>CREATE OR REPLACE TABLE CUSTOMERS_LOAD_2 (
   CUSTOMER_ID NUMBER, FULL_NAME STRING,
-  EMAIL STRING, COUNTRY STRING,
+  EMAIL STRING, STATE STRING,
   LOADED_AT TIMESTAMP_NTZ
 );
 
 COPY INTO CUSTOMERS_LOAD_2
-  (CUSTOMER_ID, FULL_NAME, EMAIL, COUNTRY, LOADED_AT)
+  (CUSTOMER_ID, FULL_NAME, EMAIL, STATE, LOADED_AT)
 FROM (
   SELECT $1::NUMBER, UPPER($2::STRING), $3::STRING,
          $4::STRING, CURRENT_TIMESTAMP()
-  FROM @STG_ALPINE_LOAD/customers_unload/
+  FROM @STG_DMART_LOAD/customers_unload/
 )
 FILE_FORMAT = (FORMAT_NAME = 'FF_CSV_CUSTOMERS')
 ON_ERROR = 'CONTINUE';</code></pre>
@@ -376,7 +376,7 @@ SELECT * FROM EVENTS_STAGE_LOAD;</code></pre>
 
     <div class="soundbite">
       <strong>Priya’s wrap-up (say this out loud)</strong><br />
-      “Domain 3 loading: I created FF_CSV_CUSTOMERS and named stage STG_ALPINE_LOAD in PIPELINE, seeded CUSTOMERS_LOAD with INSERT,
+      “Domain 3 loading: I created FF_CSV_CUSTOMERS and named stage STG_DMART_LOAD in PIPELINE, seeded CUSTOMERS_LOAD with INSERT,
       unloaded with COPY INTO @stage FROM SELECT, validated with VALIDATION_MODE, then reloaded with a SELECT transform and ON_ERROR CONTINUE.
       <em>Outcome:</em> a repeatable dock without depending on Windows PUT — ready for Snowpipe / streams in later labs.”
     </div>

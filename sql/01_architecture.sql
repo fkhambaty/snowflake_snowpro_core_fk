@@ -1,10 +1,10 @@
--- Alpine Retail / SnowPro Core — Lab 01
+-- DMart — Lab 01
 -- Three-layer architecture + editions awareness
 -- Run as ROLE_CORE_LAB_ADMIN after Lab 00 bootstrap.
 
 USE ROLE ROLE_CORE_LAB_ADMIN;
 USE WAREHOUSE WH_CORE_XS;
-USE DATABASE ALPINE_RETAIL;
+USE DATABASE DMART;
 USE SCHEMA LAB;
 
 -- =============================================================================

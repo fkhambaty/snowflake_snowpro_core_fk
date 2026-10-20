@@ -9,7 +9,7 @@
 <body data-visual-upgrade="1">
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">SnowPro <span>Core</span> Prep</a>
+      <a class="brand" href="index.html">DMart <span>Labs</span></a>
       <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="story.html">Story</a>
@@ -38,12 +38,12 @@
   </header>
 
   <div class="wrap">
-    <p class="eyebrow">Lab 09 · Domain 2 · You are Priya</p>
+    <p class="eyebrow">Lab 09 · A fuse on the credit bill · You are Priya</p>
     <h1>Stop the credit surprise</h1>
     <p class="lede">
       Read every <strong>Teach first</strong> section before you copy SQL.
       Warehouses burn credits while running. Resource monitors are the spending alarm.
-      <code>ACCOUNT_USAGE</code> tells the story — with a lag the exam loves to ask about.
+      <code>ACCOUNT_USAGE</code> tells the story — and it lags, often by a couple of hours.
     </p>
 
     <div class="picture-first" aria-label="How to study this lab">
@@ -60,7 +60,7 @@
 
     <div class="callout ok">
       <strong>Solution you will build</strong>
-      Resource monitor <code>RM_ALPINE_LAB</code> (notify 50/75, suspend at 100),
+      Resource monitor <code>RM_DMART_LAB</code> (notify 50/75, suspend at 100),
       attached to <code>WH_CORE_XS</code> (and <code>WH_CORE_M</code>).
       Credit math XS vs M · sample <code>WAREHOUSE_METERING_HISTORY</code> + <code>QUERY_HISTORY</code>.
     </div>
@@ -97,7 +97,7 @@
             <div class="comic-face dev" role="img" aria-label="Dev"></div>
             <div><span class="comic-name">Dev</span><span class="comic-role">Coach</span></div>
           </div>
-          <blockquote class="comic-bubble">Auto-suspend = turns the engine off when idle. Resource monitor = credit quota with NOTIFY / SUSPEND triggers. Different dials — exam will mix them up.</blockquote>
+          <blockquote class="comic-bubble">Auto-suspend turns the engine off when idle. A resource monitor is a credit quota with notify and suspend triggers. Different dials. Morgan needs both.</blockquote>
         </figure>
       </div>
       <p class="comic-caption">Suspend idle ≠ monitor quota. You usually want both.</p>
@@ -140,7 +140,7 @@
       <div class="flow-pipeline" aria-label="Resource monitor flow">
         <div class="flow-node source">
           <span class="flow-tag">1 · Create</span>
-          <strong>RM_ALPINE_LAB</strong>
+          <strong>RM_DMART_LAB</strong>
           <span class="flow-sub">quota + triggers</span>
         </div>
         <div class="flow-arrow" aria-hidden="true"><span></span></div>
@@ -192,7 +192,7 @@
         <div class="code-head"><span>SQL · create monitor (ACCOUNTADMIN)</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>USE ROLE ACCOUNTADMIN;
 
-CREATE OR REPLACE RESOURCE MONITOR RM_ALPINE_LAB
+CREATE OR REPLACE RESOURCE MONITOR RM_DMART_LAB
   WITH CREDIT_QUOTA = 20
   FREQUENCY = MONTHLY
   START_TIMESTAMP = IMMEDIATELY
@@ -201,7 +201,7 @@ CREATE OR REPLACE RESOURCE MONITOR RM_ALPINE_LAB
     ON 75 PERCENT DO NOTIFY
     ON 100 PERCENT DO SUSPEND;
 
-SHOW RESOURCE MONITORS LIKE 'RM_ALPINE%';</code></pre>
+SHOW RESOURCE MONITORS LIKE 'RM_DMART%';</code></pre>
       </div>
       <div class="badge-ok">✓ Monitor listed with 20-credit quota</div>
     </article>
@@ -212,9 +212,9 @@ SHOW RESOURCE MONITORS LIKE 'RM_ALPINE%';</code></pre>
       <div class="code-block">
         <div class="code-head"><span>SQL · attach</span><button type="button" class="copy-btn">Copy</button></div>
 <pre><code>ALTER WAREHOUSE WH_CORE_XS
-  SET RESOURCE_MONITOR = RM_ALPINE_LAB;
+  SET RESOURCE_MONITOR = RM_DMART_LAB;
 ALTER WAREHOUSE WH_CORE_M
-  SET RESOURCE_MONITOR = RM_ALPINE_LAB;
+  SET RESOURCE_MONITOR = RM_DMART_LAB;
 
 SHOW WAREHOUSES LIKE 'WH_CORE%';</code></pre>
       </div>
@@ -335,7 +335,7 @@ SELECT START_TIME, WAREHOUSE_NAME,
 
     <div class="soundbite">
       <strong>Priya’s wrap-up (say this out loud)</strong><br />
-      “Morgan wanted a spending fuse. I created RM_ALPINE_LAB with notify at 50/75 and suspend at 100, attached it to WH_CORE_XS and WH_CORE_M,
+      “Morgan wanted a spending fuse. I created RM_DMART_LAB with notify at 50/75 and suspend at 100, attached it to WH_CORE_XS and WH_CORE_M,
       and reviewed credit math — Medium burns about four times X-Small while running. ACCOUNT_USAGE metering and query history show the trail after a lag.
       <em>Outcome:</em> budget alarm on the lab engines, Domain 2 cost topic covered.”
     </div>

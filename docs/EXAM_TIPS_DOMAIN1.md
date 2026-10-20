@@ -4,9 +4,9 @@ One page of traps. Say answers out loud. Labs **01–05**.
 
 ## Three layers (never blur)
 
-| Layer | Job | Alpine cue |
+| Layer | Job | DMart cue |
 |-------|-----|------------|
-| **Database Storage** | Holds compressed micro-partitions | `ALPINE_RETAIL` tables / bytes |
+| **Database Storage** | Holds compressed micro-partitions | `DMART` tables / bytes |
 | **Query Processing** | Virtual warehouses = compute credits | `WH_CORE_XS` |
 | **Cloud Services** | Auth, metadata, optimizer, coordination | Login, SHOW, planning |
 

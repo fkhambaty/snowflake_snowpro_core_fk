@@ -1,8 +1,8 @@
-# Alpine Retail — SnowPro Core Certification Prep (COF-C03)
+# DMart Labs — a grocery chain on Snowflake
 
-You are **Priya Chen**, junior data engineer at **Alpine Retail**. The course is a **visual comic book**: BEFORE/AFTER art → cast comics → tiny SQL → yellow **EXAM TIP** stickers → spoken drills.
+You are **Priya Chen**, junior data engineer at **DMart**, a grocery chain in India. The course is one project: stand up a Snowflake platform for store sales, stock, and loyalty. Each lab solves one business problem. Pictures first, then the cast, then a little SQL.
 
-> Goal: maximize COF-C03 pass odds — full blueprint + exam tips in every lab + Lab 19b (100Q) + trap flashcards + distractor bank.
+Yellow **EXAM TIP** boxes, the spoken drills, and Labs 19 and 19b are for you. They cover SnowPro Core (COF-C03). The story itself stays the store project.
 
 ## Open the course (HTML)
 
@@ -11,11 +11,11 @@ You are **Priya Chen**, junior data engineer at **Alpine Retail**. The course is
 Local: open [`docs/index.html`](docs/index.html)  
 **Start here:** [`docs/story.html`](docs/story.html) → Lab 00.
 
-## Naming (Alpine story)
+## Naming (DMart story)
 
 | Object | Name |
 |--------|------|
-| Database | `ALPINE_RETAIL` |
+| Database | `DMART` |
 | Warehouse (daily) | `WH_CORE_XS` |
 | Warehouse (heavy / demo) | `WH_CORE_M` |
 | Lab admin role | `ROLE_CORE_LAB_ADMIN` |
@@ -23,14 +23,14 @@ Local: open [`docs/index.html`](docs/index.html)
 | Secure demos | `SECURE` |
 | Pipeline demos | `PIPELINE` |
 
-Full map: [`docs/ALPINE_NAMING.md`](docs/ALPINE_NAMING.md)
+Full map: [`docs/DMART_NAMING.md`](docs/DMART_NAMING.md)
 
-## Lab map (exam domain → problem → solution)
+## Lab map (store problem → what you learn)
 
 | Lab | Domain | You learn |
 |-----|--------|-----------|
 | 00 | Setup | Trial workshop: DB, WH, role, sample rows |
-| 01 | Arch 31% | Three layers + editions (the exam’s heart) |
+| 01 | Where data lives | Three layers + editions — why the bill splits |
 | 02 | Arch | Object catalog: tables, views, stages, pipes, shares… |
 | 03 | Arch | Micro-partitions, clustering, storage monitoring |
 | 04 | Arch | Table types + Iceberg + Dynamic Tables |
@@ -64,7 +64,7 @@ Full map: [`docs/ALPINE_NAMING.md`](docs/ALPINE_NAMING.md)
 
 ## How this course teaches (same bar as Architect prep)
 
-Every lab: business problem → BEFORE/AFTER → comics (Kai asks, Dev explains why) → tiny SQL chunks → **Exam presses further** (≥4 hard Q&As) → Priya wrap-up.
+Every lab: store problem → BEFORE/AFTER → comics (Kai asks, Dev explains why) → tiny SQL chunks → yellow exam tips and spoken drills for you → Priya wrap-up.
 
 See [`docs/TEACHING_STANDARD.md`](docs/TEACHING_STANDARD.md).
 

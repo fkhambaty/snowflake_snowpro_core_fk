@@ -1,18 +1,18 @@
 # SnowPro Core course — do not regress
 
-This repo is certification prep: **Alpine Retail**, student plays **Priya Chen**. Live site: `docs/` (GitHub Pages optional).
+The live story is one project: **DMart**, a grocery chain in India. The student plays **Priya Chen**. Yellow exam tips are for the reader. Do not put a certification plot back into the comics. Live site: `docs/`.
 
 ## Naming (never invent random names)
 
 | Object | Name |
 |--------|------|
-| Database | `ALPINE_RETAIL` |
+| Database | `DMART` |
 | Warehouse (daily) | `WH_CORE_XS` |
 | Warehouse (heavy) | `WH_CORE_M` |
 | Lab admin | `ROLE_CORE_LAB_ADMIN` |
 | Schemas | `LAB`, `SECURE`, `PIPELINE`, `SHARE_DEMO` |
 
-See `docs/ALPINE_NAMING.md`. Cleanup: `sql/cleanup_lab.sql`.
+See `docs/DMART_NAMING.md`. Cleanup: `sql/cleanup_lab.sql`.
 
 ## Every lab HTML pattern
 
